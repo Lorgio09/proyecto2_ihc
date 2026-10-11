@@ -126,6 +126,20 @@ class _ListPartidoViewState extends State<ListPartidoView> {
     }
   }
 
+  String fechaTexto(DateTime? fecha) {
+    if (fecha == null) return 'Sin fecha';
+    return '${fecha.day.toString().padLeft(2, '0')}/'
+        '${fecha.month.toString().padLeft(2, '0')}/${fecha.year} '
+        '${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}';
+  }
+
+  String participantesTexto(Partido partido) {
+    if (partido.participantes.isEmpty) return 'Nadie se ha unido todavía';
+    return partido.participantes
+        .map((participante) => participante.nombre)
+        .join(', ');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,8 +161,11 @@ class _ListPartidoViewState extends State<ListPartidoView> {
                       title: Text(partido.nombre),
                       subtitle: Text(
                         '${partido.ubicacion}\n'
-                        'Jugadores: ${partido.cantidadJugadores}\n'
+                        'Fecha: ${fechaTexto(partido.fecha)}\n'
+                        'Cupos: ${partido.cantidadParticipantes}/'
+                        '${partido.cantidadJugadores}\n'
                         'Duración: ${partido.tiempoMin ?? 'No definida'}\n'
+                        'Participantes: ${participantesTexto(partido)}\n'
                         'Estado: ${partido.estado}',
                       ),
                       //isThreeLine: true,

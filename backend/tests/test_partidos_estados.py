@@ -7,10 +7,10 @@ from sqlalchemy.pool import StaticPool
 from app.database.connection import Base
 from app.database.models import Usuario
 
-from app.modules.partidos.schemas import MatchData
+from app.modules.partidos.schemas import DatosPartido
 from app.modules.partidos.service import (
-    complete_team,
-    create_match,
+    completar_equipo,
+    crear_partido,
 )
 
 engine = create_engine(
@@ -54,7 +54,7 @@ def user(db):
 
 @pytest.fixture
 def partido(db, user):
-    data = MatchData(
+    datos = DatosPartido(
         nombre="Partido de prueba",
         cantidad_jugadores=10,
         ubicacion="Cancha universitaria",
@@ -62,8 +62,8 @@ def partido(db, user):
         fecha=None,
     )
 
-    return create_match(
-        data,
+    return crear_partido(
+        datos,
         user,
         db,
     )
@@ -73,7 +73,7 @@ def partido(db, user):
 
 def test_estado_inicial_es_cupos_abiertos(partido):
 
-    assert partido.estado == "Cupos abiertos"
+    assert partido.estado == "cupos abiertos"
 
 
 # PRUEBA 2
@@ -81,7 +81,7 @@ def test_estado_inicial_es_cupos_abiertos(partido):
 
 def test_completar_equipo_cambia_estado(db, partido):
 
-    partido_actualizado = complete_team(
+    partido_actualizado = completar_equipo(
         partido,
         db,
     )
@@ -94,13 +94,13 @@ def test_completar_equipo_cambia_estado(db, partido):
 
 def test_no_permite_completar_dos_veces(db, partido):
 
-    complete_team(
+    completar_equipo(
         partido,
         db,
     )
 
     with pytest.raises(ValueError):
-        complete_team(
+        completar_equipo(
             partido,
             db,
         )
@@ -117,7 +117,7 @@ def test_completar_equipo_conserva_datos(db, partido):
     tiempo_original = partido.tiempo_min
     usuario_original = partido.usuario_id
 
-    partido_actualizado = complete_team(
+    partido_actualizado = completar_equipo(
         partido,
         db,
     )

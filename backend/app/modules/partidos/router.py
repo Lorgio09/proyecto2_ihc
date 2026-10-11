@@ -4,95 +4,153 @@ from sqlalchemy.orm import Session
 from app.database.connection import get_db
 from app.database.models import Usuario
 from app.modules.auth.service import current_user
-from app.modules.partidos.schemas import MatchData, MatchResponse, MatchUpdate
+from app.modules.partidos.schemas import (
+    ActualizacionPartido,
+    DatosPartido,
+    RespuestaPartido,
+    RespuestaPartidoExplorar,
+)
 from app.modules.partidos.service import (
-    create_match,
-    delete_match,
-    find_match,
-    list_matches,
-    update_match,
-    complete_team,
+    buscar_partido,
+    buscar_partido_publico,
+    crear_partido,
+    completar_equipo as completar_equipo_servicio,
+    datos_partido,
+    datos_partido_publico,
+    eliminar_partido,
+    listar_partidos,
+    listar_partidos_publicos,
+    ErrorPartido,
+    unirse_partido,
+    actualizar_partido,
 )
 
 
 router = APIRouter(prefix="/api/partidos", tags=["Partidos"])
 
 
-def not_found() -> HTTPException:
+def no_encontrado() -> HTTPException:
     return HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
         detail="Partido no encontrado",
     )
 
 
-@router.post("", response_model=MatchResponse, status_code=status.HTTP_201_CREATED)
-def create(
-    data: MatchData,
-    db: Session = Depends(get_db),
-    user: Usuario = Depends(current_user),
+@router.post("", response_model=RespuestaPartido, status_code=status.HTTP_201_CREATED)
+def crear(
+    datos: DatosPartido,
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
 ):
-    return create_match(data, user, db)
+    return datos_partido(crear_partido(datos, usuario, base_datos))
 
 
-@router.get("", response_model=list[MatchResponse])
-def list_all(
-    db: Session = Depends(get_db),
-    user: Usuario = Depends(current_user),
+@router.get("", response_model=list[RespuestaPartido])
+def listar(
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
 ):
-    return list_matches(user, db)
+    return [datos_partido(partido) for partido in listar_partidos(usuario, base_datos)]
 
 
-@router.get("/{match_id}", response_model=MatchResponse)
-def get(
-    match_id: int,
-    db: Session = Depends(get_db),
-    user: Usuario = Depends(current_user),
+@router.get("/explorar", response_model=list[RespuestaPartidoExplorar])
+def explorar(
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
 ):
-    match = find_match(match_id, user, db)
-    if not match:
-        raise not_found()
-    return match
+    return [
+        datos_partido_publico(partido)
+        for partido in listar_partidos_publicos(usuario, base_datos)
+    ]
 
 
-@router.put("/{match_id}", response_model=MatchResponse)
-def update(
-    match_id: int,
-    data: MatchUpdate,
-    db: Session = Depends(get_db),
-    user: Usuario = Depends(current_user),
+@router.get("/explorar/{partido_id}", response_model=RespuestaPartidoExplorar)
+def explorar_uno(
+    partido_id: int,
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
 ):
-    match = find_match(match_id, user, db)
-    if not match:
-        raise not_found()
-    return update_match(match, data, db)
+    partido = buscar_partido_publico(partido_id, base_datos)
+    if not partido or partido.usuario_id == usuario.id:
+        raise no_encontrado()
+    return datos_partido_publico(partido)
 
 
-@router.delete("/{match_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete(
-    match_id: int,
-    db: Session = Depends(get_db),
-    user: Usuario = Depends(current_user),
+@router.get("/{partido_id}", response_model=RespuestaPartido)
+def obtener(
+    partido_id: int,
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
 ):
-    match = find_match(match_id, user, db)
-    if not match:
-        raise not_found()
-    delete_match(match, db)
+    partido = buscar_partido(partido_id, usuario, base_datos)
+    if not partido:
+        raise no_encontrado()
+    return datos_partido(partido)
 
 
-@router.patch("/{match_id}/completar", response_model=MatchResponse)
-def completar_equipo(
-    match_id: int,
-    db: Session = Depends(get_db),
-    user: Usuario = Depends(current_user),
+@router.put("/{partido_id}", response_model=RespuestaPartido)
+def actualizar(
+    partido_id: int,
+    datos: ActualizacionPartido,
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
 ):
-    match = find_match(match_id, user, db)
-    if not match:
-        raise not_found()
+    partido = buscar_partido(partido_id, usuario, base_datos)
+    if not partido:
+        raise no_encontrado()
     try:
-        return complete_team(match, db)
-
-    except ValueError as error:
+        return datos_partido(actualizar_partido(partido, datos, base_datos))
+    except ErrorPartido as error:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(error),
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"codigo": error.codigo, "mensaje": error.mensaje},
+        )
+
+
+@router.delete("/{partido_id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar(
+    partido_id: int,
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
+):
+    partido = buscar_partido(partido_id, usuario, base_datos)
+    if not partido:
+        raise no_encontrado()
+    eliminar_partido(partido, base_datos)
+
+
+@router.patch("/{partido_id}/completar", response_model=RespuestaPartido)
+def completar_equipo(
+    partido_id: int,
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
+):
+    partido = buscar_partido(partido_id, usuario, base_datos)
+    if not partido:
+        raise no_encontrado()
+    try:
+        return datos_partido(completar_equipo_servicio(partido, base_datos))
+
+    except ErrorPartido as error:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"codigo": error.codigo, "mensaje": error.mensaje},
+        )
+
+
+@router.post("/{partido_id}/unirse", response_model=RespuestaPartido)
+def unirse(
+    partido_id: int,
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
+):
+    try:
+        partido = unirse_partido(partido_id, usuario, base_datos)
+        if not partido:
+            raise no_encontrado()
+        return datos_partido(partido)
+    except ErrorPartido as error:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"codigo": error.codigo, "mensaje": error.mensaje},
         )

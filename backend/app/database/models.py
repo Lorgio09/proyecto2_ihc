@@ -25,6 +25,10 @@ class Usuario(Base):
         back_populates="usuario",
         cascade="all, delete-orphan",
     )
+    partidos_participados: Mapped[list["PartidoParticipante"]] = relationship(
+        back_populates="usuario",
+        cascade="all, delete-orphan",
+    )
 
 
 class Partido(Base):
@@ -51,8 +55,28 @@ class Partido(Base):
     estado: Mapped[str] = mapped_column(
         String(20),
         nullable=False,
-        default="Cupos abiertos",
-        server_default="Cupos abiertos",
+        default="cupos abiertos",
+        server_default="cupos abiertos",
     )
 
     usuario: Mapped[Usuario] = relationship(back_populates="partidos")
+    participantes: Mapped[list["PartidoParticipante"]] = relationship(
+        back_populates="partido",
+        cascade="all, delete-orphan",
+    )
+
+
+class PartidoParticipante(Base):
+    __tablename__ = "partido_participantes"
+
+    partido_id: Mapped[int] = mapped_column(
+        ForeignKey("partidos.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    usuario_id: Mapped[int] = mapped_column(
+        ForeignKey("usuarios.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+
+    partido: Mapped[Partido] = relationship(back_populates="participantes")
+    usuario: Mapped[Usuario] = relationship(back_populates="partidos_participados")

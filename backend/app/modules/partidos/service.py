@@ -1,72 +1,229 @@
 """juan. Aqui estan los servicios para hacer un crud, crea, actualiza, edita y elimina los partidoss"""
+from datetime import datetime, timezone
 
-from re import match
+from sqlalchemy import func, select
+from sqlalchemy.orm import Session, selectinload
 
-from sqlalchemy import select
-from sqlalchemy.orm import Session
-
-from app.database.models import Partido, Usuario
-from app.modules.partidos.schemas import MatchData, MatchUpdate
+from app.database.models import Partido, PartidoParticipante, Usuario
+from app.modules.partidos.schemas import ActualizacionPartido, DatosPartido
 
 
-def find_match(match_id: int, user: Usuario, db: Session) -> Partido | None:
-    return db.scalar(
-        select(Partido).where(
-            Partido.id == match_id,
-            Partido.usuario_id == user.id,
+class ErrorPartido(ValueError):
+    def __init__(self, codigo: str, mensaje: str):
+        self.codigo = codigo
+        self.mensaje = mensaje
+        super().__init__(mensaje)
+
+
+def buscar_partido(partido_id: int, usuario: Usuario, base_datos: Session) -> Partido | None:
+    return base_datos.scalar(
+        select(Partido)
+        .where(Partido.id == partido_id, Partido.usuario_id == usuario.id)
+        .options(
+            selectinload(Partido.participantes).selectinload(
+                PartidoParticipante.usuario
+            )
         )
     )
 
 
-def create_match(data: MatchData, user: Usuario, db: Session) -> Partido:
-    match = Partido(
-        usuario_id=user.id,
-        nombre=data.nombre.strip(),
-        cantidad_jugadores=data.cantidad_jugadores,
-        ubicacion=data.ubicacion.strip(),
-        tiempo_min=data.tiempo_min.strip() if data.tiempo_min else None,
-        fecha=data.fecha,
+def buscar_partido_publico(partido_id: int, base_datos: Session) -> Partido | None:
+    return base_datos.scalar(
+        select(Partido)
+        .where(Partido.id == partido_id)
+        .options(
+            selectinload(Partido.usuario),
+            selectinload(Partido.participantes).selectinload(
+                PartidoParticipante.usuario
+            ),
+        )
     )
-    db.add(match)
-    db.commit()
-    db.refresh(match)
-    return match
 
 
-def list_matches(user: Usuario, db: Session) -> list[Partido]:
+def crear_partido(datos: DatosPartido, usuario: Usuario, base_datos: Session) -> Partido:
+    partido = Partido(
+        usuario_id=usuario.id,
+        nombre=datos.nombre.strip(),
+        cantidad_jugadores=datos.cantidad_jugadores,
+        ubicacion=datos.ubicacion.strip(),
+        tiempo_min=datos.tiempo_min.strip() if datos.tiempo_min else None,
+        fecha=datos.fecha,
+    )
+    base_datos.add(partido)
+    base_datos.commit()
+    base_datos.refresh(partido)
+    return partido
+
+
+def listar_partidos(usuario: Usuario, base_datos: Session) -> list[Partido]:
     return list(
-        db.scalars(
+        base_datos.scalars(
             select(Partido)
-            .where(Partido.usuario_id == user.id)
+            .where(Partido.usuario_id == usuario.id)
             .order_by(Partido.fecha, Partido.id)
+            .options(
+                selectinload(Partido.participantes).selectinload(
+                    PartidoParticipante.usuario
+                )
+            )
         ).all()
     )
 
 
-def update_match(match: Partido, data: MatchUpdate, db: Session) -> Partido:
-    changes = data.model_dump(exclude_unset=True)
-    for name in ("nombre", "ubicacion", "tiempo_min"):
-        if name in changes and changes[name] is not None:
-            changes[name] = changes[name].strip()
-    for name, value in changes.items():
-        setattr(match, name, value)
-
-    db.commit()
-    db.refresh(match)
-    return match
-
-
-def delete_match(match: Partido, db: Session) -> None:
-    db.delete(match)
-    db.commit()
+def listar_partidos_publicos(usuario: Usuario, base_datos: Session) -> list[Partido]:
+    return list(
+        base_datos.scalars(
+            select(Partido)
+            .where(Partido.usuario_id != usuario.id)
+            .order_by(Partido.fecha, Partido.id)
+            .options(
+                selectinload(Partido.usuario),
+                selectinload(Partido.participantes).selectinload(
+                    PartidoParticipante.usuario
+                ),
+            )
+        ).all()
+    )
 
 
+def actualizar_partido(
+    partido: Partido,
+    datos: ActualizacionPartido,
+    base_datos: Session,
+) -> Partido:
+    cambios = datos.model_dump(exclude_unset=True)
+    for nombre in ("nombre", "ubicacion", "tiempo_min"):
+        if nombre in cambios and cambios[nombre] is not None:
+            cambios[nombre] = cambios[nombre].strip()
+    if "cantidad_jugadores" in cambios:
+        cantidad_participantes = base_datos.scalar(
+            select(func.count())
+            .select_from(PartidoParticipante)
+            .where(PartidoParticipante.partido_id == partido.id)
+        )
+        if cambios["cantidad_jugadores"] < cantidad_participantes:
+            raise ErrorPartido(
+                "CAPACIDAD_INSUFICIENTE",
+                "La capacidad no puede ser menor que los participantes",
+            )
+    for nombre, valor in cambios.items():
+        setattr(partido, nombre, valor)
 
-def complete_team(match: Partido, db: Session) -> Partido:
-    if match.estado != "Cupos abiertos":
-        raise ValueError("El equipo ya esta completo")
-    match.estado = "equipo completo"
-    db.commit()
-    db.refresh(match)
+    base_datos.commit()
+    base_datos.refresh(partido)
+    return partido
 
-    return match
+
+def eliminar_partido(partido: Partido, base_datos: Session) -> None:
+    base_datos.delete(partido)
+    base_datos.commit()
+
+
+
+def completar_equipo(partido: Partido, base_datos: Session) -> Partido:
+    if partido.estado != "cupos abiertos":
+        raise ErrorPartido(
+            "EQUIPO_COMPLETO",
+            "El equipo ya esta completo",
+        )
+    partido.estado = "equipo completo"
+    base_datos.commit()
+    base_datos.refresh(partido)
+
+    return partido
+
+
+def unirse_partido(
+    partido_id: int,
+    usuario: Usuario,
+    base_datos: Session,
+) -> Partido | None:
+    partido = buscar_partido_publico(partido_id, base_datos)
+    if not partido:
+        return None
+
+    if partido.usuario_id == usuario.id:
+        raise ErrorPartido(
+            "ORGANIZADOR_NO_PUEDE_UNIRSE",
+            "El organizador no puede unirse a su propio partido",
+        )
+
+    if partido.estado != "cupos abiertos":
+        raise ErrorPartido(
+            "EQUIPO_COMPLETO",
+            "El equipo ya esta completo",
+        )
+
+    if partido.fecha is not None:
+        fecha = partido.fecha
+        if fecha.tzinfo is None:
+            fecha = fecha.replace(tzinfo=timezone.utc)
+        if fecha <= datetime.now(timezone.utc):
+            raise ErrorPartido(
+                "FECHA_PASADA",
+                "La fecha del partido ya paso",
+            )
+
+    participante = base_datos.scalar(
+        select(PartidoParticipante).where(
+            PartidoParticipante.partido_id == partido_id,
+            PartidoParticipante.usuario_id == usuario.id,
+        )
+    )
+    if participante:
+        raise ErrorPartido(
+            "YA_INSCRITO",
+            "Ya estas unido a este partido",
+        )
+
+    cantidad_participantes = base_datos.scalar(
+        select(func.count())
+        .select_from(PartidoParticipante)
+        .where(PartidoParticipante.partido_id == partido_id)
+    )
+    if cantidad_participantes >= partido.cantidad_jugadores:
+        raise ErrorPartido(
+            "SIN_CUPOS",
+            "No quedan cupos disponibles",
+        )
+
+    base_datos.add(
+        PartidoParticipante(
+            partido_id=partido_id,
+            usuario_id=usuario.id,
+        )
+    )
+
+    if cantidad_participantes + 1 >= partido.cantidad_jugadores:
+        partido.estado = "equipo completo"
+
+    base_datos.commit()
+    base_datos.refresh(partido)
+    return partido
+
+
+def datos_partido(partido: Partido) -> dict:
+    participantes = [item.usuario for item in partido.participantes]
+    cantidad_participantes = len(participantes)
+    estado = partido.estado.strip().lower()
+    return {
+        "id": partido.id,
+        "nombre": partido.nombre,
+        "cantidad_jugadores": partido.cantidad_jugadores,
+        "ubicacion": partido.ubicacion,
+        "tiempo_min": partido.tiempo_min,
+        "fecha": partido.fecha,
+        "estado": estado,
+        "participantes": participantes,
+        "cantidad_participantes": cantidad_participantes,
+        "cupos_disponibles": max(
+            partido.cantidad_jugadores - cantidad_participantes,
+            0,
+        ),
+    }
+
+
+def datos_partido_publico(partido: Partido) -> dict:
+    datos = datos_partido(partido)
+    datos["organizador"] = partido.usuario
+    return datos

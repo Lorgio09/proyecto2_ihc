@@ -48,6 +48,8 @@ def crear_partido(datos: DatosPartido, usuario: Usuario, base_datos: Session) ->
         ubicacion=datos.ubicacion.strip(),
         tiempo_min=datos.tiempo_min.strip() if datos.tiempo_min else None,
         fecha=datos.fecha,
+
+        deporte=datos.deporte.strip(),
     )
     base_datos.add(partido)
     base_datos.commit()
@@ -220,6 +222,8 @@ def datos_partido(partido: Partido) -> dict:
             partido.cantidad_jugadores - cantidad_participantes,
             0,
         ),
+
+        "deporte": partido.deporte,
     }
 
 

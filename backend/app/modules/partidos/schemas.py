@@ -18,6 +18,12 @@ class DatosPartido(BaseModel):
     tiempo_min: str | None = Field(default=None, min_length=1, max_length=20)
     fecha: datetime | None = None
 
+    deporte: str = Field(
+        default="futbol",
+        min_length=1,
+        max_length=50,
+    )
+
 
 class ActualizacionPartido(BaseModel):
     nombre: str | None = Field(default=None, min_length=1, max_length=100)
@@ -25,6 +31,12 @@ class ActualizacionPartido(BaseModel):
     ubicacion: str | None = Field(default=None, min_length=1, max_length=255)
     tiempo_min: str | None = Field(default=None, min_length=1, max_length=20)
     fecha: datetime | None = None
+
+    deporte: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=50,
+    )
 
 
 class RespuestaPartido(DatosPartido):

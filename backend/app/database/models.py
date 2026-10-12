@@ -41,6 +41,14 @@ class Partido(Base):
         index=True,
     )
     nombre: Mapped[str] = mapped_column(String(100))
+
+    deporte: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        default="futbol",
+        server_default="futbol",
+    )
+
     cantidad_jugadores: Mapped[int] = mapped_column(
         Integer,
         nullable=False,
@@ -76,6 +84,7 @@ class PartidoParticipante(Base):
     usuario_id: Mapped[int] = mapped_column(
         ForeignKey("usuarios.id", ondelete="CASCADE"),
         primary_key=True,
+        index=True,
     )
 
     partido: Mapped[Partido] = relationship(back_populates="participantes")

@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from datetime import date
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.database.connection import get_db
@@ -55,12 +57,27 @@ def listar(
 
 @router.get("/explorar", response_model=list[RespuestaPartidoExplorar])
 def explorar(
+    busqueda: str | None = Query(default=None),
+    deporte: str | None = Query(default=None),
+    zona: str | None = Query(default=None),
+    desde: date | None = Query(default=None),
+    hasta: date | None = Query(default=None),
+    solo_con_cupos: bool = Query(default=False),
     base_datos: Session = Depends(get_db),
     usuario: Usuario = Depends(current_user),
 ):
     return [
         datos_partido_publico(partido)
-        for partido in listar_partidos_publicos(usuario, base_datos)
+        for partido in listar_partidos_publicos(
+            usuario=usuario,
+            base_datos=base_datos,
+            busqueda=busqueda,
+            deporte=deporte,
+            zona=zona,
+            desde=desde,
+            hasta=hasta,
+            solo_con_cupos=solo_con_cupos,
+        )
     ]
 
 

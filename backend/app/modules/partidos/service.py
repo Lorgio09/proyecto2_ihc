@@ -1,7 +1,7 @@
 """juan. Aqui estan los servicios para hacer un crud, crea, actualiza, edita y elimina los partidoss"""
-from datetime import datetime, timezone
+from datetime import date, datetime, time, timedelta, timezone
 
-from sqlalchemy import func, select
+from sqlalchemy import exists, func, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.database.models import Partido, PartidoParticipante, Usuario
@@ -72,18 +72,75 @@ def listar_partidos(usuario: Usuario, base_datos: Session) -> list[Partido]:
     )
 
 
-def listar_partidos_publicos(usuario: Usuario, base_datos: Session) -> list[Partido]:
+def listar_partidos_publicos(
+    usuario: Usuario,
+    base_datos: Session,
+    busqueda: str | None = None,
+    deporte: str | None = None,
+    zona: str | None = None,
+    desde: date | None = None,
+    hasta: date | None = None,
+    solo_con_cupos: bool = False,
+) -> list[Partido]:
+    consulta = (
+        select(Partido)
+        .where(Partido.usuario_id != usuario.id)
+        .options(
+            selectinload(Partido.usuario),
+            selectinload(Partido.participantes).selectinload(
+                PartidoParticipante.usuario
+            ),
+        )
+    )
+
+    if busqueda and busqueda.strip():
+        texto = f"%{busqueda.strip().lower()}%"
+        consulta = consulta.where(func.lower(Partido.nombre).like(texto))
+
+    if deporte and deporte.strip():
+        consulta = consulta.where(
+            func.lower(Partido.deporte) == deporte.strip().lower()
+        )
+
+    if zona and zona.strip():
+        texto = f"%{zona.strip().lower()}%"
+        consulta = consulta.where(func.lower(Partido.ubicacion).like(texto))
+
+    if desde:
+        fecha_desde = datetime.combine(desde, time.min, tzinfo=timezone.utc)
+        consulta = consulta.where(Partido.fecha >= fecha_desde)
+
+    if hasta:
+        fecha_hasta = datetime.combine(
+            hasta + timedelta(days=1),
+            time.min,
+            tzinfo=timezone.utc,
+        )
+        consulta = consulta.where(Partido.fecha < fecha_hasta)
+
+    if solo_con_cupos:
+        cantidad_participantes = (
+            select(func.count())
+            .select_from(PartidoParticipante)
+            .where(PartidoParticipante.partido_id == Partido.id)
+            .scalar_subquery()
+        )
+        usuario_ya_unido = exists().where(
+            PartidoParticipante.partido_id == Partido.id,
+            PartidoParticipante.usuario_id == usuario.id,
+        )
+
+        consulta = consulta.where(
+            Partido.estado == "cupos abiertos",
+            Partido.fecha.is_not(None),
+            Partido.fecha > datetime.now(timezone.utc),
+            cantidad_participantes < Partido.cantidad_jugadores,
+            ~usuario_ya_unido,
+        )
+
     return list(
         base_datos.scalars(
-            select(Partido)
-            .where(Partido.usuario_id != usuario.id)
-            .order_by(Partido.fecha, Partido.id)
-            .options(
-                selectinload(Partido.usuario),
-                selectinload(Partido.participantes).selectinload(
-                    PartidoParticipante.usuario
-                ),
-            )
+            consulta.order_by(Partido.fecha, Partido.id)
         ).all()
     )
 
@@ -156,15 +213,20 @@ def unirse_partido(
             "El equipo ya esta completo",
         )
 
-    if partido.fecha is not None:
-        fecha = partido.fecha
-        if fecha.tzinfo is None:
-            fecha = fecha.replace(tzinfo=timezone.utc)
-        if fecha <= datetime.now(timezone.utc):
-            raise ErrorPartido(
-                "FECHA_PASADA",
-                "La fecha del partido ya paso",
-            )
+    if partido.fecha is None:
+        raise ErrorPartido(
+            "FECHA_NO_DISPONIBLE",
+            "El partido debe tener una fecha futura",
+        )
+
+    fecha = partido.fecha
+    if fecha.tzinfo is None:
+        fecha = fecha.replace(tzinfo=timezone.utc)
+    if fecha <= datetime.now(timezone.utc):
+        raise ErrorPartido(
+            "FECHA_PASADA",
+            "La fecha del partido ya paso",
+        )
 
     participante = base_datos.scalar(
         select(PartidoParticipante).where(

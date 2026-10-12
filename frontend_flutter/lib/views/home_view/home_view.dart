@@ -6,6 +6,7 @@ import '../../services/auth_service.dart';
 import '../../widgets/boton_guardar.dart';
 import '../autenticacion/cambiar_contraseña.dart';
 import '../autenticacion/login_view.dart';
+import '../partido_view/explorar_partidos_view.dart';
 import '../partido_view/list_partidoview.dart';
 
 class HomeView extends StatelessWidget {
@@ -76,6 +77,15 @@ class HomeView extends StatelessWidget {
                   texto: 'Mis partidos',
                   alPresionar: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const ListPartidoView()),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                BotonGuardar(
+                  texto: 'Explorar partidos',
+                  alPresionar: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => ExplorarPartidosView(usuario: user),
+                    ),
                   ),
                 ),
               ],

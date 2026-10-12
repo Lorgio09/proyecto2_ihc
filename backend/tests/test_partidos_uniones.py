@@ -12,6 +12,7 @@ from app.modules.partidos.service import (
     ErrorPartido,
     crear_partido,
     datos_partido,
+    listar_partidos_publicos,
     unirse_partido,
 )
 
@@ -122,5 +123,50 @@ def test_crear_partido_guarda_y_devuelve_el_deporte(db, usuarios):
 
     assert partido.deporte == "basquet"
     assert datos_partido(partido)["deporte"] == "basquet"
+
+
+def test_filtra_partido_por_deporte(db, usuarios):
+    organizador, jugador, _ = usuarios
+    partido = crear_partido(
+        DatosPartido(
+            nombre="Futbol en zona sur",
+            deporte="futbol",
+            cantidad_jugadores=10,
+            ubicacion="Zona Sur",
+            fecha=datetime.now(timezone.utc) + timedelta(days=1),
+        ),
+        organizador,
+        db,
+    )
+
+    resultado = listar_partidos_publicos(
+        jugador,
+        db,
+        deporte="futbol",
+        zona="sur",
+        solo_con_cupos=True,
+    )
+
+    assert len(resultado) == 1
+    assert resultado[0].id == partido.id
+
+
+def test_filtro_sin_resultados(db, usuarios):
+    organizador, jugador, _ = usuarios
+    crear_partido(
+        DatosPartido(
+            nombre="Partido de futbol",
+            deporte="futbol",
+            cantidad_jugadores=10,
+            ubicacion="Zona Sur",
+            fecha=datetime.now(timezone.utc) + timedelta(days=1),
+        ),
+        organizador,
+        db,
+    )
+
+    resultado = listar_partidos_publicos(jugador, db, deporte="voley")
+
+    assert resultado == []
 
 

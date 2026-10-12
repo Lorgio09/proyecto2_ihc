@@ -14,7 +14,7 @@ Se agregó una acción que permite cambiar el estado de un partido.
 
 Estado inicial:
 
-cupos abiertos
+Cupos abiertos
 
 Acción:
 
@@ -28,7 +28,7 @@ equipo completo
 
 Un partido solamente puede cambiar de:
 
-cupos abiertos -> equipo completo
+Cupos abiertos -> equipo completo
 
 Si el partido ya se encuentra en estado "equipo completo",
 la acción es rechazada.
@@ -48,7 +48,7 @@ la aplicación.
 
 Se implementaron cuatro pruebas:
 
-1. El estado inicial es "cupos abiertos".
+1. El estado inicial es "Cupos abiertos".
 2. La acción "Completar equipo" cambia correctamente el estado.
 3. No se permite completar dos veces el mismo equipo.
 4. Los demás datos del partido se conservan.

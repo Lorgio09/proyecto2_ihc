@@ -6,16 +6,6 @@ import '../consts/api_url.dart';
 import '../models/partido.dart';
 import 'auth_service.dart';
 
-class PartidoError implements Exception {
-  final String codigo;
-  final String mensaje;
-
-  const PartidoError({required this.codigo, required this.mensaje});
-
-  @override
-  String toString() => mensaje;
-}
-
 class PartidoService {
   final http.Client client = http.Client();
   final TokenStorage storage = SecureTokenStorage();
@@ -31,21 +21,6 @@ class PartidoService {
 
   Uri url(String ruta) => Uri.parse('$apiBaseUrl/api/partidos$ruta');
 
-  Exception errorRespuesta(http.Response respuesta, String mensaje) {
-    try {
-      final cuerpo = jsonDecode(respuesta.body) as Map<String, dynamic>;
-      final detalle = cuerpo['detail'];
-      if (detalle is Map<String, dynamic>) {
-        return PartidoError(
-          codigo: detalle['codigo'] as String? ?? 'ERROR',
-          mensaje: detalle['mensaje'] as String? ?? mensaje,
-        );
-      }
-    } catch (_) {}
-
-    return Exception(mensaje);
-  }
-
   Future<List<Partido>> listar() async {
     final response = await client.get(url(''), headers: await headers());
 
@@ -55,44 +30,6 @@ class PartidoService {
 
     final lista = jsonDecode(response.body) as List;
 
-    return lista.map((partido) => Partido.fromJson(partido)).toList();
-  }
-
-  Future<List<Partido>> listarExplorar({
-    String? busqueda,
-    String? deporte,
-    String? zona,
-    DateTime? desde,
-    DateTime? hasta,
-    bool soloConCupos = false,
-  }) async {
-    final parametros = <String, String>{};
-
-    if (busqueda != null && busqueda.trim().isNotEmpty) {
-      parametros['busqueda'] = busqueda.trim();
-    }
-    if (deporte != null && deporte.isNotEmpty) parametros['deporte'] = deporte;
-    if (zona != null && zona.trim().isNotEmpty) {
-      parametros['zona'] = zona.trim();
-    }
-    if (desde != null) {
-      parametros['desde'] = desde.toIso8601String().substring(0, 10);
-    }
-    if (hasta != null) {
-      parametros['hasta'] = hasta.toIso8601String().substring(0, 10);
-    }
-    if (soloConCupos) parametros['solo_con_cupos'] = 'true';
-
-    final respuesta = await client.get(
-      url('/explorar').replace(queryParameters: parametros),
-      headers: await headers(),
-    );
-
-    if (respuesta.statusCode != 200) {
-      throw errorRespuesta(respuesta, 'No se pudieron cargar los partidos');
-    }
-
-    final lista = jsonDecode(respuesta.body) as List;
     return lista.map((partido) => Partido.fromJson(partido)).toList();
   }
 
@@ -142,19 +79,8 @@ class PartidoService {
       throw Exception('No se pudo completar el equipo');
     }
 
-    return Partido.fromJson(jsonDecode(response.body));
-  }
-
-  Future<Partido> unirse(int id) async {
-    final respuesta = await client.post(
-      url('/$id/unirse'),
-      headers: await headers(),
+    return Partido.fromJson(
+      jsonDecode(response.body),
     );
-
-    if (respuesta.statusCode != 200) {
-      throw errorRespuesta(respuesta, 'No se pudo unir al partido');
-    }
-
-    return Partido.fromJson(jsonDecode(respuesta.body));
   }
 }

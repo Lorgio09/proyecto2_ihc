@@ -21,6 +21,7 @@ class _FormularioPartidoState extends State<FormularioPartido> {
   late final TextEditingController estadoController;
   final formularioKey = GlobalKey<FormState>();
   DateTime? fecha;
+  String deporte = 'futbol';  // Nuevo atributo para el deporte
 
   @override
   void initState() {
@@ -35,6 +36,7 @@ class _FormularioPartidoState extends State<FormularioPartido> {
     tiempoController = TextEditingController(text: widget.partido?.tiempoMin);
     estadoController = TextEditingController(text: widget.partido?.estado);
     fecha = widget.partido?.fecha;
+    deporte = widget.partido?.deporte ?? 'futbol';
   }
 
   @override
@@ -97,6 +99,7 @@ class _FormularioPartidoState extends State<FormularioPartido> {
           ? null
           : tiempoController.text.trim(),
       'fecha': fecha,
+      'deporte': deporte,
     });
   }
  
@@ -117,6 +120,20 @@ class _FormularioPartidoState extends State<FormularioPartido> {
                 controlador: nombreController,
                 etiqueta: 'Nombre',
                 validator: validarTexto,
+              ),
+              DropdownButtonFormField<String>(
+                initialValue: deporte,
+                decoration: const InputDecoration(labelText: 'Deporte'),
+                items: const [
+                  DropdownMenuItem(value: 'futbol', child: Text('Fútbol')),
+                  DropdownMenuItem(value: 'basquet', child: Text('Básquet')),
+                  DropdownMenuItem(value: 'voley', child: Text('Vóley')),
+                ],
+                onChanged: (valor) {
+                  if (valor != null) {
+                    setState(() => deporte = valor);
+                  }
+                },
               ),
               Input(
                 controlador: ubicacionController,

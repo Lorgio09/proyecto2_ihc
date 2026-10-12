@@ -35,6 +35,9 @@ La documentación estará disponible en `http://127.0.0.1:8000/docs`.
 2. Configura `DATABASE_URL` con tu PostgreSQL local.
 3. Cuando se publique la aplicación, reemplaza ese valor por la URL de Neon.
 
+# Instalar todas las dependencias
+python -m pip install -r requirements.txt
+
 # Guardar los requirements
 pip freeze > requirements.txt
 
@@ -53,6 +56,9 @@ pip install pyjwt python-multipart
 # PARA CAMBIOS EN LA BASE DE DATOS
 alembic revision --autogenerate -m "describe el cambio"
 alembic upgrade head
+
+# Para instalar pytest
+python -m pip install pytest
 
 # para hacer las pruebas unitarias
 python -m pytest -v

@@ -58,9 +58,33 @@ class PartidoService {
     return lista.map((partido) => Partido.fromJson(partido)).toList();
   }
 
-  Future<List<Partido>> listarExplorar() async {
+  Future<List<Partido>> listarExplorar({
+    String? busqueda,
+    String? deporte,
+    String? zona,
+    DateTime? desde,
+    DateTime? hasta,
+    bool soloConCupos = false,
+  }) async {
+    final parametros = <String, String>{};
+
+    if (busqueda != null && busqueda.trim().isNotEmpty) {
+      parametros['busqueda'] = busqueda.trim();
+    }
+    if (deporte != null && deporte.isNotEmpty) parametros['deporte'] = deporte;
+    if (zona != null && zona.trim().isNotEmpty) {
+      parametros['zona'] = zona.trim();
+    }
+    if (desde != null) {
+      parametros['desde'] = desde.toIso8601String().substring(0, 10);
+    }
+    if (hasta != null) {
+      parametros['hasta'] = hasta.toIso8601String().substring(0, 10);
+    }
+    if (soloConCupos) parametros['solo_con_cupos'] = 'true';
+
     final respuesta = await client.get(
-      url('/explorar'),
+      url('/explorar').replace(queryParameters: parametros),
       headers: await headers(),
     );
 

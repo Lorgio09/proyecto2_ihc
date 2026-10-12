@@ -162,6 +162,7 @@ class _ListPartidoViewState extends State<ListPartidoView> {
                     child: ListTile(
                       title: Text(partido.nombre),
                       subtitle: Text(
+                        'Deporte: ${partido.deporte}\n'
                         '${partido.ubicacion}\n'
                         'Fecha: ${fechaTexto(partido.fecha)}\n'
                         'Cupos: ${partido.cantidadParticipantes}/'

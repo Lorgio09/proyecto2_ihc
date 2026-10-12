@@ -3,11 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend_flutter/models/partido.dart';
 import 'package:frontend_flutter/views/partido_view/formulario_partido.dart';
 
-Partido crearPartido({required String estado}) {
+Partido crearPartido({
+  required String estado,
+  String deporte = 'futbol',
+}) {
   return Partido(
     id: 1,
     nombre: 'Partido de prueba',
-    deporte: 'futbol',
+    deporte: deporte,
     cantidadJugadores: 10,
     ubicacion: 'Cancha de prueba',
     tiempoMin: '90',
@@ -19,17 +22,31 @@ Partido crearPartido({required String estado}) {
 Future<void> mostrarFormulario(
   WidgetTester tester, {
   required String estado,
+  String deporte = 'futbol',
 }) async {
   await tester.pumpWidget(
     MaterialApp(
       home: Scaffold(
-        body: FormularioPartido(partido: crearPartido(estado: estado)),
+        body: FormularioPartido(
+          partido: crearPartido(estado: estado, deporte: deporte),
+        ),
       ),
     ),
   );
+
 }
 
 void main() {
+  testWidgets('muestra el deporte guardado del partido', (tester) async {
+    await mostrarFormulario(
+      tester,
+      estado: 'cupos abiertos',
+      deporte: 'basquet',
+    );
+
+    expect(find.text('Básquet'), findsOneWidget);
+  });
+
   testWidgets('bloquea cantidad de jugadores cuando el equipo está completo', (
     tester,
   ) async {

@@ -11,6 +11,7 @@ from app.modules.partidos.schemas import DatosPartido
 from app.modules.partidos.service import (
     ErrorPartido,
     crear_partido,
+    datos_partido,
     unirse_partido,
 )
 
@@ -102,5 +103,24 @@ def test_no_se_puede_unir_a_fecha_pasada(db, usuarios):
     error = obtener_error(lambda: unirse_partido(partido.id, jugador, db))
 
     assert error.codigo == "FECHA_PASADA"
+
+
+def test_crear_partido_guarda_y_devuelve_el_deporte(db, usuarios):
+    organizador, _, _ = usuarios
+    partido = crear_partido(
+        DatosPartido(
+            nombre="Partido de basquet",
+            deporte="basquet",
+            cantidad_jugadores=10,
+            ubicacion="Cancha central",
+            tiempo_min="90",
+            fecha=datetime.now(timezone.utc) + timedelta(days=1),
+        ),
+        organizador,
+        db,
+    )
+
+    assert partido.deporte == "basquet"
+    assert datos_partido(partido)["deporte"] == "basquet"
 
 

@@ -60,6 +60,7 @@ class _ListPartidoViewState extends State<ListPartidoView> {
             ubicacion: datos['ubicacion'],
             tiempoMin: datos['tiempoMin'],
             fecha: datos['fecha'],
+            deporte: datos['deporte'],
           ),
         );
       } else {
@@ -71,6 +72,7 @@ class _ListPartidoViewState extends State<ListPartidoView> {
             ubicacion: datos['ubicacion'],
             tiempoMin: datos['tiempoMin'],
             fecha: datos['fecha'],
+            deporte: datos['deporte'],
           ),
         );
       }

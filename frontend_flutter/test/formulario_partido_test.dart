@@ -7,6 +7,7 @@ Partido crearPartido({required String estado}) {
   return Partido(
     id: 1,
     nombre: 'Partido de prueba',
+    deporte: 'futbol',
     cantidadJugadores: 10,
     ubicacion: 'Cancha de prueba',
     tiempoMin: '90',

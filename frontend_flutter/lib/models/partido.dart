@@ -31,6 +31,9 @@ class Partido {
   final int cantidadParticipantes;
   final int cuposDisponibles;
 
+  final String deporte; // Nuevo atributo para el deporte
+
+
   const Partido({
     required this.id,
     required this.nombre,
@@ -43,6 +46,7 @@ class Partido {
     this.participantes = const [],
     this.cantidadParticipantes = 0,
     this.cuposDisponibles = 0,
+    required this.deporte,
   });
 
   factory Partido.fromJson(Map<String, dynamic> json) {
@@ -66,6 +70,8 @@ class Partido {
           .toList(),
       cantidadParticipantes: json['cantidad_participantes'] as int? ?? 0,
       cuposDisponibles: json['cupos_disponibles'] as int? ?? 0,
+
+      deporte: json['deporte'] as String? ?? 'futbol',
     );
   }
 
@@ -85,12 +91,16 @@ class PartidoCreateRequest {
   final String? tiempoMin;
   final DateTime? fecha;
 
+  final String deporte; // Nuevo atributo para el deporte
+
   const PartidoCreateRequest({
     required this.nombre,
     required this.cantidadJugadores,
     required this.ubicacion,
     this.tiempoMin,
     this.fecha,
+
+    required this.deporte,
   });
 
   Map<String, dynamic> toJson() => {
@@ -99,6 +109,8 @@ class PartidoCreateRequest {
     'ubicacion': ubicacion,
     'tiempo_min': tiempoMin,
     'fecha': fecha?.toIso8601String(),
+
+    'deporte': deporte,
   };
 }
 
@@ -109,12 +121,16 @@ class PartidoUpdateRequest {
   final String? tiempoMin;
   final DateTime? fecha;
 
+  final String? deporte; // Nuevo atributo para el deporte
+
   const PartidoUpdateRequest({
     this.nombre,
     this.cantidadJugadores,
     this.ubicacion,
     this.tiempoMin,
     this.fecha,
+
+    this.deporte,
   });
 
   Map<String, dynamic> toJson() => {
@@ -123,5 +139,7 @@ class PartidoUpdateRequest {
     if (ubicacion != null) 'ubicacion': ubicacion,
     if (tiempoMin != null) 'tiempo_min': tiempoMin,
     if (fecha != null) 'fecha': fecha!.toIso8601String(),
+
+    if (deporte != null) 'deporte': deporte,
   };
 }

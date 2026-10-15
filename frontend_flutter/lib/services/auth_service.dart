@@ -39,11 +39,16 @@ class AuthService {
 
   Future<Usuario> login(String email, String password) async {
     final body = LoginRequest(email: email, password: password).toJson();
-    final response = await _client.post(
-      Uri.parse('$_baseUrl/api/auth/login'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(body),
-    );
+    late final http.Response response;
+    try {
+      response = await _client.post(
+        Uri.parse('$_baseUrl/api/auth/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+    } catch (_) {
+      throw Exception('No se pudo conectar con el servidor');
+    }
 
     return _guardarRespuestaAuth(response, 200);
   }

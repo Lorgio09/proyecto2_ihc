@@ -156,7 +156,17 @@ class _ListPartidoViewState extends State<ListPartidoView> {
         partidos = resultado;
       });
     } catch (error) {
-      if (mounted) mostrarMensaje(context, error.toString());
+      if (mounted) {
+        final mensaje = error is PartidoError
+            ? error.mensaje
+            : 'No se pudieron cargar tus partidos';
+        mostrarMensajeConAccion(
+          context,
+          mensaje,
+          textoAccion: 'Reintentar',
+          accion: cargarPartidos,
+        );
+      }
     } finally {
       if (mounted) setState(() => cargando = false);
     }

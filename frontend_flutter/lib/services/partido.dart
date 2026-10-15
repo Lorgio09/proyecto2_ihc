@@ -50,7 +50,7 @@ class PartidoService {
     final response = await client.get(url(''), headers: await headers());
 
     if (response.statusCode != 200) {
-      throw Exception('No se pudieron cargar los partidos');
+      throw errorRespuesta(response, 'No se pudieron cargar tus partidos');
     }
 
     final lista = jsonDecode(response.body) as List;
@@ -128,7 +128,7 @@ class PartidoService {
     final response = await client.delete(url('/$id'), headers: await headers());
 
     if (response.statusCode != 204) {
-      throw Exception('No se pudo eliminar el partido');
+      throw errorRespuesta(response, 'No se pudo eliminar el partido');
     }
   }
 
@@ -139,7 +139,7 @@ class PartidoService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception('No se pudo completar el equipo');
+      throw errorRespuesta(response, 'No se pudo completar el equipo');
     }
 
     return Partido.fromJson(jsonDecode(response.body));

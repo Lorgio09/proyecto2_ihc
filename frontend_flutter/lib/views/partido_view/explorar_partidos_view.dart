@@ -61,7 +61,17 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
       );
       if (mounted) setState(() => partidos = resultado);
     } catch (error) {
-      if (mounted) mostrarMensaje(context, error.toString());
+      if (mounted) {
+        final mensaje = error is PartidoError
+            ? error.mensaje
+            : 'No se pudieron cargar los partidos disponibles';
+        mostrarMensajeConAccion(
+          context,
+          mensaje,
+          textoAccion: 'Reintentar',
+          accion: cargarPartidos,
+        );
+      }
     } finally {
       if (mounted) setState(() => cargando = false);
     }

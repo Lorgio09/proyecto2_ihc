@@ -26,6 +26,7 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
 
   List<Partido> partidos = [];
   bool cargando = true;
+  int? partidoUniendoseId;
   bool soloConCupos = false;
   String? deporteSeleccionado;
   DateTimeRange? rangoFechas;
@@ -150,12 +151,16 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
   }
 
   Future<void> unirse(Partido partido) async {
+    setState(() => partidoUniendoseId = partido.id);
+
     try {
       await partidoService.unirse(partido.id);
       await cargarPartidos();
       if (mounted) mostrarMensaje(context, 'Te uniste al partido');
     } catch (error) {
       if (mounted) mostrarMensaje(context, error.toString());
+    } finally {
+      if (mounted) setState(() => partidoUniendoseId = null);
     }
   }
 
@@ -327,6 +332,8 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                           itemBuilder: (context, index) {
                             final partido = partidos[index];
                             final motivo = motivoBloqueo(partido);
+                            final estaUniendose =
+                                partidoUniendoseId == partido.id;
                             final organizador =
                                 partido.organizador?.nombre ?? 'Sin nombre';
 
@@ -362,8 +369,19 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                                     const SizedBox(height: 8),
                                     if (motivo == null)
                                       ElevatedButton(
-                                        onPressed: () => unirse(partido),
-                                        child: const Text('Unirse'),
+                                        onPressed: estaUniendose
+                                            ? null
+                                            : () => unirse(partido),
+                                        child: estaUniendose
+                                            ? const SizedBox(
+                                                width: 18,
+                                                height: 18,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                ),
+                                              )
+                                            : const Text('Unirse'),
                                       )
                                     else
                                       Text(

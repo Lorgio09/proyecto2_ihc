@@ -18,6 +18,9 @@ class _ListPartidoViewState extends State<ListPartidoView> {
   late final PartidoService partidoService;
   List<Partido> partidos = [];
   bool cargando = true;
+  bool guardandoPartido = false;
+  int? partidoEliminandoId;
+  int? partidoCompletandoId;
 
   @override
   void initState() {
@@ -51,6 +54,8 @@ class _ListPartidoViewState extends State<ListPartidoView> {
 
     if (datos == null) return;
 
+    setState(() => guardandoPartido = true);
+
     try {
       if (partido == null) {
         await partidoService.crear(
@@ -81,6 +86,8 @@ class _ListPartidoViewState extends State<ListPartidoView> {
       if (mounted) mostrarMensaje(context, 'Partido guardado');
     } catch (error) {
       if (mounted) mostrarMensaje(context, error.toString());
+    } finally {
+      if (mounted) setState(() => guardandoPartido = false);
     }
   }
 
@@ -105,16 +112,22 @@ class _ListPartidoViewState extends State<ListPartidoView> {
 
     if (confirmar != true) return;
 
+    setState(() => partidoEliminandoId = partido.id);
+
     try {
       await partidoService.eliminar(partido.id);
       await cargarPartidos();
       if (mounted) mostrarMensaje(context, 'Partido eliminado');
     } catch (error) {
       if (mounted) mostrarMensaje(context, error.toString());
+    } finally {
+      if (mounted) setState(() => partidoEliminandoId = null);
     }
   }
 
   Future<void> completarEquipo(Partido partido) async {
+    setState(() => partidoCompletandoId = partido.id);
+
     try {
       await partidoService.completarEquipo(partido.id);
       await cargarPartidos();
@@ -125,6 +138,8 @@ class _ListPartidoViewState extends State<ListPartidoView> {
       if (mounted) {
         mostrarMensaje(context, error.toString());
       }
+    } finally {
+      if (mounted) setState(() => partidoCompletandoId = null);
     }
   }
 
@@ -146,7 +161,18 @@ class _ListPartidoViewState extends State<ListPartidoView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Mis partidos')),
-      body: cargando
+      body: guardandoPartido
+          ? const Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 12),
+                  Text('Guardando partido...'),
+                ],
+              ),
+            )
+          : cargando
           ? const Center(child: CircularProgressIndicator())
           : partidos.isEmpty
           ? const Center(child: Text('No tienes partidos todavía'))
@@ -156,6 +182,8 @@ class _ListPartidoViewState extends State<ListPartidoView> {
                 itemCount: partidos.length,
                 itemBuilder: (context, index) {
                   final partido = partidos[index];
+                  final estaEliminando = partidoEliminandoId == partido.id;
+                  final estaCompletando = partidoCompletandoId == partido.id;
 
                   return Card(
                     margin: const EdgeInsets.all(8),
@@ -178,12 +206,23 @@ class _ListPartidoViewState extends State<ListPartidoView> {
                           if (partido.estado.trim().toLowerCase() ==
                               'cupos abiertos')
                             ElevatedButton(
-                              onPressed: () => completarEquipo(partido),
+                              onPressed: estaCompletando
+                                  ? null
+                                  : () => completarEquipo(partido),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.orange,
                                 foregroundColor: Colors.white,
                               ),
-                              child: const Text('Completar Equipo'),
+                              child: estaCompletando
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : const Text('Completar Equipo'),
                             ),
 
                           // Botón editar
@@ -194,8 +233,18 @@ class _ListPartidoViewState extends State<ListPartidoView> {
 
                           // Botón eliminar
                           IconButton(
-                            onPressed: () => borrarPartido(partido),
-                            icon: const Icon(Icons.delete),
+                            onPressed: estaEliminando
+                                ? null
+                                : () => borrarPartido(partido),
+                            icon: estaEliminando
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.delete),
                           ),
                         ],
                       ),
@@ -205,7 +254,7 @@ class _ListPartidoViewState extends State<ListPartidoView> {
               ),
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => abrirFormulario(),
+        onPressed: guardandoPartido ? null : () => abrirFormulario(),
         child: const Icon(Icons.add),
       ),
     );

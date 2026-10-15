@@ -190,14 +190,14 @@ class _ListPartidoViewState extends State<ListPartidoView> {
                     child: ListTile(
                       title: Text(partido.nombre),
                       subtitle: Text(
-                        'Deporte: ${partido.deporte}\n'
-                        '${partido.ubicacion}\n'
+                        'Deporte: ${partido.deporteTexto}\n'
+                        'Ubicación: ${partido.ubicacion}\n'
                         'Fecha: ${fechaTexto(partido.fecha)}\n'
                         'Cupos: ${partido.cantidadParticipantes}/'
                         '${partido.cantidadJugadores}\n'
                         'Duración: ${partido.tiempoMin ?? 'No definida'}\n'
                         'Participantes: ${participantesTexto(partido)}\n'
-                        'Estado: ${partido.estado}',
+                        'Estado: ${partido.estadoTexto}',
                       ),
                       //isThreeLine: true,
                       trailing: Row(
@@ -222,7 +222,7 @@ class _ListPartidoViewState extends State<ListPartidoView> {
                                         color: Colors.white,
                                       ),
                                     )
-                                  : const Text('Completar Equipo'),
+                                  : const Text('Completar equipo'),
                             ),
 
                           // Botón editar

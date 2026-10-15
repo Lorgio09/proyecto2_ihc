@@ -129,15 +129,15 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
 
   String? motivoBloqueo(Partido partido) {
     if (partido.estado == 'equipo completo') {
-      return 'El equipo ya esta completo';
+      return 'El equipo ya está completo';
     }
     if (partido.fecha != null && !partido.fecha!.isAfter(DateTime.now())) {
-      return 'La fecha del partido ya paso';
+      return 'La fecha del partido ya pasó';
     }
     if (partido.participantes.any(
       (participante) => participante.id == widget.usuario.id,
     )) {
-      return 'Ya estas unido a este partido';
+      return 'Ya estás unido a este partido';
     }
     if (partido.cuposDisponibles <= 0) return 'No quedan cupos disponibles';
     return null;
@@ -354,7 +354,7 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                                       ).textTheme.titleMedium,
                                     ),
                                     const SizedBox(height: 6),
-                                    Text('Deporte: ${partido.deporte}'),
+                                    Text('Deporte: ${partido.deporteTexto}'),
                                     Text('Organizador: $organizador'),
                                     Text('Ubicación: ${partido.ubicacion}'),
                                     Text('Fecha: ${fechaTexto(partido.fecha)}'),
@@ -362,6 +362,7 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                                       'Cupos: ${partido.cantidadParticipantes}/'
                                       '${partido.cantidadJugadores}',
                                     ),
+                                    Text('Estado: ${partido.estadoTexto}'),
                                     Text(
                                       'Participantes: '
                                       '${participantesTexto(partido)}',
@@ -388,7 +389,7 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                                         motivo,
                                         style: TextStyle(
                                           color: motivo ==
-                                                  'Ya estas unido a este partido'
+                                                  'Ya estás unido a este partido'
                                               ? Colors.green
                                               : Theme.of(
                                                   context,

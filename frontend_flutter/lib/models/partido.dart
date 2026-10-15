@@ -49,6 +49,23 @@ class Partido {
     required this.deporte,
   });
 
+  String get deporteTexto {
+    if (deporte == 'futbol') return 'Fútbol';
+    if (deporte == 'basquet') return 'Básquet';
+    if (deporte == 'voley') return 'Vóley';
+    return deporte;
+  }
+
+  String get estadoTexto {
+    if (estado.trim().toLowerCase() == 'cupos abiertos') {
+      return 'Cupos abiertos';
+    }
+    if (estado.trim().toLowerCase() == 'equipo completo') {
+      return 'Equipo completo';
+    }
+    return estado;
+  }
+
   factory Partido.fromJson(Map<String, dynamic> json) {
     final participantesJson = json['participantes'] as List? ?? [];
     final organizadorJson = json['organizador'];

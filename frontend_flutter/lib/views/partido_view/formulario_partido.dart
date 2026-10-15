@@ -34,7 +34,7 @@ class _FormularioPartidoState extends State<FormularioPartido> {
       text: widget.partido?.cantidadJugadores.toString(),
     );
     tiempoController = TextEditingController(text: widget.partido?.tiempoMin);
-    estadoController = TextEditingController(text: widget.partido?.estado);
+    estadoController = TextEditingController(text: widget.partido?.estadoTexto);
     fecha = widget.partido?.fecha;
     deporte = widget.partido?.deporte ?? 'futbol';
   }
@@ -83,7 +83,7 @@ class _FormularioPartidoState extends State<FormularioPartido> {
   String? validarCantidad(String? valor) {
     final cantidad = int.tryParse(valor?.trim() ?? '');
     if (cantidad == null || cantidad < 1 || cantidad > 100) {
-      return 'Usa un numero entre 1 y 100';
+      return 'Usa un número entre 1 y 100';
     }
     return null;
   }
@@ -137,7 +137,7 @@ class _FormularioPartidoState extends State<FormularioPartido> {
               ),
               Input(
                 controlador: ubicacionController,
-                etiqueta: 'Ubicacion',
+                etiqueta: 'Ubicación',
                 validator: validarTexto,
               ),
               Row(children: [
@@ -157,7 +157,7 @@ class _FormularioPartidoState extends State<FormularioPartido> {
                       ),
                       if (equipoCompleto) ...[
                         Text(
-                          'no se puede modificar porque el equipo ya esta completo',
+                          'No se puede modificar porque el equipo ya está completo',
                           style: TextStyle(
                             color: Colors.red.shade700,
                             fontSize: 12,

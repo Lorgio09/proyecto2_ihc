@@ -21,6 +21,7 @@ class _ListPartidoViewState extends State<ListPartidoView> {
   bool guardandoPartido = false;
   int? partidoEliminandoId;
   int? partidoCompletandoId;
+  int? partidoExpandidoId;
 
   @override
   void initState() {
@@ -150,13 +151,6 @@ class _ListPartidoViewState extends State<ListPartidoView> {
         '${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}';
   }
 
-  String participantesTexto(Partido partido) {
-    if (partido.participantes.isEmpty) return 'Nadie se ha unido todavía';
-    return partido.participantes
-        .map((participante) => participante.nombre)
-        .join(', ');
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -182,6 +176,7 @@ class _ListPartidoViewState extends State<ListPartidoView> {
                 itemCount: partidos.length,
                 itemBuilder: (context, index) {
                   final partido = partidos[index];
+                  final estaExpandido = partidoExpandidoId == partido.id;
                   final estaEliminando = partidoEliminandoId == partido.id;
                   final estaCompletando = partidoCompletandoId == partido.id;
 
@@ -189,15 +184,45 @@ class _ListPartidoViewState extends State<ListPartidoView> {
                     margin: const EdgeInsets.all(8),
                     child: ListTile(
                       title: Text(partido.nombre),
-                      subtitle: Text(
-                        'Deporte: ${partido.deporteTexto}\n'
-                        'Ubicación: ${partido.ubicacion}\n'
-                        'Fecha: ${fechaTexto(partido.fecha)}\n'
-                        'Cupos: ${partido.cantidadParticipantes}/'
-                        '${partido.cantidadJugadores}\n'
-                        'Duración: ${partido.tiempoMin ?? 'No definida'}\n'
-                        'Participantes: ${participantesTexto(partido)}\n'
-                        'Estado: ${partido.estadoTexto}',
+                      subtitle: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Deporte: ${partido.deporteTexto}\n'
+                            'Ubicación: ${partido.ubicacion}\n'
+                            'Fecha: ${fechaTexto(partido.fecha)}\n'
+                            'Cupos: ${partido.cantidadParticipantes}/'
+                            '${partido.cantidadJugadores}\n'
+                            'Estado: ${partido.estadoTexto}',
+                          ),
+                          Text(
+                            'Participantes: ${partido.cantidadParticipantes}',
+                          ),
+                          if (partido.participantes.isNotEmpty)
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  partidoExpandidoId = estaExpandido
+                                      ? null
+                                      : partido.id;
+                                });
+                              },
+                              child: Text(
+                                estaExpandido
+                                    ? 'Ocultar participantes'
+                                    : 'Ver participantes',
+                              ),
+                            ),
+                          if (estaExpandido)
+                            Text(
+                              partido.participantes
+                                  .map(
+                                    (participante) => participante.nombre,
+                                  )
+                                  .join(', '),
+                            ),
+                        ],
                       ),
                       //isThreeLine: true,
                       trailing: Row(

@@ -27,6 +27,7 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
   List<Partido> partidos = [];
   bool cargando = true;
   int? partidoUniendoseId;
+  int? partidoExpandidoId;
   bool soloConCupos = false;
   String? deporteSeleccionado;
   DateTimeRange? rangoFechas;
@@ -141,13 +142,6 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
     }
     if (partido.cuposDisponibles <= 0) return 'No quedan cupos disponibles';
     return null;
-  }
-
-  String participantesTexto(Partido partido) {
-    if (partido.participantes.isEmpty) return 'Nadie se ha unido todavía';
-    return partido.participantes
-        .map((participante) => participante.nombre)
-        .join(', ');
   }
 
   Future<void> unirse(Partido partido) async {
@@ -332,6 +326,8 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                           itemBuilder: (context, index) {
                             final partido = partidos[index];
                             final motivo = motivoBloqueo(partido);
+                            final estaExpandido =
+                                partidoExpandidoId == partido.id;
                             final estaUniendose =
                                 partidoUniendoseId == partido.id;
                             final organizador =
@@ -365,8 +361,32 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                                     Text('Estado: ${partido.estadoTexto}'),
                                     Text(
                                       'Participantes: '
-                                      '${participantesTexto(partido)}',
+                                      '${partido.cantidadParticipantes}',
                                     ),
+                                    if (partido.participantes.isNotEmpty)
+                                      TextButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            partidoExpandidoId = estaExpandido
+                                                ? null
+                                                : partido.id;
+                                          });
+                                        },
+                                        child: Text(
+                                          estaExpandido
+                                              ? 'Ocultar participantes'
+                                              : 'Ver participantes',
+                                        ),
+                                      ),
+                                    if (estaExpandido)
+                                      Text(
+                                        partido.participantes
+                                            .map(
+                                              (participante) =>
+                                                  participante.nombre,
+                                            )
+                                            .join(', '),
+                                      ),
                                     const SizedBox(height: 8),
                                     if (motivo == null)
                                       ElevatedButton(

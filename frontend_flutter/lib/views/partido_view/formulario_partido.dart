@@ -22,6 +22,7 @@ class _FormularioPartidoState extends State<FormularioPartido> {
   late final TextEditingController estadoController;
   final formularioKey = GlobalKey<FormState>();
   DateTime? fecha;
+  String? errorFecha;
   String deporte = 'futbol';  // Nuevo atributo para el deporte
 
   @override
@@ -50,15 +51,26 @@ class _FormularioPartidoState extends State<FormularioPartido> {
   }
 
   Future<void> seleccionarFecha() async {
+    final manana = DateTime.now();
+    final primeraFecha = DateTime(
+      manana.year,
+      manana.month,
+      manana.day + 1,
+    );
     final fechaSeleccionada = await showDatePicker(
       context: context,
-      firstDate: DateTime(2020),
+      firstDate: primeraFecha,
       lastDate: DateTime(2035),
-      initialDate: fecha ?? DateTime.now(),
+      initialDate: fecha != null && !fecha!.isBefore(primeraFecha)
+          ? fecha!
+          : primeraFecha,
     );
 
     if (fechaSeleccionada != null) {
-      setState(() => fecha = fechaSeleccionada);
+      setState(() {
+        fecha = fechaSeleccionada;
+        errorFecha = null;
+      });
     }
   }
 
@@ -90,6 +102,16 @@ class _FormularioPartidoState extends State<FormularioPartido> {
   }
 
   void guardar() {
+    final hoy = DateTime.now();
+    final primeraFecha = DateTime(hoy.year, hoy.month, hoy.day + 1);
+    if (fecha == null) {
+      setState(() => errorFecha = 'La fecha es obligatoria');
+      return;
+    }
+    if (fecha!.isBefore(primeraFecha)) {
+      setState(() => errorFecha = 'La fecha debe ser futura');
+      return;
+    }
     if (!formularioKey.currentState!.validate()) return;
 
     Navigator.pop(context, {
@@ -220,6 +242,14 @@ class _FormularioPartidoState extends State<FormularioPartido> {
                   ),
                 ],
               ),
+              if (errorFecha != null)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    errorFecha!,
+                    style: TextStyle(color: Colors.red.shade700, fontSize: 12),
+                  ),
+                ),
             ],
           ),
         ),

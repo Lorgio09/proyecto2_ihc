@@ -104,7 +104,7 @@ class PartidoService {
     );
 
     if (response.statusCode != 201) {
-      throw Exception('No se pudo crear el partido');
+      throw errorRespuesta(response, 'No se pudo crear el partido');
     }
 
     return Partido.fromJson(jsonDecode(response.body));
@@ -118,7 +118,7 @@ class PartidoService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception('No se pudo actualizar el partido');
+      throw errorRespuesta(response, 'No se pudo actualizar el partido');
     }
 
     return Partido.fromJson(jsonDecode(response.body));

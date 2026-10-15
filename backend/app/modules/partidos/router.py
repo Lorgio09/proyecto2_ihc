@@ -46,7 +46,13 @@ def crear(
     base_datos: Session = Depends(get_db),
     usuario: Usuario = Depends(current_user),
 ):
-    return datos_partido(crear_partido(datos, usuario, base_datos))
+    try:
+        return datos_partido(crear_partido(datos, usuario, base_datos))
+    except ErrorPartido as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail={"codigo": error.codigo, "mensaje": error.mensaje},
+        )
 
 
 @router.get("", response_model=list[RespuestaPartido])
@@ -121,7 +127,11 @@ def actualizar(
         return datos_partido(actualizar_partido(partido, datos, base_datos))
     except ErrorPartido as error:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=(
+                status.HTTP_422_UNPROCESSABLE_ENTITY
+                if error.codigo == "FECHA_NO_FUTURA"
+                else status.HTTP_409_CONFLICT
+            ),
             detail={"codigo": error.codigo, "mensaje": error.mensaje},
         )
 

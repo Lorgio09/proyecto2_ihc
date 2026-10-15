@@ -129,6 +129,28 @@ class _ListPartidoViewState extends State<ListPartidoView> {
   }
 
   Future<void> completarEquipo(Partido partido) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Completar equipo'),
+        content: const Text(
+          'Al completar el equipo se cerrarán los cupos y otros usuarios '
+          'no podrán unirse al partido. ¿Quieres continuar?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Completar equipo'),
+          ),
+        ],
+      ),
+    );
+    if (confirmar != true) return;
+
     setState(() => partidoCompletandoId = partido.id);
 
     try {

@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 import pytest
 
 from sqlalchemy import create_engine
@@ -61,7 +63,7 @@ def partido(db, user):
         cantidad_jugadores=10,
         ubicacion="Cancha universitaria",
         tiempo_min="90",
-        fecha=None,
+        fecha=datetime.now(timezone.utc) + timedelta(days=1),
     )
 
     return crear_partido(

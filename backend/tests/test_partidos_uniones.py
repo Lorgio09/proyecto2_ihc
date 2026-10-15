@@ -6,10 +6,11 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.database.connection import Base
-from app.database.models import PartidoParticipante, Usuario
-from app.modules.partidos.schemas import DatosPartido
+from app.database.models import Partido, PartidoParticipante, Usuario
+from app.modules.partidos.schemas import ActualizacionPartido, DatosPartido
 from app.modules.partidos.service import (
     ErrorPartido,
+    actualizar_partido,
     crear_partido,
     datos_partido,
     listar_partidos_publicos,
@@ -162,11 +163,97 @@ def test_salir_de_equipo_completo_reabre_el_partido(db, usuarios):
 def test_no_se_puede_unir_a_fecha_pasada(db, usuarios):
     organizador, jugador, _ = usuarios
     fecha = datetime.now(timezone.utc) - timedelta(days=1)
-    partido = crear_partido_prueba(db, organizador, fecha=fecha)
+    partido = Partido(
+        usuario_id=organizador.id,
+        nombre="Partido vencido",
+        cantidad_jugadores=2,
+        ubicacion="Cancha central",
+        tiempo_min="90",
+        fecha=fecha,
+        deporte="futbol",
+    )
+    db.add(partido)
+    db.commit()
+    db.refresh(partido)
 
     error = obtener_error(lambda: unirse_partido(partido.id, jugador, db))
 
     assert error.codigo == "FECHA_PASADA"
+
+
+def test_crear_partido_rechaza_fecha_no_futura(db, usuarios):
+    organizador, _, _ = usuarios
+
+    error = obtener_error(
+        lambda: crear_partido_prueba(db, organizador, fecha=None)
+    )
+
+    assert error.codigo == "FECHA_NO_FUTURA"
+
+
+@pytest.mark.parametrize(
+    "fecha",
+    [
+        datetime.now(timezone.utc) - timedelta(days=1),
+        datetime.now(timezone.utc),
+    ],
+)
+def test_crear_partido_rechaza_fecha_pasada_o_actual(db, usuarios, fecha):
+    organizador, _, _ = usuarios
+
+    error = obtener_error(
+        lambda: crear_partido_prueba(db, organizador, fecha=fecha)
+    )
+
+    assert error.codigo == "FECHA_NO_FUTURA"
+
+
+def test_crear_partido_acepta_fecha_futura(db, usuarios):
+    organizador, _, _ = usuarios
+
+    partido = crear_partido_prueba(
+        db,
+        organizador,
+        fecha=datetime.now(timezone.utc) + timedelta(days=1),
+    )
+
+    assert partido.fecha is not None
+
+
+def test_actualizar_partido_rechaza_fecha_no_futura_y_no_persiste(db, usuarios):
+    organizador, _, _ = usuarios
+    fecha_futura = datetime.now(timezone.utc) + timedelta(days=2)
+    partido = crear_partido_prueba(db, organizador, fecha=fecha_futura)
+
+    error = obtener_error(
+        lambda: actualizar_partido(
+            partido,
+            ActualizacionPartido(fecha=datetime.now(timezone.utc)),
+            db,
+        )
+    )
+
+    assert error.codigo == "FECHA_NO_FUTURA"
+    db.refresh(partido)
+    assert partido.fecha.replace(tzinfo=timezone.utc) == fecha_futura
+
+
+def test_actualizar_partido_acepta_fecha_futura(db, usuarios):
+    organizador, _, _ = usuarios
+    partido = crear_partido_prueba(
+        db,
+        organizador,
+        fecha=datetime.now(timezone.utc) + timedelta(days=1),
+    )
+    nueva_fecha = datetime.now(timezone.utc) + timedelta(days=3)
+
+    actualizado = actualizar_partido(
+        partido,
+        ActualizacionPartido(fecha=nueva_fecha),
+        db,
+    )
+
+    assert actualizado.fecha.replace(tzinfo=timezone.utc) == nueva_fecha
 
 
 def test_crear_partido_guarda_y_devuelve_el_deporte(db, usuarios):

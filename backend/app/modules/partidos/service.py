@@ -15,6 +15,24 @@ class ErrorPartido(ValueError):
         super().__init__(mensaje)
 
 
+def validar_fecha_futura(fecha: datetime | None) -> datetime:
+    if fecha is None:
+        raise ErrorPartido(
+            "FECHA_NO_FUTURA",
+            "El partido debe tener una fecha futura",
+        )
+
+    fecha_normalizada = fecha
+    if fecha_normalizada.tzinfo is None:
+        fecha_normalizada = fecha_normalizada.replace(tzinfo=timezone.utc)
+    if fecha_normalizada <= datetime.now(timezone.utc):
+        raise ErrorPartido(
+            "FECHA_NO_FUTURA",
+            "El partido debe tener una fecha futura",
+        )
+    return fecha_normalizada
+
+
 def buscar_partido(partido_id: int, usuario: Usuario, base_datos: Session) -> Partido | None:
     return base_datos.scalar(
         select(Partido)
@@ -41,13 +59,14 @@ def buscar_partido_publico(partido_id: int, base_datos: Session) -> Partido | No
 
 
 def crear_partido(datos: DatosPartido, usuario: Usuario, base_datos: Session) -> Partido:
+    fecha = validar_fecha_futura(datos.fecha)
     partido = Partido(
         usuario_id=usuario.id,
         nombre=datos.nombre.strip(),
         cantidad_jugadores=datos.cantidad_jugadores,
         ubicacion=datos.ubicacion.strip(),
         tiempo_min=datos.tiempo_min.strip() if datos.tiempo_min else None,
-        fecha=datos.fecha,
+        fecha=fecha,
 
         deporte=datos.deporte.strip(),
     )
@@ -151,6 +170,8 @@ def actualizar_partido(
     base_datos: Session,
 ) -> Partido:
     cambios = datos.model_dump(exclude_unset=True)
+    if "fecha" in cambios:
+        cambios["fecha"] = validar_fecha_futura(cambios["fecha"])
     for nombre in ("nombre", "ubicacion", "tiempo_min"):
         if nombre in cambios and cambios[nombre] is not None:
             cambios[nombre] = cambios[nombre].strip()

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/partido.dart';
 import '../../models/usuario.dart';
 import '../../services/partido.dart';
+import '../../widgets/ayuda.dart';
 import '../../widgets/mensaje.dart';
 
 class ExplorarPartidosView extends StatefulWidget {
@@ -304,7 +305,25 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Explorar partidos')),
+      appBar: AppBar(
+        title: const Text('Explorar partidos'),
+        actions: [
+          IconButton(
+            tooltip: 'Ayuda',
+            icon: const Icon(Icons.help_outline),
+            onPressed: () {
+              mostrarAyuda(
+                context,
+                'Ayuda para explorar partidos',
+                'Utiliza la búsqueda y los filtros para encontrar partidos.\n\n'
+                'Pulsa Unirse cuando un partido tenga cupos disponibles.\n\n'
+                'Si no puedes unirte, la tarjeta mostrará el motivo.\n\n'
+                'Usa Ver participantes para consultar quiénes se unieron.',
+              );
+            },
+          ),
+        ],
+      ),
       body: Column(
         children: [
           panelFiltros(),

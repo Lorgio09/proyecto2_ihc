@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/partido.dart';
+import '../../widgets/ayuda.dart';
 import '../../widgets/boton_guardar.dart';
 import '../../widgets/input.dart';
 
@@ -110,7 +111,27 @@ class _FormularioPartidoState extends State<FormularioPartido> {
         widget.partido?.estado.trim().toLowerCase() == 'equipo completo';
 
     return AlertDialog(
-      title: Text(editando ? 'Editar partido' : 'Nuevo partido'),
+      title: Row(
+        children: [
+          Expanded(
+            child: Text(editando ? 'Editar partido' : 'Nuevo partido'),
+          ),
+          IconButton(
+            tooltip: 'Ayuda',
+            icon: const Icon(Icons.help_outline),
+            onPressed: () {
+              mostrarAyuda(
+                context,
+                'Ayuda del formulario',
+                'Ingresa el nombre, deporte y ubicación del partido.\n\n'
+                'La cantidad de jugadores indica el máximo de participantes.\n\n'
+                'Selecciona la fecha y pulsa Guardar para registrar '
+                'los cambios.',
+              );
+            },
+          ),
+        ],
+      ),
       content: SingleChildScrollView(
         child: Form(
           key: formularioKey,

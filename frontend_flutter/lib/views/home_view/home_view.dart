@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../consts/color.dart';
 import '../../models/usuario.dart';
 import '../../services/auth_service.dart';
+import '../../widgets/ayuda.dart';
 import '../../widgets/boton_guardar.dart';
 import '../autenticacion/cambiar_contraseña.dart';
 import '../autenticacion/login_view.dart';
@@ -22,6 +23,19 @@ class HomeView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Inicio'),
         actions: [
+          IconButton(
+            tooltip: 'Ayuda',
+            icon: const Icon(Icons.help_outline),
+            onPressed: () {
+              mostrarAyuda(
+                context,
+                '¿Cómo usar UniSport?',
+                'En Mis partidos puedes crear y administrar tus partidos.\n\n'
+                'En Explorar partidos puedes buscar partidos creados por '
+                'otros usuarios y unirte si todavía tienen cupos.',
+              );
+            },
+          ),
           IconButton(
             tooltip: 'Cambiar contraseña',
             onPressed: () => Navigator.of(context).push(

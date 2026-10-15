@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/partido.dart';
 import '../../services/partido.dart';
+import '../../widgets/ayuda.dart';
 import '../../widgets/mensaje.dart';
 import 'formulario_partido.dart';
 
@@ -154,7 +155,26 @@ class _ListPartidoViewState extends State<ListPartidoView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Mis partidos')),
+      appBar: AppBar(
+        title: const Text('Mis partidos'),
+        actions: [
+          IconButton(
+            tooltip: 'Ayuda',
+            icon: const Icon(Icons.help_outline),
+            onPressed: () {
+              mostrarAyuda(
+                context,
+                'Ayuda para administrar partidos',
+                'Pulsa el botón + para crear un partido.\n\n'
+                'Usa el lápiz para editarlo y la papelera para eliminarlo.\n\n'
+                'Completar equipo cierra los cupos y evita que otros '
+                'usuarios se unan.\n\n'
+                'Usa Ver participantes para conocer quiénes se unieron.',
+              );
+            },
+          ),
+        ],
+      ),
       body: guardandoPartido
           ? const Center(
               child: Column(
@@ -169,7 +189,16 @@ class _ListPartidoViewState extends State<ListPartidoView> {
           : cargando
           ? const Center(child: CircularProgressIndicator())
           : partidos.isEmpty
-          ? const Center(child: Text('No tienes partidos todavía'))
+          ? const Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('No tienes partidos todavía'),
+                  SizedBox(height: 8),
+                  Text('Pulsa el botón + para crear tu primer partido'),
+                ],
+              ),
+            )
           : RefreshIndicator(
               onRefresh: cargarPartidos,
               child: ListView.builder(

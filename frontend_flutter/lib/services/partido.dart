@@ -157,4 +157,30 @@ class PartidoService {
 
     return Partido.fromJson(jsonDecode(respuesta.body));
   }
+
+  Future<Partido> salir(int id) async {
+    final respuesta = await client.delete(
+      url('/$id/salir'),
+      headers: await headers(),
+    );
+
+    if (respuesta.statusCode != 200) {
+      throw errorRespuesta(respuesta, 'No se pudo salir del partido');
+    }
+
+    return Partido.fromJson(jsonDecode(respuesta.body));
+  }
+
+  Future<Partido> reabrir(int id) async {
+    final respuesta = await client.patch(
+      url('/$id/reabrir'),
+      headers: await headers(),
+    );
+
+    if (respuesta.statusCode != 200) {
+      throw errorRespuesta(respuesta, 'No se pudo reabrir el equipo');
+    }
+
+    return Partido.fromJson(jsonDecode(respuesta.body));
+  }
 }

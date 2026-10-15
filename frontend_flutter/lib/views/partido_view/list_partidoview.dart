@@ -22,6 +22,7 @@ class _ListPartidoViewState extends State<ListPartidoView> {
   bool guardandoPartido = false;
   int? partidoEliminandoId;
   int? partidoCompletandoId;
+  int? partidoReabriendoId;
   int? partidoExpandidoId;
 
   @override
@@ -145,6 +146,38 @@ class _ListPartidoViewState extends State<ListPartidoView> {
     }
   }
 
+  Future<void> reabrirEquipo(Partido partido) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reabrir equipo'),
+        content: const Text('¿Quieres volver a abrir los cupos del partido?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Sí, reabrir'),
+          ),
+        ],
+      ),
+    );
+    if (confirmar != true) return;
+
+    setState(() => partidoReabriendoId = partido.id);
+    try {
+      await partidoService.reabrir(partido.id);
+      await cargarPartidos();
+      if (mounted) mostrarMensaje(context, 'Equipo reabierto');
+    } catch (error) {
+      if (mounted) mostrarMensaje(context, error.toString());
+    } finally {
+      if (mounted) setState(() => partidoReabriendoId = null);
+    }
+  }
+
   String fechaTexto(DateTime? fecha) {
     if (fecha == null) return 'Sin fecha';
     return '${fecha.day.toString().padLeft(2, '0')}/'
@@ -208,6 +241,7 @@ class _ListPartidoViewState extends State<ListPartidoView> {
                   final estaExpandido = partidoExpandidoId == partido.id;
                   final estaEliminando = partidoEliminandoId == partido.id;
                   final estaCompletando = partidoCompletandoId == partido.id;
+                  final estaReabriendo = partidoReabriendoId == partido.id;
 
                   return Card(
                     margin: const EdgeInsets.all(8),
@@ -277,6 +311,27 @@ class _ListPartidoViewState extends State<ListPartidoView> {
                                       ),
                                     )
                                   : const Text('Completar equipo'),
+                            ),
+                          if (partido.estado.trim().toLowerCase() ==
+                              'equipo completo')
+                            ElevatedButton(
+                              onPressed: estaReabriendo
+                                  ? null
+                                  : () => reabrirEquipo(partido),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                foregroundColor: Colors.white,
+                              ),
+                              child: estaReabriendo
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : const Text('Reabrir equipo'),
                             ),
 
                           // Botón editar

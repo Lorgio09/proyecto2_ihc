@@ -13,6 +13,7 @@ from app.modules.partidos.service import (
     crear_partido,
     datos_partido,
     listar_partidos_publicos,
+    salir_partido,
     unirse_partido,
 )
 
@@ -94,6 +95,68 @@ def test_usuario_puede_unirse_a_partido_futuro(db, usuarios):
             PartidoParticipante.usuario_id == jugador.id,
         )
     ) is not None
+
+
+def test_usuario_inscrito_puede_salir_del_partido(db, usuarios):
+    organizador, jugador, _ = usuarios
+    fecha = datetime.now(timezone.utc) + timedelta(days=1)
+    partido = crear_partido_prueba(db, organizador, fecha=fecha)
+    unirse_partido(partido.id, jugador, db)
+
+    partido_actualizado = salir_partido(partido.id, jugador, db)
+
+    assert partido_actualizado is not None
+    assert partido_actualizado.estado == "cupos abiertos"
+    assert db.scalar(
+        select(PartidoParticipante).where(
+            PartidoParticipante.partido_id == partido.id,
+            PartidoParticipante.usuario_id == jugador.id,
+        )
+    ) is None
+
+
+def test_usuario_no_inscrito_no_puede_salir(db, usuarios):
+    organizador, jugador, _ = usuarios
+    partido = crear_partido_prueba(
+        db,
+        organizador,
+        fecha=datetime.now(timezone.utc) + timedelta(days=1),
+    )
+
+    error = obtener_error(lambda: salir_partido(partido.id, jugador, db))
+
+    assert error.codigo == "NO_INSCRITO"
+
+
+def test_organizador_no_puede_salir(db, usuarios):
+    organizador, _, _ = usuarios
+    partido = crear_partido_prueba(
+        db,
+        organizador,
+        fecha=datetime.now(timezone.utc) + timedelta(days=1),
+    )
+
+    error = obtener_error(lambda: salir_partido(partido.id, organizador, db))
+
+    assert error.codigo == "ORGANIZADOR_NO_PUEDE_SALIR"
+
+
+def test_salir_de_equipo_completo_reabre_el_partido(db, usuarios):
+    organizador, jugador, _ = usuarios
+    partido = crear_partido_prueba(
+        db,
+        organizador,
+        cantidad=1,
+        fecha=datetime.now(timezone.utc) + timedelta(days=1),
+    )
+    unirse_partido(partido.id, jugador, db)
+    assert partido.estado == "equipo completo"
+
+    partido_actualizado = salir_partido(partido.id, jugador, db)
+
+    assert partido_actualizado is not None
+    assert partido_actualizado.estado == "cupos abiertos"
+    assert partido_actualizado.cantidad_jugadores == 1
 
 
 def test_no_se_puede_unir_a_fecha_pasada(db, usuarios):

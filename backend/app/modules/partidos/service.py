@@ -192,6 +192,18 @@ def completar_equipo(partido: Partido, base_datos: Session) -> Partido:
     return partido
 
 
+def reabrir_equipo(partido: Partido, base_datos: Session) -> Partido:
+    if partido.estado != "equipo completo":
+        raise ErrorPartido(
+            "EQUIPO_ABIERTO",
+            "El equipo ya tiene los cupos abiertos",
+        )
+    partido.estado = "cupos abiertos"
+    base_datos.commit()
+    base_datos.refresh(partido)
+    return partido
+
+
 def unirse_partido(
     partido_id: int,
     usuario: Usuario,
@@ -261,6 +273,41 @@ def unirse_partido(
     if cantidad_participantes + 1 >= partido.cantidad_jugadores:
         partido.estado = "equipo completo"
 
+    base_datos.commit()
+    base_datos.refresh(partido)
+    return partido
+
+
+def salir_partido(
+    partido_id: int,
+    usuario: Usuario,
+    base_datos: Session,
+) -> Partido | None:
+    partido = buscar_partido_publico(partido_id, base_datos)
+    if not partido:
+        return None
+
+    if partido.usuario_id == usuario.id:
+        raise ErrorPartido(
+            "ORGANIZADOR_NO_PUEDE_SALIR",
+            "El organizador no puede salir de su propio partido",
+        )
+
+    participante = base_datos.scalar(
+        select(PartidoParticipante).where(
+            PartidoParticipante.partido_id == partido_id,
+            PartidoParticipante.usuario_id == usuario.id,
+        )
+    )
+    if not participante:
+        raise ErrorPartido(
+            "NO_INSCRITO",
+            "No estas unido a este partido",
+        )
+
+    base_datos.delete(participante)
+    if partido.estado == "equipo completo":
+        partido.estado = "cupos abiertos"
     base_datos.commit()
     base_datos.refresh(partido)
     return partido

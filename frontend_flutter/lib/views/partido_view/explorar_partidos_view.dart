@@ -28,6 +28,7 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
   List<Partido> partidos = [];
   bool cargando = true;
   int? partidoUniendoseId;
+  int? partidoSaliendoId;
   int? partidoExpandidoId;
   bool soloConCupos = false;
   String? deporteSeleccionado;
@@ -130,20 +131,20 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
   }
 
   String? motivoBloqueo(Partido partido) {
+    if (estaUnido(partido)) return null;
     if (partido.estado == 'equipo completo') {
       return 'El equipo ya está completo';
     }
     if (partido.fecha != null && !partido.fecha!.isAfter(DateTime.now())) {
       return 'La fecha del partido ya pasó';
     }
-    if (partido.participantes.any(
-      (participante) => participante.id == widget.usuario.id,
-    )) {
-      return 'Ya estás unido a este partido';
-    }
     if (partido.cuposDisponibles <= 0) return 'No quedan cupos disponibles';
     return null;
   }
+
+  bool estaUnido(Partido partido) => partido.participantes.any(
+        (participante) => participante.id == widget.usuario.id,
+      );
 
   Future<void> unirse(Partido partido) async {
     setState(() => partidoUniendoseId = partido.id);
@@ -156,6 +157,38 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
       if (mounted) mostrarMensaje(context, error.toString());
     } finally {
       if (mounted) setState(() => partidoUniendoseId = null);
+    }
+  }
+
+  Future<void> salir(Partido partido) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Salir del partido'),
+        content: const Text('¿Quieres salir de este partido?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Sí, salir'),
+          ),
+        ],
+      ),
+    );
+    if (confirmar != true) return;
+
+    setState(() => partidoSaliendoId = partido.id);
+    try {
+      await partidoService.salir(partido.id);
+      await cargarPartidos();
+      if (mounted) mostrarMensaje(context, 'Saliste del partido');
+    } catch (error) {
+      if (mounted) mostrarMensaje(context, error.toString());
+    } finally {
+      if (mounted) setState(() => partidoSaliendoId = null);
     }
   }
 
@@ -349,6 +382,9 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                                 partidoExpandidoId == partido.id;
                             final estaUniendose =
                                 partidoUniendoseId == partido.id;
+                            final estaSaliendo =
+                                partidoSaliendoId == partido.id;
+                            final estaUnidoAlPartido = estaUnido(partido);
                             final organizador =
                                 partido.organizador?.nombre ?? 'Sin nombre';
 
@@ -407,7 +443,23 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                                             .join(', '),
                                       ),
                                     const SizedBox(height: 8),
-                                    if (motivo == null)
+                                    if (estaUnidoAlPartido)
+                                      ElevatedButton(
+                                        onPressed: estaSaliendo
+                                            ? null
+                                            : () => salir(partido),
+                                        child: estaSaliendo
+                                            ? const SizedBox(
+                                                width: 18,
+                                                height: 18,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                ),
+                                              )
+                                            : const Text('Salir del partido'),
+                                      )
+                                    else if (motivo == null)
                                       ElevatedButton(
                                         onPressed: estaUniendose
                                             ? null

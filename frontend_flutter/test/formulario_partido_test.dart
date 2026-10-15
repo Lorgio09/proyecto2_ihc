@@ -57,7 +57,7 @@ void main() {
 
     expect(campoCantidad.readOnly, isTrue);
     expect(
-      find.text('no se puede modificar porque el equipo ya esta completo'),
+      find.text('No se puede modificar porque el equipo ya está completo'),
       findsOneWidget,
     );
     expect(

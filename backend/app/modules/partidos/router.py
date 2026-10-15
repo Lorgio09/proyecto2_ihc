@@ -23,6 +23,8 @@ from app.modules.partidos.service import (
     listar_partidos,
     listar_partidos_publicos,
     ErrorPartido,
+    reabrir_equipo,
+    salir_partido,
     unirse_partido,
     actualizar_partido,
 )
@@ -155,6 +157,24 @@ def completar_equipo(
         )
 
 
+@router.patch("/{partido_id}/reabrir", response_model=RespuestaPartido)
+def reabrir(
+    partido_id: int,
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
+):
+    partido = buscar_partido(partido_id, usuario, base_datos)
+    if not partido:
+        raise no_encontrado()
+    try:
+        return datos_partido(reabrir_equipo(partido, base_datos))
+    except ErrorPartido as error:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"codigo": error.codigo, "mensaje": error.mensaje},
+        )
+
+
 @router.post("/{partido_id}/unirse", response_model=RespuestaPartido)
 def unirse(
     partido_id: int,
@@ -163,6 +183,24 @@ def unirse(
 ):
     try:
         partido = unirse_partido(partido_id, usuario, base_datos)
+        if not partido:
+            raise no_encontrado()
+        return datos_partido(partido)
+    except ErrorPartido as error:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"codigo": error.codigo, "mensaje": error.mensaje},
+        )
+
+
+@router.delete("/{partido_id}/salir", response_model=RespuestaPartido)
+def salir(
+    partido_id: int,
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
+):
+    try:
+        partido = salir_partido(partido_id, usuario, base_datos)
         if not partido:
             raise no_encontrado()
         return datos_partido(partido)

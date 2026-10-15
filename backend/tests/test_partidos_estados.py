@@ -11,6 +11,8 @@ from app.modules.partidos.schemas import DatosPartido
 from app.modules.partidos.service import (
     completar_equipo,
     crear_partido,
+    ErrorPartido,
+    reabrir_equipo,
 )
 
 engine = create_engine(
@@ -136,4 +138,19 @@ def test_completar_equipo_conserva_datos(db, partido):
     assert partido_actualizado.usuario_id == usuario_original
 
     assert partido_actualizado.estado == "equipo completo"
+
+
+def test_reabrir_equipo_cambia_estado_a_cupos_abiertos(db, partido):
+    completar_equipo(partido, db)
+
+    partido_actualizado = reabrir_equipo(partido, db)
+
+    assert partido_actualizado.estado == "cupos abiertos"
+
+
+def test_no_permite_reabrir_equipo_ya_abierto(db, partido):
+    with pytest.raises(ErrorPartido) as error:
+        reabrir_equipo(partido, db)
+
+    assert error.value.codigo == "EQUIPO_ABIERTO"
 

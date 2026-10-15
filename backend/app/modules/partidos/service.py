@@ -204,7 +204,7 @@ def completar_equipo(partido: Partido, base_datos: Session) -> Partido:
     if partido.estado != "cupos abiertos":
         raise ErrorPartido(
             "EQUIPO_COMPLETO",
-            "El equipo ya esta completo",
+            "El equipo ya está completo",
         )
     partido.estado = "equipo completo"
     base_datos.commit()
@@ -243,7 +243,7 @@ def unirse_partido(
     if partido.estado != "cupos abiertos":
         raise ErrorPartido(
             "EQUIPO_COMPLETO",
-            "El equipo ya esta completo",
+            "El equipo ya está completo",
         )
 
     if partido.fecha is None:
@@ -258,7 +258,7 @@ def unirse_partido(
     if fecha <= datetime.now(timezone.utc):
         raise ErrorPartido(
             "FECHA_PASADA",
-            "La fecha del partido ya paso",
+            "La fecha del partido ya pasó",
         )
 
     participante = base_datos.scalar(
@@ -270,7 +270,7 @@ def unirse_partido(
     if participante:
         raise ErrorPartido(
             "YA_INSCRITO",
-            "Ya estas unido a este partido",
+            "Ya estás unido a este partido",
         )
 
     cantidad_participantes = base_datos.scalar(
@@ -323,7 +323,7 @@ def salir_partido(
     if not participante:
         raise ErrorPartido(
             "NO_INSCRITO",
-            "No estas unido a este partido",
+            "No estás unido a este partido",
         )
 
     base_datos.delete(participante)

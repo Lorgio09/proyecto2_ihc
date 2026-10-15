@@ -3,7 +3,7 @@
 
 ## H1. Visibilidad del estado del sistema
 
-**Estado:** No cumple.
+**Estado:** Cumple.
 
 **Pantallas y flujo revisado:** cargar partidos, unirse a un partido, crear, editar, eliminar y completar un equipo.
 
@@ -20,24 +20,22 @@
 
 ## H2. Relación entre el sistema y el mundo real
 
-**Estado:** No cumple.
+**Estado:** Cumple.
 
 **Pantallas y flujo revisado:** formulario y tarjetas de partidos.
 
-**Evidencia:** La aplicación utiliza conceptos familiares como “Partido”, “Deporte”, “Ubicación”, “Cupos”, “Organizador” y “Unirse”. No obstante, el formulario muestra la etiqueta “Ubicacion” sin tilde, mientras que otras pantallas usan “Ubicación”. También hay mensajes sin tildes como “Ya estas” y “La fecha ya paso”.
+**Evidencia:** La aplicación utiliza conceptos familiares como “Partido”, “Deporte”, “Ubicación”, “Cupos”, “Organizador” y “Unirse”. Las etiquetas y mensajes mantienen la escritura natural en español, incluyendo “Ubicación”, “Ya estás” y “La fecha ya pasó”.
 
-**Captura:** ![H2: texto de interfaz sin tilde](evidencias/h2/antes.png)
+**Evidencia original:** ![H2: texto de interfaz sin tilde antes de la corrección](evidencias/h2/antes.png)
 
-**Problema y consecuencia:** El vocabulario se entiende, pero los errores ortográficos reducen la correspondencia con la escritura natural y la calidad percibida de la interfaz.
+**Resultado:** El vocabulario y los mensajes corresponden a la actividad real del usuario y no utilizan términos técnicos internos.
 
-**Severidad:** 2 — menor.
-
-**Referencia:** `frontend_flutter/lib/views/partido_view/formulario_partido.dart:138` y `frontend_flutter/lib/views/partido_view/explorar_partidos_view.dart:129`.
+**Referencia:** `frontend_flutter/lib/views/partido_view/formulario_partido.dart:182` y `backend/app/modules/partidos/service.py:204`.
 
 
 ## H3. Control y libertad del usuario
 
-**Estado:** No cumple.
+**Estado:** Cumple.
 
 **Pantallas y flujo revisado:** inscripción en un partido y gestión de partidos propios.
 
@@ -53,24 +51,22 @@
 
 ## H4. Consistencia y estándares
 
-**Estado:** No cumple.
+**Estado:** Cumple.
 
 **Pantallas y flujo revisado:** formulario, listado propio y exploración pública.
 
-**Evidencia:** Hay diferencias de escritura y formato entre pantallas: “Ubicacion” frente a “Ubicación”, mensajes sin tildes y una presentación distinta de la información. En “Mis partidos” los datos aparecen concatenados en el subtítulo de un `ListTile`, mientras que en “Explorar partidos” se muestran como líneas independientes con etiquetas.
+**Evidencia:** Las vistas usan las mismas etiquetas para deporte, ubicación, fecha, cupos, duración, estado y participantes. Los estados se presentan mediante `estadoTexto`, con “Cupos abiertos” y “Equipo completo”, y las acciones mantienen nombres consistentes como “Completar equipo”, “Reabrir equipo”, “Unirse” y “Salir del partido”.
 
-**Captura:** ![H4: presentación inconsistente](evidencias/hu4/antes.png)
+**Evidencia original:** ![H4: presentación inconsistente antes de la corrección](evidencias/hu4/antes.png)
 
-**Problema y consecuencia:** La interfaz sigue siendo comprensible, pero la falta de uniformidad hace que los elementos equivalentes parezcan menos relacionados.
+**Resultado:** Los elementos equivalentes conservan el mismo significado, escritura y formato en las pantallas de gestión y exploración.
 
-**Severidad:** 2 — menor.
-
-**Referencia:** `frontend_flutter/lib/views/partido_view/formulario_partido.dart:138`, `frontend_flutter/lib/views/partido_view/list_partidoview.dart:164` y `frontend_flutter/lib/views/partido_view/explorar_partidos_view.dart:350`.
+**Referencia:** `frontend_flutter/lib/views/partido_view/list_partidoview.dart:418`, `frontend_flutter/lib/views/partido_view/explorar_partidos_view.dart:418` y `frontend_flutter/lib/models/partido.dart:52`.
 
 
 ## H5. Prevención de errores
 
-**Estado:** No cumple.
+**Estado:** Cumple.
 
 **Pantallas y flujo revisado:** creación y edición de partidos, selección de fecha y acciones de gestión.
 
@@ -102,7 +98,7 @@
 
 ## H7. Flexibilidad y eficiencia de uso
 
-**Estado:** No cumple.
+**Estado:** Cumple.
 
 **Pantallas y flujo revisado:** panel de filtros y administración de partidos.
 
@@ -119,7 +115,7 @@
 
 ## H8. Diseño estético y minimalista
 
-**Estado:** No cumple.
+**Estado:** Cumple.
 
 **Pantallas y flujo revisado:** tarjetas de exploración y listado de partidos propios.
 
@@ -136,7 +132,7 @@
 
 ## H9. Ayudar a reconocer, diagnosticar y recuperarse de los errores
 
-**Estado:** No cumple.
+**Estado:** Cumple.
 
 **Pantallas y flujo revisado:** operaciones de carga, creación, edición, eliminación, completado e inscripción.
 
@@ -153,7 +149,7 @@
 
 ## H10. Ayuda y documentación
 
-**Estado:** No cumple.
+**Estado:** Cumple.
 
 **Pantallas y flujo revisado:** inicio, exploración, listado propio y formulario de partidos.
 

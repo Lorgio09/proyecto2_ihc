@@ -414,14 +414,18 @@ class _ListPartidoViewState extends State<ListPartidoView> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
+                                      Text('Deporte: ${partido.deporteTexto}'),
+                                      Text('Ubicación: ${partido.ubicacion}'),
+                                      Text('Fecha: ${fechaTexto(partido.fecha)}'),
                                       Text(
-                                        'Deporte: ${partido.deporteTexto}\n'
-                                        'Ubicación: ${partido.ubicacion}\n'
-                                        'Fecha: ${fechaTexto(partido.fecha)}\n'
                                         'Cupos: ${partido.cantidadParticipantes}/'
-                                        '${partido.cantidadJugadores}\n'
-                                        'Estado: ${partido.estadoTexto}',
+                                        '${partido.cantidadJugadores}',
                                       ),
+                                      Text(
+                                        'Duración: '
+                                        '${partido.tiempoMin ?? 'No definida'}',
+                                      ),
+                                      Text('Estado: ${partido.estadoTexto}'),
                                       Text(
                                         'Participantes: ${partido.cantidadParticipantes}',
                                       ),

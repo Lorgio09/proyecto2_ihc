@@ -405,99 +405,129 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(12),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                child: Row(
                                   children: [
-                                    Text(
-                                      partido.nombre,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium,
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text('Deporte: ${partido.deporteTexto}'),
-                                    Text('Organizador: $organizador'),
-                                    Text('Ubicación: ${partido.ubicacion}'),
-                                    Text('Fecha: ${fechaTexto(partido.fecha)}'),
-                                    Text(
-                                      'Cupos: ${partido.cantidadParticipantes}/'
-                                      '${partido.cantidadJugadores}',
-                                    ),
-                                    Text('Estado: ${partido.estadoTexto}'),
-                                    Text(
-                                      'Participantes: '
-                                      '${partido.cantidadParticipantes}',
-                                    ),
-                                    if (partido.participantes.isNotEmpty)
-                                      TextButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            partidoExpandidoId = estaExpandido
-                                                ? null
-                                                : partido.id;
-                                          });
-                                        },
-                                        child: Text(
-                                          estaExpandido
-                                              ? 'Ocultar participantes'
-                                              : 'Ver participantes',
-                                        ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            partido.nombre,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleMedium,
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text('Deporte: ${partido.deporteTexto}'),
+                                          Text('Organizador: $organizador'),
+                                          Text('Ubicación: ${partido.ubicacion}'),
+                                          Text(
+                                            'Fecha: ${fechaTexto(partido.fecha)}',
+                                          ),
+                                          Text(
+                                            'Cupos: ${partido.cantidadParticipantes}/'
+                                            '${partido.cantidadJugadores}',
+                                          ),
+                                          Text('Estado: ${partido.estadoTexto}'),
+                                          Text(
+                                            'Participantes: '
+                                            '${partido.cantidadParticipantes}',
+                                          ),
+                                          if (partido.participantes.isNotEmpty)
+                                            TextButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  partidoExpandidoId = estaExpandido
+                                                      ? null
+                                                      : partido.id;
+                                                });
+                                              },
+                                              child: Text(
+                                                estaExpandido
+                                                    ? 'Ocultar participantes'
+                                                    : 'Ver participantes',
+                                              ),
+                                            ),
+                                          if (estaExpandido)
+                                            Text(
+                                              partido.participantes
+                                                  .map(
+                                                    (participante) =>
+                                                        participante.nombre,
+                                                  )
+                                                  .join(', '),
+                                            ),
+                                        ],
                                       ),
-                                    if (estaExpandido)
-                                      Text(
-                                        partido.participantes
-                                            .map(
-                                              (participante) =>
-                                                  participante.nombre,
+                                    ),
+                                    const SizedBox(width: 16),
+                                    SizedBox(
+                                      width: 180,
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        children: [
+                                          if (estaUnidoAlPartido)
+                                            ElevatedButton(
+                                              onPressed: estaSaliendo
+                                                  ? null
+                                                  : () => salir(partido),
+                                              child: estaSaliendo
+                                                  ? const SizedBox(
+                                                      width: 18,
+                                                      height: 18,
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                            strokeWidth: 2,
+                                                          ),
+                                                    )
+                                                  : const Text('Salir del partido'),
                                             )
-                                            .join(', '),
-                                      ),
-                                    const SizedBox(height: 8),
-                                    if (estaUnidoAlPartido)
-                                      ElevatedButton(
-                                        onPressed: estaSaliendo
-                                            ? null
-                                            : () => salir(partido),
-                                        child: estaSaliendo
-                                            ? const SizedBox(
-                                                width: 18,
-                                                height: 18,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  strokeWidth: 2,
+                                          else if (motivo == null)
+                                            ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.green,
+                                                foregroundColor: Colors.white,
+                                                minimumSize: const Size(180, 56),
+                                                textStyle: const TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
                                                 ),
-                                              )
-                                            : const Text('Salir del partido'),
-                                      )
-                                    else if (motivo == null)
-                                      ElevatedButton(
-                                        onPressed: estaUniendose
-                                            ? null
-                                            : () => unirse(partido),
-                                        child: estaUniendose
-                                            ? const SizedBox(
-                                                width: 18,
-                                                height: 18,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  strokeWidth: 2,
-                                                ),
-                                              )
-                                            : const Text('Unirse'),
-                                      )
-                                    else
-                                      Text(
-                                        motivo,
-                                        style: TextStyle(
-                                          color: motivo ==
-                                                  'Ya estás unido a este partido'
-                                              ? Colors.green
-                                              : Theme.of(
-                                                  context,
-                                                ).colorScheme.error,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                              ),
+                                              onPressed: estaUniendose
+                                                  ? null
+                                                  : () => unirse(partido),
+                                              child: estaUniendose
+                                                  ? const SizedBox(
+                                                      width: 24,
+                                                      height: 24,
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                            strokeWidth: 2,
+                                                            color: Colors.white,
+                                                          ),
+                                                    )
+                                                  : const Text('Unirse'),
+                                            )
+                                          else
+                                            Text(
+                                              motivo,
+                                              style: TextStyle(
+                                                color:
+                                                    motivo ==
+                                                        'Ya estás unido a este partido'
+                                                    ? Colors.green
+                                                    : Theme.of(context)
+                                                          .colorScheme
+                                                          .error,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                        ],
                                       ),
+                                    ),
                                   ],
                                 ),
                               ),

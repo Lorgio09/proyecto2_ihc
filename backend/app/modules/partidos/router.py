@@ -9,6 +9,7 @@ from app.modules.auth.service import current_user
 from app.modules.partidos.schemas import (
     ActualizacionPartido,
     DatosPartido,
+    RespuestaHistorial,
     RespuestaPartido,
     RespuestaPartidoExplorar,
 )
@@ -20,6 +21,7 @@ from app.modules.partidos.service import (
     datos_partido,
     datos_partido_publico,
     eliminar_partido,
+    listar_historial,
     listar_partidos,
     listar_partidos_publicos,
     ErrorPartido,
@@ -99,6 +101,14 @@ def explorar_uno(
     if not partido or partido.usuario_id == usuario.id:
         raise no_encontrado()
     return datos_partido_publico(partido)
+
+
+@router.get("/historial", response_model=list[RespuestaHistorial])
+def obtener_historial(
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
+):
+    return listar_historial(usuario, base_datos)
 
 
 @router.get("/{partido_id}", response_model=RespuestaPartido)

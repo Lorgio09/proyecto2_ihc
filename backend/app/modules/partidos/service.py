@@ -90,6 +90,42 @@ def listar_partidos(usuario: Usuario, base_datos: Session) -> list[Partido]:
         ).all()
     )
 
+def listar_historial(
+    usuario: Usuario,
+    base_datos: Session,
+) -> list[dict]:
+    resultados = base_datos.execute(
+        select(HistorialParticipacion, Partido)
+        .join(
+            Partido,
+            HistorialParticipacion.partido_id == Partido.id,
+        )
+        .where(HistorialParticipacion.usuario_id == usuario.id)
+        .order_by(
+            HistorialParticipacion.fecha_evento.desc(),
+            HistorialParticipacion.id.desc(),
+        )
+    ).all()
+
+    historial = []
+
+    for evento, partido in resultados:
+        historial.append(
+            {
+                "id": evento.id,
+                "accion": evento.accion,
+                "fecha_evento": evento.fecha_evento,
+                "partido_id": partido.id,
+                "nombre_partido": partido.nombre,
+                "deporte": partido.deporte,
+                "ubicacion": partido.ubicacion,
+                "fecha_partido": partido.fecha,
+                "estado": partido.estado,
+            }
+        )
+
+    return historial
+
 
 def listar_partidos_publicos(
     usuario: Usuario,

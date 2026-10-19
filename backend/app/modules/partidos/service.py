@@ -4,7 +4,7 @@ from datetime import date, datetime, time, timedelta, timezone
 from sqlalchemy import exists, func, select
 from sqlalchemy.orm import Session, selectinload
 
-from app.database.models import Partido, PartidoParticipante, Usuario
+from app.database.models import HistorialParticipacion, Partido, PartidoParticipante, Usuario
 from app.modules.partidos.schemas import ActualizacionPartido, DatosPartido
 
 
@@ -288,6 +288,14 @@ def unirse_partido(
         PartidoParticipante(
             partido_id=partido_id,
             usuario_id=usuario.id,
+        )
+    )
+
+    base_datos.add(
+        HistorialParticipacion(
+            usuario_id=usuario.id,
+            partido_id=partido.id,
+            accion="se_unio",
         )
     )
 

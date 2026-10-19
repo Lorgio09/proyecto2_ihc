@@ -96,13 +96,13 @@ class HistorialParticipacion(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
 
     usuario_id: Mapped[int] = mapped_column(
-        ForeignKey("usuarios.id"),
+        ForeignKey("usuarios.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
 
     partido_id: Mapped[int] = mapped_column(
-        ForeignKey("partidos.id"),
+        ForeignKey("partidos.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )

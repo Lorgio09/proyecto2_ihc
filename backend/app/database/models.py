@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -89,3 +89,32 @@ class PartidoParticipante(Base):
 
     partido: Mapped[Partido] = relationship(back_populates="participantes")
     usuario: Mapped[Usuario] = relationship(back_populates="partidos_participados")
+
+class HistorialParticipacion(Base):
+    __tablename__ = "historial_participaciones"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    usuario_id: Mapped[int] = mapped_column(
+        ForeignKey("usuarios.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    partido_id: Mapped[int] = mapped_column(
+        ForeignKey("partidos.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    accion: Mapped[str] = mapped_column(
+        String(30),
+        nullable=False,
+        default="se_unio",
+    )
+
+    fecha_evento: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+    )

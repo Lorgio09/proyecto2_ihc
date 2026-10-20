@@ -52,3 +52,15 @@ class RespuestaPartido(DatosPartido):
 class RespuestaPartidoExplorar(RespuestaPartido):
     organizador: RespuestaUsuarioPartido
 
+
+class RespuestaHistorial(BaseModel):
+    id: int
+    accion: str
+    fecha_evento: datetime
+    partido_id: int
+    nombre_partido: str
+    deporte: str
+    ubicacion: str
+    fecha_partido: datetime | None
+    estado: str
+

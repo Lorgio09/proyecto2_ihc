@@ -9,6 +9,7 @@ import '../autenticacion/cambiar_contraseña.dart';
 import '../autenticacion/login_view.dart';
 import '../partido_view/explorar_partidos_view.dart';
 import '../partido_view/list_partidoview.dart';
+import '../partido_view/historial_partidos_view.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key, required this.user, required this.authService});
@@ -31,8 +32,8 @@ class HomeView extends StatelessWidget {
                 context,
                 '¿Cómo usar UniSport?',
                 'En Mis partidos puedes crear y administrar tus partidos.\n\n'
-                'En Explorar partidos puedes buscar partidos creados por '
-                'otros usuarios y unirte si todavía tienen cupos.',
+                    'En Explorar partidos puedes buscar partidos creados por '
+                    'otros usuarios y unirte si todavía tienen cupos.',
               );
             },
           ),
@@ -91,6 +92,14 @@ class HomeView extends StatelessWidget {
                   texto: 'Mis partidos',
                   alPresionar: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const ListPartidoView()),
+                  ),
+                ),
+                BotonGuardar(
+                  texto: 'Mi historial',
+                  alPresionar: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => HistorialPartidosView(usuario: user),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),

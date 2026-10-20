@@ -6,6 +6,8 @@ import '../consts/api_url.dart';
 import '../models/partido.dart';
 import 'auth_service.dart';
 
+import '../models/historial_partido.dart';
+
 class PartidoError implements Exception {
   final String codigo;
   final String mensaje;
@@ -182,5 +184,25 @@ class PartidoService {
     }
 
     return Partido.fromJson(jsonDecode(respuesta.body));
+  }
+
+  Future<List<HistorialPartido>> listarHistorial() async {
+    final respuesta = await client.get(
+      url('/historial'),
+      headers: await headers(),
+    );
+
+    if (respuesta.statusCode != 200) {
+      throw errorRespuesta(respuesta, 'No se pudo cargar el historial');
+    }
+
+    final lista = jsonDecode(respuesta.body) as List;
+
+    return lista
+        .map(
+          (elemento) =>
+              HistorialPartido.fromJson(elemento as Map<String, dynamic>),
+        )
+        .toList();
   }
 }

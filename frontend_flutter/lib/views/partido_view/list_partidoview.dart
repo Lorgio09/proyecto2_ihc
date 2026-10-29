@@ -330,6 +330,73 @@ class _ListPartidoViewState extends State<ListPartidoView> {
         '${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}';
   }
 
+  // Acciones de una tarjeta (completar/reabrir, editar, eliminar).
+  // Antes estaban en el `trailing` del ListTile y estrechaban el texto;
+  // ahora se dibujan debajo del contenido. La lógica de cada botón no cambia.
+  Widget _construirAcciones(Partido partido) {
+    final estado = partido.estado.trim().toLowerCase();
+    final estaEliminando = partidoEliminandoId == partido.id;
+    final estaCompletando = partidoCompletandoId == partido.id;
+    final estaReabriendo = partidoReabriendoId == partido.id;
+
+    return Wrap(
+      spacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        if (estado == 'cupos abiertos')
+          ElevatedButton(
+            onPressed: estaCompletando ? null : () => completarEquipo(partido),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+            ),
+            child: estaCompletando
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text('Completar equipo'),
+          ),
+        if (estado == 'equipo completo')
+          ElevatedButton(
+            onPressed: estaReabriendo ? null : () => reabrirEquipo(partido),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+            ),
+            child: estaReabriendo
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text('Reabrir equipo'),
+          ),
+        IconButton(
+          onPressed: () => abrirFormulario(partido: partido),
+          icon: const Icon(Icons.edit),
+        ),
+        IconButton(
+          onPressed: estaEliminando ? null : () => borrarPartido(partido),
+          icon: estaEliminando
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.delete),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -398,12 +465,6 @@ class _ListPartidoViewState extends State<ListPartidoView> {
                               final partido = partidosVisibles[index];
                               final estaExpandido =
                                   partidoExpandidoId == partido.id;
-                              final estaEliminando =
-                                  partidoEliminandoId == partido.id;
-                              final estaCompletando =
-                                  partidoCompletandoId == partido.id;
-                              final estaReabriendo =
-                                  partidoReabriendoId == partido.id;
 
                               return Card(
                                 margin: const EdgeInsets.all(8),
@@ -453,80 +514,7 @@ class _ListPartidoViewState extends State<ListPartidoView> {
                                               )
                                               .join(', '),
                                         ),
-                                    ],
-                                  ),
-                                  //isThreeLine: true,
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      if (partido.estado.trim().toLowerCase() ==
-                                          'cupos abiertos')
-                                        ElevatedButton(
-                                          onPressed: estaCompletando
-                                              ? null
-                                              : () => completarEquipo(partido),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.orange,
-                                            foregroundColor: Colors.white,
-                                          ),
-                                          child: estaCompletando
-                                              ? const SizedBox(
-                                                  width: 18,
-                                                  height: 18,
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                        strokeWidth: 2,
-                                                        color: Colors.white,
-                                                      ),
-                                                )
-                                              : const Text('Completar equipo'),
-                                        ),
-                                      if (partido.estado.trim().toLowerCase() ==
-                                          'equipo completo')
-                                        ElevatedButton(
-                                          onPressed: estaReabriendo
-                                              ? null
-                                              : () => reabrirEquipo(partido),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.green,
-                                            foregroundColor: Colors.white,
-                                          ),
-                                          child: estaReabriendo
-                                              ? const SizedBox(
-                                                  width: 18,
-                                                  height: 18,
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                        strokeWidth: 2,
-                                                        color: Colors.white,
-                                                      ),
-                                                )
-                                              : const Text('Reabrir equipo'),
-                                        ),
-
-                                      // Botón editar
-                                      IconButton(
-                                        onPressed: () =>
-                                            abrirFormulario(partido: partido),
-                                        icon: const Icon(Icons.edit),
-                                      ),
-
-                                      // Botón eliminar
-                                      IconButton(
-                                        onPressed: estaEliminando
-                                            ? null
-                                            : () => borrarPartido(partido),
-                                        icon: estaEliminando
-                                            ? const SizedBox(
-                                                width: 20,
-                                                height: 20,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                      strokeWidth: 2,
-                                                    ),
-                                              )
-                                            : const Icon(Icons.delete),
-                                      ),
+                                      _construirAcciones(partido),
                                     ],
                                   ),
                                 ),

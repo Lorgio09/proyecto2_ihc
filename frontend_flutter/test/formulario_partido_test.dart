@@ -101,7 +101,7 @@ void main() {
   testWidgets('muestra error si se guarda sin fecha', (tester) async {
     await mostrarFormulario(tester, estado: 'cupos abiertos');
 
-    await tester.tap(find.text('Guardar'));
+    await tester.tap(find.byKey(const Key('boton-guardar-partido')));
     await tester.pump();
 
     expect(find.text('La fecha es obligatoria'), findsOneWidget);

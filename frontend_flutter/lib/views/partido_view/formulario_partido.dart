@@ -259,7 +259,11 @@ class _FormularioPartidoState extends State<FormularioPartido> {
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancelar'),
         ),
-        BotonGuardar(texto: 'Guardar', alPresionar: guardar),
+        BotonGuardar(
+          key: const Key('boton-guardar-partido'),
+          texto: 'save',
+          alPresionar: guardar,
+        ),
       ],
     );
   }

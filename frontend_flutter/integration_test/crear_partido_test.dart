@@ -57,7 +57,7 @@ void main() {
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Guardar'));
+    await tester.tap(find.byKey(const Key('boton-guardar-partido')));
     await tester.pumpAndSettle(const Duration(seconds: 5));
 
     // Scope to the list tile: a confirmation snackbar may repeat the name.
@@ -82,7 +82,7 @@ void main() {
     await _iniciarSesion(tester);
     await _abrirFormularioNuevoPartido(tester);
 
-    await tester.tap(find.text('Guardar'));
+    await tester.tap(find.byKey(const Key('boton-guardar-partido')));
     await tester.pumpAndSettle();
 
     expect(find.text('La fecha es obligatoria'), findsOneWidget);

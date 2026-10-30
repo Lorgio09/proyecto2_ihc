@@ -159,6 +159,6 @@ void main() {
 
     expect(find.byIcon(Icons.edit), findsOneWidget);
     expect(find.byIcon(Icons.delete), findsOneWidget);
-    expect(find.text('Completar equipo'), findsOneWidget);
+    expect(find.byKey(const Key('boton-completar-partido')), findsOneWidget);
   });
 }

@@ -45,7 +45,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Completar equipo'));
+    await tester.tap(find.byKey(const Key('boton-completar-partido')));
     await tester.pumpAndSettle();
     expect(find.text('Al completar el equipo se cerrarán los cupos y otros usuarios no podrán unirse al partido. ¿Quieres continuar?'), findsOneWidget);
 
@@ -64,9 +64,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Completar equipo'));
+    await tester.tap(find.byKey(const Key('boton-completar-partido')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Completar equipo').last);
+    await tester.tap(find.byKey(const Key('confirmar-completar-partido')));
     await tester.pumpAndSettle();
 
     expect(service.completarLlamadas, 1);

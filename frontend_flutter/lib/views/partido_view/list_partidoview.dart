@@ -255,7 +255,7 @@ class _ListPartidoViewState extends State<ListPartidoView> {
     final confirmar = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Completar equipo'),
+        title: const Text('Completar'),
         content: const Text(
           'Al completar el equipo se cerrarán los cupos y otros usuarios '
           'no podrán unirse al partido. ¿Quieres continuar?',
@@ -266,8 +266,9 @@ class _ListPartidoViewState extends State<ListPartidoView> {
             child: const Text('Cancelar'),
           ),
           TextButton(
+            key: const Key('confirmar-completar-partido'),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Completar equipo'),
+            child: const Text('Completar'),
           ),
         ],
       ),
@@ -345,6 +346,7 @@ class _ListPartidoViewState extends State<ListPartidoView> {
       children: [
         if (estado == 'cupos abiertos')
           ElevatedButton(
+            key: const Key('boton-completar-partido'),
             onPressed: estaCompletando ? null : () => completarEquipo(partido),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.orange,
@@ -359,7 +361,7 @@ class _ListPartidoViewState extends State<ListPartidoView> {
                       color: Colors.white,
                     ),
                   )
-                : const Text('Completar equipo'),
+                : const Text('Completar'),
           ),
         if (estado == 'equipo completo')
           ElevatedButton(

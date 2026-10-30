@@ -42,7 +42,7 @@ void main() {
     await abrirLista(tester);
 
     final estado = tester.getTopLeft(find.text('Estado: Cupos abiertos'));
-    final completar = tester.getTopLeft(find.text('Completar equipo'));
+    final completar = tester.getTopLeft(find.byKey(const Key('boton-completar-partido')));
     final editar = tester.getTopLeft(find.byIcon(Icons.edit));
     final eliminar = tester.getTopLeft(find.byIcon(Icons.delete));
 

@@ -97,7 +97,8 @@ class Partido {
     if (value is! String) {
       throw const FormatException('La fecha del partido debe ser un texto');
     }
-    return DateTime.parse(value);
+    // The API stores UTC; show and edit the date in the user's local time.
+    return DateTime.parse(value).toLocal();
   }
 }
 
@@ -125,7 +126,7 @@ class PartidoCreateRequest {
     'cantidad_jugadores': cantidadJugadores,
     'ubicacion': ubicacion,
     'tiempo_min': tiempoMin,
-    'fecha': fecha?.toIso8601String(),
+    'fecha': fecha?.toUtc().toIso8601String(),
 
     'deporte': deporte,
   };
@@ -155,7 +156,7 @@ class PartidoUpdateRequest {
     if (cantidadJugadores != null) 'cantidad_jugadores': cantidadJugadores,
     if (ubicacion != null) 'ubicacion': ubicacion,
     if (tiempoMin != null) 'tiempo_min': tiempoMin,
-    if (fecha != null) 'fecha': fecha!.toIso8601String(),
+    if (fecha != null) 'fecha': fecha!.toUtc().toIso8601String(),
 
     if (deporte != null) 'deporte': deporte,
   };

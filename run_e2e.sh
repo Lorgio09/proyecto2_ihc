@@ -30,8 +30,8 @@ source .venv/bin/activate
 echo "2/5 Applying migrations..."
 alembic upgrade head >/dev/null 2>&1
 
-echo "3/5 Loading seed data..."
-python seed.py
+echo "3/5 Loading seed data (reset to a known state)..."
+python seed.py --reset
 
 echo "4/5 Starting backend..."
 if curl -s -o /dev/null http://127.0.0.1:8000/docs; then

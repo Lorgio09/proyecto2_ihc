@@ -2,13 +2,16 @@
 
 Usage (from backend/, with the virtualenv active):
 
-    python seed.py
+    python seed.py           # add whatever is missing
+    python seed.py --reset   # first delete the seed users' matches (and, by
+                             # cascade, their participants and history)
 
 Test accounts (password for all: Seed1234):
     organizador@unisport.test
     jugador@unisport.test
 """
 
+import sys
 from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select
@@ -33,8 +36,19 @@ PARTIDOS = [
 ]
 
 
+def reset(db) -> None:
+    """Remove the matches the seed users own, e.g. those left by E2E runs."""
+    emails = [email for _, email, _ in USUARIOS]
+    ids = db.scalars(select(Usuario.id).where(Usuario.email.in_(emails))).all()
+    for partido in db.scalars(select(Partido).where(Partido.usuario_id.in_(ids))):
+        db.delete(partido)
+    db.commit()
+
+
 def main() -> None:
     with SessionLocal() as db:
+        if "--reset" in sys.argv[1:]:
+            reset(db)
         usuarios = {}
         for nombre, email, telefono in USUARIOS:
             usuario = db.scalar(select(Usuario).where(Usuario.email == email))

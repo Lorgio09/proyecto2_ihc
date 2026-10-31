@@ -111,6 +111,7 @@ class _RegisterViewState extends State<RegisterView> {
                       const SizedBox(height: 33),
                       Center(
                         child: BotonGuardar(
+                          key: const Key('boton-registrarme'),
                           texto: 'Registrarme',
                           estaCargando: _esta_cargando,
                           alPresionar: _registrar,

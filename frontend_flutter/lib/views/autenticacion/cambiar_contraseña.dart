@@ -154,6 +154,7 @@ class _cambiarContraViewState extends State<cambiarContraView> {
                       const SizedBox(height: 33),
                       Center(
                         child: BotonGuardar(
+                          key: const Key('boton-cambiar-contrasena'),
                           texto: widget.modoRecuperacion
                               ? 'Restablecer contraseña'
                               : 'Cambiar contraseña',

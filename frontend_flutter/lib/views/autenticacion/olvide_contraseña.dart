@@ -107,6 +107,7 @@ class _OlvideContrasenaViewState extends State<OlvideContrasenaView> {
               const SizedBox(height: 17),
               Center(
                 child: BotonGuardar(
+                  key: const Key('boton-continuar-recuperacion'),
                   texto: _codigoEnviado ? 'Verificar codigo' : 'Continuar',
                   estaCargando: _estaCargando,
                   alPresionar: _continuar,

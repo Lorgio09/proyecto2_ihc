@@ -108,6 +108,7 @@ class _LoginViewState extends State<LoginView> {
 
                       Center(
                         child: TextButton(
+                          key: const Key('enlace-olvide-contrasena'),
                           onPressed: () => Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (_) => const OlvideContrasenaView(),
@@ -123,6 +124,7 @@ class _LoginViewState extends State<LoginView> {
                           children: [
                             Text('¿No tienes cuenta? '),
                             InkWell(
+                              key: const Key('enlace-registro'),
                               onTap: () => Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (_) => const RegisterView(),

@@ -9,6 +9,8 @@ Usage (from backend/, with the virtualenv active):
 Test accounts (password for all: Seed1234):
     organizador@unisport.test
     jugador@unisport.test
+    jugador2@unisport.test
+    jugador3@unisport.test
 """
 
 import sys
@@ -25,6 +27,8 @@ PASSWORD = "Seed1234"
 USUARIOS = [
     ("Organizador Demo", "organizador@unisport.test", "70000001"),
     ("Jugador Demo", "jugador@unisport.test", "70000002"),
+    ("Segundo Jugador", "jugador2@unisport.test", "70000003"),
+    ("Tercer Jugador", "jugador3@unisport.test", "70000004"),
 ]
 
 # (nombre, deporte, cantidad_jugadores, ubicacion, tiempo_min, dias_desde_hoy)
@@ -33,6 +37,8 @@ PARTIDOS = [
     ("Basket 3x3", "basquet", 6, "Coliseo Universitario", "45", 3),
     ("Voley de tarde", "voley", 12, "Parque Urbano", "90", 4),
     ("Futsal nocturno", "futbol", 8, "Polideportivo Norte", "60", 5),
+    # Two spots only, so the third player to join becomes a substitute.
+    ("Duelo de dos", "futbol", 2, "Cancha Chica", "30", 6),
 ]
 
 

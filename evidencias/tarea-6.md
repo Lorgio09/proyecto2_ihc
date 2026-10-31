@@ -78,8 +78,9 @@ Decisiones propias (la diapositiva no las fija): ver §4.
   usuario solo por token. Con dos recuperaciones pendientes puede cambiar la contraseña
   de la persona equivocada. No se corrigió porque cambia el contrato; `seed.py --reset`
   limpia los tokens para que los tests sean repetibles.
-- El golden de Flutter dibuja el texto con la fuente de prueba y no carga el logo:
-  vigila layout, tamaños y colores, no la tipografía real.
+- Las capturas de referencia (golden) cargan Roboto y los iconos desde el SDK de Flutter
+  (`FLUTTER_ROOT`); si ese SDK cambia de versión, las fuentes pueden variar unos píxeles y
+  habrá que regenerarlas con `flutter test --update-goldens test/visual_test.dart`.
 - Sin captura visual ni test de accesibilidad: formulario de partido, cambiar contraseña
   e historial (marcados ⚠️ arriba).
 - Los E2E de la matriz oficial del docente podrían pedir otras columnas; esta tabla es

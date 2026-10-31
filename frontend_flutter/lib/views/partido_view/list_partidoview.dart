@@ -521,6 +521,12 @@ class _ListPartidoViewState extends State<ListPartidoView> {
                                               )
                                               .join(', '),
                                         ),
+                                      if (estaExpandido &&
+                                          partido.suplentes.isNotEmpty)
+                                        Text(
+                                          'Suplentes: '
+                                          '${partido.suplentes.map((suplente) => suplente.nombre).join(', ')}',
+                                        ),
                                       _construirAcciones(partido),
                                     ],
                                   ),

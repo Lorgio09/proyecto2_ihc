@@ -30,6 +30,9 @@ class Partido {
   final List<UsuarioPartido> participantes;
   final int cantidadParticipantes;
   final int cuposDisponibles;
+  // Wait for a holder to leave, in order of arrival.
+  final List<UsuarioPartido> suplentes;
+  final int cantidadSuplentes;
 
   final String deporte; // Nuevo atributo para el deporte
 
@@ -46,6 +49,8 @@ class Partido {
     this.participantes = const [],
     this.cantidadParticipantes = 0,
     this.cuposDisponibles = 0,
+    this.suplentes = const [],
+    this.cantidadSuplentes = 0,
     required this.deporte,
   });
 
@@ -68,6 +73,7 @@ class Partido {
 
   factory Partido.fromJson(Map<String, dynamic> json) {
     final participantesJson = json['participantes'] as List? ?? [];
+    final suplentesJson = json['suplentes'] as List? ?? [];
     final organizadorJson = json['organizador'];
 
     return Partido(
@@ -87,6 +93,11 @@ class Partido {
           .toList(),
       cantidadParticipantes: json['cantidad_participantes'] as int? ?? 0,
       cuposDisponibles: json['cupos_disponibles'] as int? ?? 0,
+      suplentes: suplentesJson
+          .whereType<Map<String, dynamic>>()
+          .map(UsuarioPartido.fromJson)
+          .toList(),
+      cantidadSuplentes: json['cantidad_suplentes'] as int? ?? 0,
 
       deporte: json['deporte'] as String? ?? 'futbol',
     );

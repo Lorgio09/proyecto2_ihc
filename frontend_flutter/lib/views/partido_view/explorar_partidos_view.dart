@@ -142,27 +142,45 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
 
   String? motivoBloqueo(Partido partido) {
     if (estaUnido(partido)) return null;
-    if (partido.estado == 'equipo completo') {
+    // Closed by the organizer while spots remain. A team that is full only
+    // because every spot is taken still accepts substitutes.
+    if (partido.estado == 'equipo completo' && partido.cuposDisponibles > 0) {
       return 'El equipo ya está completo';
     }
     if (partido.fecha != null && !partido.fecha!.isAfter(DateTime.now())) {
       return 'La fecha del partido ya pasó';
     }
-    if (partido.cuposDisponibles <= 0) return 'No quedan cupos disponibles';
     return null;
   }
 
-  bool estaUnido(Partido partido) => partido.participantes.any(
+  bool estaUnido(Partido partido) =>
+      partido.participantes.any(
         (participante) => participante.id == widget.usuario.id,
-      );
+      ) ||
+      posicionSuplente(partido) != null;
+
+  /// 1-based place in the substitutes queue, or null when not a substitute.
+  int? posicionSuplente(Partido partido) {
+    final indice = partido.suplentes.indexWhere(
+      (suplente) => suplente.id == widget.usuario.id,
+    );
+    return indice == -1 ? null : indice + 1;
+  }
 
   Future<void> unirse(Partido partido) async {
     setState(() => partidoUniendoseId = partido.id);
 
     try {
-      await partidoService.unirse(partido.id);
+      final actualizado = await partidoService.unirse(partido.id);
       await cargarPartidos();
-      if (mounted) mostrarMensaje(context, 'Te uniste al partido');
+      if (mounted) {
+        mostrarMensaje(
+          context,
+          posicionSuplente(actualizado) != null
+              ? 'Te uniste como suplente'
+              : 'Te uniste al partido',
+        );
+      }
     } catch (error) {
       if (mounted) mostrarMensaje(context, error.toString());
     } finally {
@@ -436,6 +454,16 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                                             'Participantes: '
                                             '${partido.cantidadParticipantes}',
                                           ),
+                                          if (partido.cantidadSuplentes > 0)
+                                            Text(
+                                              'Suplentes: '
+                                              '${partido.cantidadSuplentes}',
+                                            ),
+                                          if (posicionSuplente(partido) != null)
+                                            Text(
+                                              'Eres suplente (posición '
+                                              '${posicionSuplente(partido)})',
+                                            ),
                                           if (partido.participantes.isNotEmpty)
                                             TextButton(
                                               onPressed: () {
@@ -513,7 +541,11 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                                                             color: Colors.white,
                                                           ),
                                                     )
-                                                  : const Text('Unirse'),
+                                                  : Text(
+                                                      partido.cuposDisponibles <= 0
+                                                          ? 'Unirse como suplente'
+                                                          : 'Unirse',
+                                                    ),
                                             )
                                           else
                                             Text(

@@ -41,6 +41,8 @@ class HistorialPartido {
 
   String get accionTexto {
     if (accion == 'se_unio') return 'Te uniste al partido';
+    if (accion == 'se_unio_suplente') return 'Te uniste como suplente';
+    if (accion == 'paso_a_titular') return 'Pasaste a titular';
     return accion;
   }
 

@@ -124,7 +124,10 @@ class _RegisterViewState extends State<RegisterView> {
                             Text('Ya tienes Cuenta? '),
                             InkWell(
                               onTap: () => Navigator.of(context).pop(),
-                              child: Text('Inicia Sesion'),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: 14),
+                                child: Text('Inicia Sesion'),
+                              ),
                             ),
                           ],
                         ),

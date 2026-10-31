@@ -273,6 +273,7 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                 labelText: 'Buscar por nombre',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: IconButton(
+                  tooltip: 'Buscar partidos',
                   onPressed: cargarPartidos,
                   icon: const Icon(Icons.search),
                 ),
@@ -491,7 +492,7 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                                             ElevatedButton(
                                               key: const Key('boton-unirse-partido'),
                                               style: ElevatedButton.styleFrom(
-                                                backgroundColor: Colors.green,
+                                                backgroundColor: Colors.green.shade800,
                                                 foregroundColor: Colors.white,
                                                 minimumSize: const Size(180, 56),
                                                 textStyle: const TextStyle(

@@ -351,7 +351,7 @@ class _ListPartidoViewState extends State<ListPartidoView> {
             key: const Key('boton-completar-partido'),
             onPressed: estaCompletando ? null : () => completarEquipo(partido),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
+              backgroundColor: const Color(0xFFB45309), // 5.0:1 against white text
               foregroundColor: Colors.white,
             ),
             child: estaCompletando
@@ -370,7 +370,7 @@ class _ListPartidoViewState extends State<ListPartidoView> {
             key: const Key('boton-reabrir-partido'),
             onPressed: estaReabriendo ? null : () => reabrirEquipo(partido),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
+              backgroundColor: Colors.green.shade800,
               foregroundColor: Colors.white,
             ),
             child: estaReabriendo
@@ -533,6 +533,7 @@ class _ListPartidoViewState extends State<ListPartidoView> {
               ],
             ),
       floatingActionButton: FloatingActionButton(
+        tooltip: 'Nuevo partido',
         onPressed: guardandoPartido ? null : () => abrirFormulario(),
         child: const Icon(Icons.add),
       ),

@@ -182,6 +182,7 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
             child: const Text('No'),
           ),
           TextButton(
+            key: const Key('confirmar-salir-partido'),
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Sí, salir'),
           ),
@@ -471,6 +472,7 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                                         children: [
                                           if (estaUnidoAlPartido)
                                             ElevatedButton(
+                                              key: const Key('boton-salir-partido'),
                                               onPressed: estaSaliendo
                                                   ? null
                                                   : () => salir(partido),
@@ -487,6 +489,7 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                                             )
                                           else if (motivo == null)
                                             ElevatedButton(
+                                              key: const Key('boton-unirse-partido'),
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor: Colors.green,
                                                 foregroundColor: Colors.white,

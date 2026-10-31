@@ -96,6 +96,7 @@ class HomeView extends StatelessWidget {
                   ),
                 ),
                 BotonGuardar(
+                  key: const Key('boton-mi-historial'),
                   texto: 'Mi historial',
                   alPresionar: () => Navigator.of(context).push(
                     MaterialPageRoute(
@@ -105,6 +106,7 @@ class HomeView extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 BotonGuardar(
+                  key: const Key('boton-explorar-partidos'),
                   texto: 'Explorar partidos',
                   alPresionar: () => Navigator.of(context).push(
                     MaterialPageRoute(

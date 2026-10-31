@@ -1,0 +1,13 @@
+Suite: antes
+Date:  2026-10-31 18:53:09
+Commit: d50c57d
+Device: linux
+
+.........................                                                [100%]
+25 passed in 0.48s
+00:02 +28: All tests passed!
+00:38 +2: All tests passed!
+01:42 +6: All tests passed!
+01:14 +2: All tests passed!
+00:21 +2: All tests passed!
+01:15 +4: All tests passed!

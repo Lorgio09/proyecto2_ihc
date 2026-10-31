@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Runs every test suite and saves the result under evidencias/.
+#
+# Usage: ./run_suite.sh <label> [flutter device, default: linux]
+#   ./run_suite.sh antes     # before a feature
+#   ./run_suite.sh despues   # after it
+set -uo pipefail
+
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+LABEL="${1:?Usage: ./run_suite.sh <label> [device]}"
+DEVICE="${2:-linux}"
+OUT="$ROOT/evidencias/suite-$LABEL.txt"
+mkdir -p "$ROOT/evidencias"
+
+{
+  echo "Suite: $LABEL"
+  echo "Date:  $(date '+%Y-%m-%d %H:%M:%S')"
+  echo "Commit: $(git -C "$ROOT" rev-parse --short HEAD)"
+  echo "Device: $DEVICE"
+  echo
+} >"$OUT"
+
+echo "== Backend (pytest) =="
+(cd "$ROOT/backend" && source .venv/bin/activate && python -m pytest -q 2>&1 | tail -3) | tee -a "$OUT"
+
+echo "== Flutter widget tests =="
+(cd "$ROOT/frontend_flutter" && flutter test 2>&1 | tail -1) | tee -a "$OUT"
+
+echo "== E2E ($DEVICE) =="
+"$ROOT/run_e2e.sh" "$DEVICE" 2>&1 | grep -E "^[0-9:]+ \+[0-9]+.*(All tests passed|Some tests failed)|\[E\]" | tee -a "$OUT"

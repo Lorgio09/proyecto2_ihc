@@ -99,6 +99,7 @@ class _LoginViewState extends State<LoginView> {
 
                       Center(
                         child: BotonGuardar(
+                          key: const Key('boton-ingresar'),
                           texto: 'Ingresar',
                           estaCargando: _esta_cargando,
                           alPresionar: _iniciar_sesion,

@@ -24,7 +24,7 @@ void main() {
     final campos = find.byType(TextFormField);
     await tester.enterText(campos.at(0), _email);
     await tester.enterText(campos.at(1), _password);
-    await tester.tap(find.text('Ingresar'));
+    await tester.tap(find.byKey(const Key('boton-ingresar')));
     await tester.pumpAndSettle(const Duration(seconds: 5));
 
     expect(find.text('¡Bienvenido, Jugador Demo!'), findsOneWidget);
@@ -39,11 +39,11 @@ void main() {
     final campos = find.byType(TextFormField);
     await tester.enterText(campos.at(0), _email);
     await tester.enterText(campos.at(1), 'ClaveIncorrecta');
-    await tester.tap(find.text('Ingresar'));
+    await tester.tap(find.byKey(const Key('boton-ingresar')));
     await tester.pumpAndSettle(const Duration(seconds: 5));
 
     expect(find.text('Email o contraseña incorrectos'), findsOneWidget);
-    expect(find.text('Ingresar'), findsOneWidget);
+    expect(find.byKey(const Key('boton-ingresar')), findsOneWidget);
     expect(find.textContaining('Bienvenido'), findsNothing);
   });
 }

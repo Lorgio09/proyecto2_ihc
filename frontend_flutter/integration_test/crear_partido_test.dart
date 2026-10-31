@@ -16,12 +16,12 @@ Future<void> _iniciarSesion(WidgetTester tester) async {
   final campos = find.byType(TextFormField);
   await tester.enterText(campos.at(0), _email);
   await tester.enterText(campos.at(1), _password);
-  await tester.tap(find.text('Ingresar'));
+  await tester.tap(find.byKey(const Key('boton-ingresar')));
   await tester.pumpAndSettle(const Duration(seconds: 5));
 }
 
 Future<void> _abrirFormularioNuevoPartido(WidgetTester tester) async {
-  await tester.tap(find.text('Mis partidos'));
+  await tester.tap(find.byKey(const Key('boton-mis-partidos')));
   await tester.pumpAndSettle(const Duration(seconds: 5));
   await tester.tap(find.byType(FloatingActionButton));
   await tester.pumpAndSettle();
@@ -52,7 +52,7 @@ void main() {
     await tester.enterText(campos.at(1), 'Cancha E2E'); // Ubicación
     await tester.enterText(campos.at(2), '10'); // Cantidad de jugadores
 
-    await tester.tap(find.text('Elegir fecha'));
+    await tester.tap(find.byKey(const Key('boton-elegir-fecha')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();

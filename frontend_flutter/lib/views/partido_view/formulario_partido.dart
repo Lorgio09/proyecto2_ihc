@@ -237,6 +237,7 @@ class _FormularioPartidoState extends State<FormularioPartido> {
                     ),
                   ),
                   TextButton(
+                    key: const Key('boton-elegir-fecha'),
                     onPressed: seleccionarFecha,
                     child: const Text('Elegir fecha'),
                   ),

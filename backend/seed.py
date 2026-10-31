@@ -42,6 +42,16 @@ def reset(db) -> None:
     ids = db.scalars(select(Usuario.id).where(Usuario.email.in_(emails))).all()
     for partido in db.scalars(select(Partido).where(Partido.usuario_id.in_(ids))):
         db.delete(partido)
+    # A pending recovery token makes the next recovery ambiguous: the reset
+    # endpoint finds its user by token alone, and the token is always 123456.
+    for usuario in db.scalars(select(Usuario).where(Usuario.id.in_(ids))):
+        usuario.token_recuperacion = None
+        usuario.token_expiracion = None
+    # Accounts created by the E2E tests (registration, password recovery).
+    for usuario in db.scalars(
+        select(Usuario).where(Usuario.email.like("e2e-%@unisport.test"))
+    ):
+        db.delete(usuario)
     db.commit()
 
 

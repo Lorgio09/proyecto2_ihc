@@ -229,6 +229,7 @@ class _ListPartidoViewState extends State<ListPartidoView> {
             child: const Text('No'),
           ),
           TextButton(
+            key: const Key('confirmar-eliminar-partido'),
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Sí'),
           ),
@@ -304,6 +305,7 @@ class _ListPartidoViewState extends State<ListPartidoView> {
             child: const Text('No'),
           ),
           TextButton(
+            key: const Key('confirmar-reabrir-partido'),
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Sí, reabrir'),
           ),
@@ -365,6 +367,7 @@ class _ListPartidoViewState extends State<ListPartidoView> {
           ),
         if (estado == 'equipo completo')
           ElevatedButton(
+            key: const Key('boton-reabrir-partido'),
             onPressed: estaReabriendo ? null : () => reabrirEquipo(partido),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
@@ -382,10 +385,12 @@ class _ListPartidoViewState extends State<ListPartidoView> {
                 : const Text('Reabrir equipo'),
           ),
         IconButton(
+          tooltip: 'Editar partido',
           onPressed: () => abrirFormulario(partido: partido),
           icon: const Icon(Icons.edit),
         ),
         IconButton(
+          tooltip: 'Eliminar partido',
           onPressed: estaEliminando ? null : () => borrarPartido(partido),
           icon: estaEliminando
               ? const SizedBox(

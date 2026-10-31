@@ -177,7 +177,10 @@ def listar_partidos_publicos(
         cantidad_participantes = (
             select(func.count())
             .select_from(PartidoParticipante)
-            .where(PartidoParticipante.partido_id == Partido.id)
+            .where(
+                PartidoParticipante.partido_id == Partido.id,
+                PartidoParticipante.es_suplente.is_(False),
+            )
             .scalar_subquery()
         )
         usuario_ya_unido = exists().where(
@@ -212,11 +215,7 @@ def actualizar_partido(
         if nombre in cambios and cambios[nombre] is not None:
             cambios[nombre] = cambios[nombre].strip()
     if "cantidad_jugadores" in cambios:
-        cantidad_participantes = base_datos.scalar(
-            select(func.count())
-            .select_from(PartidoParticipante)
-            .where(PartidoParticipante.partido_id == partido.id)
-        )
+        cantidad_participantes = contar_titulares(partido.id, base_datos)
         if cambios["cantidad_jugadores"] < cantidad_participantes:
             raise ErrorPartido(
                 "CAPACIDAD_INSUFICIENTE",
@@ -224,6 +223,8 @@ def actualizar_partido(
             )
     for nombre, valor in cambios.items():
         setattr(partido, nombre, valor)
+    if "cantidad_jugadores" in cambios:
+        promover_suplentes(partido, base_datos)
 
     base_datos.commit()
     base_datos.refresh(partido)
@@ -261,6 +262,50 @@ def reabrir_equipo(partido: Partido, base_datos: Session) -> Partido:
     return partido
 
 
+def contar_titulares(partido_id: int, base_datos: Session) -> int:
+    return base_datos.scalar(
+        select(func.count())
+        .select_from(PartidoParticipante)
+        .where(
+            PartidoParticipante.partido_id == partido_id,
+            PartidoParticipante.es_suplente.is_(False),
+        )
+    )
+
+
+def promover_suplentes(partido: Partido, base_datos: Session) -> int:
+    """Move substitutes, first come first served, into free holder spots."""
+    base_datos.flush()
+    promovidos = 0
+    while contar_titulares(partido.id, base_datos) < partido.cantidad_jugadores:
+        siguiente = base_datos.scalar(
+            select(PartidoParticipante)
+            .where(
+                PartidoParticipante.partido_id == partido.id,
+                PartidoParticipante.es_suplente.is_(True),
+            )
+            .order_by(PartidoParticipante.unido_en, PartidoParticipante.usuario_id)
+            .limit(1)
+        )
+        if siguiente is None:
+            break
+        siguiente.es_suplente = False
+        base_datos.add(
+            HistorialParticipacion(
+                usuario_id=siguiente.usuario_id,
+                partido_id=partido.id,
+                accion="paso_a_titular",
+            )
+        )
+        base_datos.flush()
+        promovidos += 1
+    if promovidos and contar_titulares(partido.id, base_datos) >= (
+        partido.cantidad_jugadores
+    ):
+        partido.estado = "equipo completo"
+    return promovidos
+
+
 def unirse_partido(
     partido_id: int,
     usuario: Usuario,
@@ -274,12 +319,6 @@ def unirse_partido(
         raise ErrorPartido(
             "ORGANIZADOR_NO_PUEDE_UNIRSE",
             "El organizador no puede unirse a su propio partido",
-        )
-
-    if partido.estado != "cupos abiertos":
-        raise ErrorPartido(
-            "EQUIPO_COMPLETO",
-            "El equipo ya está completo",
         )
 
     if partido.fecha is None:
@@ -309,21 +348,22 @@ def unirse_partido(
             "Ya estás unido a este partido",
         )
 
-    cantidad_participantes = base_datos.scalar(
-        select(func.count())
-        .select_from(PartidoParticipante)
-        .where(PartidoParticipante.partido_id == partido_id)
-    )
-    if cantidad_participantes >= partido.cantidad_jugadores:
+    titulares = contar_titulares(partido_id, base_datos)
+    hay_cupo = titulares < partido.cantidad_jugadores
+    if hay_cupo and partido.estado != "cupos abiertos":
+        # The organizer closed the team while there were still free spots.
         raise ErrorPartido(
-            "SIN_CUPOS",
-            "No quedan cupos disponibles",
+            "EQUIPO_COMPLETO",
+            "El equipo ya está completo",
         )
 
+    # With the holders' spots taken, the newcomer waits as a substitute.
+    es_suplente = not hay_cupo
     base_datos.add(
         PartidoParticipante(
             partido_id=partido_id,
             usuario_id=usuario.id,
+            es_suplente=es_suplente,
         )
     )
 
@@ -331,11 +371,11 @@ def unirse_partido(
         HistorialParticipacion(
             usuario_id=usuario.id,
             partido_id=partido.id,
-            accion="se_unio",
+            accion="se_unio_suplente" if es_suplente else "se_unio",
         )
     )
 
-    if cantidad_participantes + 1 >= partido.cantidad_jugadores:
+    if not es_suplente and titulares + 1 >= partido.cantidad_jugadores:
         partido.estado = "equipo completo"
 
     base_datos.commit()
@@ -370,16 +410,26 @@ def salir_partido(
             "No estás unido a este partido",
         )
 
+    era_suplente = participante.es_suplente
     base_datos.delete(participante)
-    if partido.estado == "equipo completo":
-        partido.estado = "cupos abiertos"
+    if not era_suplente:
+        # The first substitute takes the freed spot; with none waiting, the
+        # spot opens up again.
+        promovidos = promover_suplentes(partido, base_datos)
+        if not promovidos and partido.estado == "equipo completo":
+            partido.estado = "cupos abiertos"
     base_datos.commit()
     base_datos.refresh(partido)
     return partido
 
 
 def datos_partido(partido: Partido) -> dict:
-    participantes = [item.usuario for item in partido.participantes]
+    ordenados = sorted(
+        partido.participantes,
+        key=lambda item: (item.unido_en, item.usuario_id),
+    )
+    participantes = [item.usuario for item in ordenados if not item.es_suplente]
+    suplentes = [item.usuario for item in ordenados if item.es_suplente]
     cantidad_participantes = len(participantes)
     estado = partido.estado.strip().lower()
     return {
@@ -392,6 +442,8 @@ def datos_partido(partido: Partido) -> dict:
         "estado": estado,
         "participantes": participantes,
         "cantidad_participantes": cantidad_participantes,
+        "suplentes": suplentes,
+        "cantidad_suplentes": len(suplentes),
         "cupos_disponibles": max(
             partido.cantidad_jugadores - cantidad_participantes,
             0,

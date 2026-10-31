@@ -46,6 +46,8 @@ class RespuestaPartido(DatosPartido):
     estado: str
     participantes: list[RespuestaUsuarioPartido] = []
     cantidad_participantes: int = 0
+    suplentes: list[RespuestaUsuarioPartido] = []
+    cantidad_suplentes: int = 0
     cupos_disponibles: int = 0
 
 

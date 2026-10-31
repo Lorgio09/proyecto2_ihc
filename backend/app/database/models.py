@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, false, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.connection import Base
@@ -85,6 +85,21 @@ class PartidoParticipante(Base):
         ForeignKey("usuarios.id", ondelete="CASCADE"),
         primary_key=True,
         index=True,
+    )
+
+    # Holders fill the match up to its capacity; whoever joins after that waits
+    # as a substitute, ordered by unido_en.
+    es_suplente: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default=false(),
+    )
+    unido_en: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        server_default=func.now(),
     )
 
     partido: Mapped[Partido] = relationship(back_populates="participantes")

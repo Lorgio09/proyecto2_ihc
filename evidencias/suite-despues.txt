@@ -1,0 +1,14 @@
+Suite: despues
+Date:  2026-10-31 19:13:05
+Commit: 66a6d00
+Device: linux
+
+..................................                                       [100%]
+34 passed in 0.52s
+00:02 +37: All tests passed!
+00:38 +2: All tests passed!
+01:42 +6: All tests passed!
+01:04 +2: All tests passed!
+00:21 +2: All tests passed!
+01:10 +4: All tests passed!
+01:55 +1: All tests passed!

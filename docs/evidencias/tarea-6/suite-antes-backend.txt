@@ -1,0 +1,7 @@
+Suite: antes
+Date:  2026-10-31 18:53:09
+Commit: d50c57d
+Device: linux
+
+.........................                                                [100%]
+25 passed in 0.48s

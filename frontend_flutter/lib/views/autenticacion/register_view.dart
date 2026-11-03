@@ -120,6 +120,7 @@ class _RegisterViewState extends State<RegisterView> {
 
                       Center(
                         child: Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             Text('Ya tienes Cuenta? '),
                             InkWell(

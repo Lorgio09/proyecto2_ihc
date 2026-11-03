@@ -1,0 +1,7 @@
+Suite: despues
+Date:  2026-11-03 10:47:54
+Commit: c236855
+Device: linux
+
+..................................                                       [100%]
+34 passed in 0.49s

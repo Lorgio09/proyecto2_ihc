@@ -1,0 +1,18 @@
+Suite: despues
+Date:  2026-11-03 10:47:54
+Commit: c236855
+Device: linux
+
+00:02 +37: All tests passed!
+=== crear_partido_test.dart
+00:44 +2: All tests passed!
+=== cuenta_test.dart
+01:42 +6: All tests passed!
+=== explorar_unirse_salir_test.dart
+01:09 +2: All tests passed!
+=== login_test.dart
+00:21 +2: All tests passed!
+=== mis_partidos_test.dart
+01:10 +4: All tests passed!
+=== suplentes_test.dart
+01:50 +1: All tests passed!

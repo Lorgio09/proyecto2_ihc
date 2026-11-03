@@ -3,10 +3,17 @@
 # database -> migrations -> seed data -> backend -> Flutter integration tests.
 #
 # Usage: ./run_e2e.sh [flutter device, default: linux]
+#   E2E_PORT=8010 ./run_e2e.sh   # when another service already uses :8000
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 DEVICE="${1:-linux}"
+PORT="${E2E_PORT:-8000}"
+# The Android emulator reaches the host through 10.0.2.2.
+case "$DEVICE" in
+  emulator*|android*) API_HOST="10.0.2.2" ;;
+  *) API_HOST="127.0.0.1" ;;
+esac
 BACKEND_PID=""
 
 cleanup() {
@@ -34,12 +41,20 @@ echo "3/5 Loading seed data (reset to a known state)..."
 python seed.py --reset
 
 echo "4/5 Starting backend..."
-if curl -s -o /dev/null http://127.0.0.1:8000/docs; then
-  echo "Backend already running on :8000, reusing it."
+if curl -s -o /dev/null "http://127.0.0.1:$PORT/docs"; then
+  # Reuse it only if it really is UniSport: another project's API on this
+  # port would answer every request with "Not Found" and fail the whole suite.
+  if curl -s "http://127.0.0.1:$PORT/openapi.json" | grep -q '"/api/partidos"'; then
+    echo "UniSport backend already running on :$PORT, reusing it."
+  else
+    echo "Port $PORT is used by another service, not by UniSport."
+    echo "Stop it, or run: E2E_PORT=8010 ./run_e2e.sh"
+    exit 1
+  fi
 else
-  uvicorn app.main:app --port 8000 >/tmp/unisport_backend.log 2>&1 &
+  uvicorn app.main:app --port "$PORT" >/tmp/unisport_backend.log 2>&1 &
   BACKEND_PID=$!
-  until curl -s -o /dev/null http://127.0.0.1:8000/docs; do
+  until curl -s -o /dev/null "http://127.0.0.1:$PORT/docs"; do
     kill -0 "$BACKEND_PID" 2>/dev/null || {
       echo "Backend failed to start. See /tmp/unisport_backend.log"
       exit 1
@@ -54,7 +69,9 @@ cd "$ROOT/frontend_flutter"
 # `flutter test` run is flaky because the first window is still closing.
 FAILED=0
 for test_file in integration_test/*_test.dart; do
-  flutter test "$test_file" -d "$DEVICE" || FAILED=1
+  echo "=== $(basename "$test_file")"
+  flutter test "$test_file" -d "$DEVICE" \
+    --dart-define=API_BASE_URL="http://$API_HOST:$PORT" || FAILED=1
   sleep 3
 done
 exit "$FAILED"

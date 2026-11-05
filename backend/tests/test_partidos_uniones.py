@@ -301,6 +301,34 @@ def test_filtra_partido_por_deporte(db, usuarios):
     assert resultado[0].id == partido.id
 
 
+def test_explorar_no_muestra_partidos_vencidos(db, usuarios):
+    organizador, jugador, _ = usuarios
+    vigente = crear_partido(
+        DatosPartido(
+            nombre="Partido vigente",
+            cantidad_jugadores=10,
+            ubicacion="Zona Sur",
+            fecha=datetime.now(timezone.utc) + timedelta(days=1),
+        ),
+        organizador,
+        db,
+    )
+    db.add(
+        Partido(
+            usuario_id=organizador.id,
+            nombre="Partido vencido",
+            cantidad_jugadores=10,
+            ubicacion="Zona Sur",
+            fecha=datetime.now(timezone.utc) - timedelta(days=1),
+        )
+    )
+    db.commit()
+
+    resultado = listar_partidos_publicos(jugador, db)
+
+    assert [partido.id for partido in resultado] == [vigente.id]
+
+
 def test_filtro_sin_resultados(db, usuarios):
     organizador, jugador, _ = usuarios
     crear_partido(

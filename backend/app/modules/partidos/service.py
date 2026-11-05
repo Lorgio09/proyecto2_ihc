@@ -140,6 +140,8 @@ def listar_partidos_publicos(
     consulta = (
         select(Partido)
         .where(Partido.usuario_id != usuario.id)
+        # Un partido vencido ya no admite inscripciones: no se ofrece al explorar
+        .where(Partido.fecha > datetime.now(timezone.utc))
         .options(
             selectinload(Partido.usuario),
             selectinload(Partido.participantes).selectinload(

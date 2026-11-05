@@ -188,6 +188,16 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
     }
   }
 
+  Future<void> reconfirmar(Partido partido) async {
+    try {
+      await partidoService.reconfirmar(partido.id);
+      await cargarPartidos();
+      if (mounted) mostrarMensaje(context, 'Confirmaste tu lugar en el partido');
+    } catch (error) {
+      if (mounted) mostrarMensaje(context, error.toString());
+    }
+  }
+
   Future<void> salir(Partido partido) async {
     final confirmar = await showDialog<bool>(
       context: context,
@@ -464,6 +474,20 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                                               'Eres suplente (posición '
                                               '${posicionSuplente(partido)})',
                                             ),
+                                          if (partido.motivoReprogramacion != null)
+                                            Text(
+                                              'Reprogramado: '
+                                              '${partido.motivoReprogramacion}',
+                                            ),
+                                          if (partido.debeReconfirmar(
+                                            widget.usuario.id,
+                                          ))
+                                            const Text(
+                                              'El partido cambió. ¿Sigues jugando?',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
                                           if (partido.participantes.isNotEmpty)
                                             TextButton(
                                               onPressed: () {
@@ -499,6 +523,22 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.stretch,
                                         children: [
+                                          if (partido.debeReconfirmar(
+                                            widget.usuario.id,
+                                          ))
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                bottom: 8,
+                                              ),
+                                              child: ElevatedButton(
+                                                key: const Key(
+                                                  'boton-reconfirmar-partido',
+                                                ),
+                                                onPressed: () =>
+                                                    reconfirmar(partido),
+                                                child: const Text('Sigo jugando'),
+                                              ),
+                                            ),
                                           if (estaUnidoAlPartido)
                                             ElevatedButton(
                                               key: const Key('boton-salir-partido'),
@@ -514,7 +554,13 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                                                             strokeWidth: 2,
                                                           ),
                                                     )
-                                                  : const Text('Salir del partido'),
+                                                  : Text(
+                                                      partido.debeReconfirmar(
+                                                        widget.usuario.id,
+                                                      )
+                                                          ? 'Me retiro'
+                                                          : 'Salir del partido',
+                                                    ),
                                             )
                                           else if (motivo == null)
                                             ElevatedButton(

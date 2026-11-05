@@ -5,7 +5,11 @@ from sqlalchemy import exists, func, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.database.models import HistorialParticipacion, Partido, PartidoParticipante, Usuario
-from app.modules.partidos.schemas import ActualizacionPartido, DatosPartido
+from app.modules.partidos.schemas import (
+    ActualizacionPartido,
+    DatosPartido,
+    Reprogramacion,
+)
 
 
 class ErrorPartido(ValueError):
@@ -211,6 +215,13 @@ def actualizar_partido(
     base_datos: Session,
 ) -> Partido:
     cambios = datos.model_dump(exclude_unset=True)
+    if hay_confirmaciones_pendientes(partido) and (
+        "fecha" in cambios or "ubicacion" in cambios
+    ):
+        raise ErrorPartido(
+            "REPROGRAMACION_PENDIENTE",
+            "Hay titulares que aún no responden la reprogramación",
+        )
     if "fecha" in cambios:
         cambios["fecha"] = validar_fecha_futura(cambios["fecha"])
     for nombre in ("nombre", "ubicacion", "tiempo_min"):
@@ -228,6 +239,86 @@ def actualizar_partido(
     if "cantidad_jugadores" in cambios:
         promover_suplentes(partido, base_datos)
 
+    base_datos.commit()
+    base_datos.refresh(partido)
+    return partido
+
+
+def hay_confirmaciones_pendientes(partido: Partido) -> bool:
+    return any(item.pendiente_confirmar for item in partido.participantes)
+
+
+def reprogramar_partido(
+    partido: Partido,
+    datos: Reprogramacion,
+    base_datos: Session,
+) -> Partido:
+    """Change date or place with a reason; holders must reconfirm."""
+    if hay_confirmaciones_pendientes(partido):
+        raise ErrorPartido(
+            "REPROGRAMACION_PENDIENTE",
+            "Hay titulares que aún no responden la reprogramación",
+        )
+
+    cambios = {}
+    if datos.fecha is not None:
+        fecha = validar_fecha_futura(datos.fecha)
+        actual = partido.fecha
+        if actual is not None and actual.tzinfo is None:
+            actual = actual.replace(tzinfo=timezone.utc)
+        if fecha != actual:
+            cambios["fecha"] = fecha
+    if datos.ubicacion is not None:
+        ubicacion = datos.ubicacion.strip()
+        if ubicacion and ubicacion != partido.ubicacion:
+            cambios["ubicacion"] = ubicacion
+
+    motivo = datos.motivo.strip()
+    if not motivo:
+        raise ErrorPartido("MOTIVO_OBLIGATORIO", "Escribe el motivo del cambio")
+    if not cambios:
+        raise ErrorPartido(
+            "SIN_CAMBIOS",
+            "Cambia la fecha o el lugar para reprogramar",
+        )
+
+    for nombre, valor in cambios.items():
+        setattr(partido, nombre, valor)
+    partido.motivo_reprogramacion = motivo
+    # Holders keep their spot while they answer; substitutes are not asked.
+    for item in partido.participantes:
+        if not item.es_suplente:
+            item.pendiente_confirmar = True
+
+    base_datos.commit()
+    base_datos.refresh(partido)
+    return partido
+
+
+def reconfirmar_partido(
+    partido_id: int,
+    usuario: Usuario,
+    base_datos: Session,
+) -> Partido | None:
+    partido = buscar_partido_publico(partido_id, base_datos)
+    if not partido:
+        return None
+
+    participante = base_datos.scalar(
+        select(PartidoParticipante).where(
+            PartidoParticipante.partido_id == partido_id,
+            PartidoParticipante.usuario_id == usuario.id,
+        )
+    )
+    if not participante:
+        raise ErrorPartido("NO_INSCRITO", "No estás unido a este partido")
+    if not participante.pendiente_confirmar:
+        raise ErrorPartido(
+            "SIN_RECONFIRMACION",
+            "No tienes una reprogramación por confirmar",
+        )
+
+    participante.pendiente_confirmar = False
     base_datos.commit()
     base_datos.refresh(partido)
     return partido
@@ -432,6 +523,11 @@ def datos_partido(partido: Partido) -> dict:
     )
     participantes = [item.usuario for item in ordenados if not item.es_suplente]
     suplentes = [item.usuario for item in ordenados if item.es_suplente]
+    pendientes = [
+        item.usuario
+        for item in ordenados
+        if item.pendiente_confirmar and not item.es_suplente
+    ]
     cantidad_participantes = len(participantes)
     estado = partido.estado.strip().lower()
     return {
@@ -446,6 +542,8 @@ def datos_partido(partido: Partido) -> dict:
         "cantidad_participantes": cantidad_participantes,
         "suplentes": suplentes,
         "cantidad_suplentes": len(suplentes),
+        "motivo_reprogramacion": partido.motivo_reprogramacion,
+        "pendientes_confirmar": pendientes,
         "cupos_disponibles": max(
             partido.cantidad_jugadores - cantidad_participantes,
             0,

@@ -67,6 +67,11 @@ class Partido(Base):
         server_default="cupos abiertos",
     )
 
+    # Motivo de la última reprogramación (fecha o lugar cambiados)
+    motivo_reprogramacion: Mapped[str | None] = mapped_column(
+        String(255), nullable=True
+    )
+
     usuario: Mapped[Usuario] = relationship(back_populates="partidos")
     participantes: Mapped[list["PartidoParticipante"]] = relationship(
         back_populates="partido",
@@ -100,6 +105,13 @@ class PartidoParticipante(Base):
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
         server_default=func.now(),
+    )
+    # After a reschedule, holders keep their spot while they reconfirm.
+    pendiente_confirmar: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default=false(),
     )
 
     partido: Mapped[Partido] = relationship(back_populates="participantes")

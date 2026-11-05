@@ -147,6 +147,42 @@ class PartidoService {
     return Partido.fromJson(jsonDecode(response.body));
   }
 
+  Future<Partido> reprogramar(
+    int id, {
+    DateTime? fecha,
+    String? ubicacion,
+    required String motivo,
+  }) async {
+    final response = await client.patch(
+      url('/$id/reprogramar'),
+      headers: await headers(),
+      body: jsonEncode({
+        if (fecha != null) 'fecha': fecha.toUtc().toIso8601String(),
+        if (ubicacion != null) 'ubicacion': ubicacion,
+        'motivo': motivo,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw errorRespuesta(response, 'No se pudo reprogramar el partido');
+    }
+
+    return Partido.fromJson(jsonDecode(response.body));
+  }
+
+  Future<Partido> reconfirmar(int id) async {
+    final respuesta = await client.post(
+      url('/$id/reconfirmar'),
+      headers: await headers(),
+    );
+
+    if (respuesta.statusCode != 200) {
+      throw errorRespuesta(respuesta, 'No se pudo confirmar tu lugar');
+    }
+
+    return Partido.fromJson(jsonDecode(respuesta.body));
+  }
+
   Future<Partido> unirse(int id) async {
     final respuesta = await client.post(
       url('/$id/unirse'),

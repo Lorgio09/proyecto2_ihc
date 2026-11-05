@@ -5,6 +5,7 @@ import '../../services/partido.dart';
 import '../../widgets/ayuda.dart';
 import '../../widgets/mensaje.dart';
 import 'formulario_partido.dart';
+import 'reprogramar_partido.dart';
 
 class ListPartidoView extends StatefulWidget {
   const ListPartidoView({super.key, this.partidoService});
@@ -252,6 +253,37 @@ class _ListPartidoViewState extends State<ListPartidoView> {
     }
   }
 
+  Future<void> reprogramarPartido(Partido partido) async {
+    if (partido.tieneRespuestasPendientes) {
+      mostrarMensaje(
+        context,
+        'Espera a que todos los titulares respondan antes de reprogramar otra vez',
+      );
+      return;
+    }
+
+    final datos = await showDialog<DatosReprogramacion>(
+      context: context,
+      builder: (context) => ReprogramarPartidoDialog(partido: partido),
+    );
+    if (datos == null) return;
+
+    try {
+      await partidoService.reprogramar(
+        partido.id,
+        fecha: datos.fecha,
+        ubicacion: datos.ubicacion,
+        motivo: datos.motivo,
+      );
+      await cargarPartidos();
+      if (mounted) {
+        mostrarMensaje(context, 'Partido reprogramado. Avisamos a los titulares');
+      }
+    } catch (error) {
+      if (mounted) mostrarMensaje(context, error.toString());
+    }
+  }
+
   Future<void> completarEquipo(Partido partido) async {
     final confirmar = await showDialog<bool>(
       context: context,
@@ -384,6 +416,11 @@ class _ListPartidoViewState extends State<ListPartidoView> {
                   )
                 : const Text('Reabrir equipo'),
           ),
+        OutlinedButton(
+          key: const Key('boton-reprogramar-partido'),
+          onPressed: () => reprogramarPartido(partido),
+          child: const Text('Reprogramar'),
+        ),
         IconButton(
           tooltip: 'Editar partido',
           onPressed: () => abrirFormulario(partido: partido),
@@ -494,6 +531,16 @@ class _ListPartidoViewState extends State<ListPartidoView> {
                                         '${partido.tiempoMin ?? 'No definida'}',
                                       ),
                                       Text('Estado: ${partido.estadoTexto}'),
+                                      if (partido.motivoReprogramacion != null)
+                                        Text(
+                                          'Reprogramado: '
+                                          '${partido.motivoReprogramacion}',
+                                        ),
+                                      if (partido.tieneRespuestasPendientes)
+                                        Text(
+                                          'Esperando respuesta de: '
+                                          '${partido.pendientesConfirmar.map((usuario) => usuario.nombre).join(', ')}',
+                                        ),
                                       Text(
                                         'Participantes: ${partido.cantidadParticipantes}',
                                       ),

@@ -12,6 +12,7 @@ from app.modules.partidos.schemas import (
     RespuestaHistorial,
     RespuestaPartido,
     RespuestaPartidoExplorar,
+    Reprogramacion,
 )
 from app.modules.partidos.service import (
     buscar_partido,
@@ -26,6 +27,8 @@ from app.modules.partidos.service import (
     listar_partidos_publicos,
     ErrorPartido,
     reabrir_equipo,
+    reconfirmar_partido,
+    reprogramar_partido,
     salir_partido,
     unirse_partido,
     actualizar_partido,
@@ -221,6 +224,48 @@ def salir(
 ):
     try:
         partido = salir_partido(partido_id, usuario, base_datos)
+        if not partido:
+            raise no_encontrado()
+        return datos_partido(partido)
+    except ErrorPartido as error:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"codigo": error.codigo, "mensaje": error.mensaje},
+        )
+
+
+@router.patch("/{partido_id}/reprogramar", response_model=RespuestaPartido)
+def reprogramar(
+    partido_id: int,
+    datos: Reprogramacion,
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
+):
+    partido = buscar_partido(partido_id, usuario, base_datos)
+    if not partido:
+        raise no_encontrado()
+    try:
+        return datos_partido(reprogramar_partido(partido, datos, base_datos))
+    except ErrorPartido as error:
+        codigo_http = (
+            status.HTTP_409_CONFLICT
+            if error.codigo == "REPROGRAMACION_PENDIENTE"
+            else status.HTTP_422_UNPROCESSABLE_ENTITY
+        )
+        raise HTTPException(
+            status_code=codigo_http,
+            detail={"codigo": error.codigo, "mensaje": error.mensaje},
+        )
+
+
+@router.post("/{partido_id}/reconfirmar", response_model=RespuestaPartido)
+def reconfirmar(
+    partido_id: int,
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
+):
+    try:
+        partido = reconfirmar_partido(partido_id, usuario, base_datos)
         if not partido:
             raise no_encontrado()
         return datos_partido(partido)

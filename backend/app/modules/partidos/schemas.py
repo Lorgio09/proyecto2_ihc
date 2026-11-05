@@ -39,6 +39,12 @@ class ActualizacionPartido(BaseModel):
     )
 
 
+class Reprogramacion(BaseModel):
+    fecha: datetime | None = None
+    ubicacion: str | None = Field(default=None, min_length=1, max_length=255)
+    motivo: str = Field(min_length=1, max_length=255)
+
+
 class RespuestaPartido(DatosPartido):
     model_config = ConfigDict(from_attributes=True)
 
@@ -49,6 +55,8 @@ class RespuestaPartido(DatosPartido):
     suplentes: list[RespuestaUsuarioPartido] = []
     cantidad_suplentes: int = 0
     cupos_disponibles: int = 0
+    motivo_reprogramacion: str | None = None
+    pendientes_confirmar: list[RespuestaUsuarioPartido] = []
 
 
 class RespuestaPartidoExplorar(RespuestaPartido):

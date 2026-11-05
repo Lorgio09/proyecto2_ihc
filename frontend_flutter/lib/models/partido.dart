@@ -33,6 +33,9 @@ class Partido {
   // Wait for a holder to leave, in order of arrival.
   final List<UsuarioPartido> suplentes;
   final int cantidadSuplentes;
+  // After a reschedule: why it changed and which holders still have to answer.
+  final String? motivoReprogramacion;
+  final List<UsuarioPartido> pendientesConfirmar;
 
   final String deporte; // Nuevo atributo para el deporte
 
@@ -51,8 +54,15 @@ class Partido {
     this.cuposDisponibles = 0,
     this.suplentes = const [],
     this.cantidadSuplentes = 0,
+    this.motivoReprogramacion,
+    this.pendientesConfirmar = const [],
     required this.deporte,
   });
+
+  bool get tieneRespuestasPendientes => pendientesConfirmar.isNotEmpty;
+
+  bool debeReconfirmar(int usuarioId) =>
+      pendientesConfirmar.any((usuario) => usuario.id == usuarioId);
 
   String get deporteTexto {
     if (deporte == 'futbol') return 'Fútbol';
@@ -74,6 +84,7 @@ class Partido {
   factory Partido.fromJson(Map<String, dynamic> json) {
     final participantesJson = json['participantes'] as List? ?? [];
     final suplentesJson = json['suplentes'] as List? ?? [];
+    final pendientesJson = json['pendientes_confirmar'] as List? ?? [];
     final organizadorJson = json['organizador'];
 
     return Partido(
@@ -98,6 +109,11 @@ class Partido {
           .map(UsuarioPartido.fromJson)
           .toList(),
       cantidadSuplentes: json['cantidad_suplentes'] as int? ?? 0,
+      motivoReprogramacion: json['motivo_reprogramacion'] as String?,
+      pendientesConfirmar: pendientesJson
+          .whereType<Map<String, dynamic>>()
+          .map(UsuarioPartido.fromJson)
+          .toList(),
 
       deporte: json['deporte'] as String? ?? 'futbol',
     );

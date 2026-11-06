@@ -1,23 +1,30 @@
 import 'package:flutter/material.dart';
 
 import '../../models/partido.dart';
+import '../../models/usuario.dart';
 import '../../services/partido.dart';
 import '../../widgets/ayuda.dart';
 import '../../widgets/mensaje.dart';
 import 'formulario_partido.dart';
+import 'partidos_unidos_view.dart';
 import 'reprogramar_partido.dart';
 
 class ListPartidoView extends StatefulWidget {
-  const ListPartidoView({super.key, this.partidoService});
+  const ListPartidoView({super.key, this.partidoService, this.usuario});
 
   final PartidoService? partidoService;
+
+  /// When provided, the view shows the "Organizo" / "Me uní" tabs.
+  final Usuario? usuario;
 
   @override
   State<ListPartidoView> createState() => _ListPartidoViewState();
 }
 
-class _ListPartidoViewState extends State<ListPartidoView> {
+class _ListPartidoViewState extends State<ListPartidoView>
+    with SingleTickerProviderStateMixin {
   late final PartidoService partidoService;
+  TabController? tabController;
   final busquedaController = TextEditingController();
   List<Partido> partidos = [];
   bool cargando = true;
@@ -34,11 +41,16 @@ class _ListPartidoViewState extends State<ListPartidoView> {
   void initState() {
     super.initState();
     partidoService = widget.partidoService ?? PartidoService();
+    if (widget.usuario != null) {
+      tabController = TabController(length: 2, vsync: this)
+        ..addListener(() => setState(() {}));
+    }
     cargarPartidos();
   }
 
   @override
   void dispose() {
+    tabController?.dispose();
     busquedaController.dispose();
     super.dispose();
   }
@@ -277,7 +289,10 @@ class _ListPartidoViewState extends State<ListPartidoView> {
       );
       await cargarPartidos();
       if (mounted) {
-        mostrarMensaje(context, 'Partido reprogramado. Avisamos a los titulares');
+        mostrarMensaje(
+          context,
+          'Partido reprogramado. Avisamos a los titulares',
+        );
       }
     } catch (error) {
       if (mounted) mostrarMensaje(context, error.toString());
@@ -383,7 +398,9 @@ class _ListPartidoViewState extends State<ListPartidoView> {
             key: const Key('boton-completar-partido'),
             onPressed: estaCompletando ? null : () => completarEquipo(partido),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFB45309), // 5.0:1 against white text
+              backgroundColor: const Color(
+                0xFFB45309,
+              ), // 5.0:1 against white text
               foregroundColor: Colors.white,
             ),
             child: estaCompletando
@@ -443,6 +460,10 @@ class _ListPartidoViewState extends State<ListPartidoView> {
 
   @override
   Widget build(BuildContext context) {
+    final usuario = widget.usuario;
+    final tabs = tabController;
+    final enOrganizo = tabs == null || tabs.index == 0;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mis partidos'),
@@ -454,142 +475,180 @@ class _ListPartidoViewState extends State<ListPartidoView> {
               mostrarAyuda(
                 context,
                 'Ayuda para administrar partidos',
-                'Pulsa el botón + para crear un partido.\n\n'
-                    'Usa el lápiz para editarlo y la papelera para eliminarlo.\n\n'
-                    'Completar equipo cierra los cupos y evita que otros '
-                    'usuarios se unan.\n\n'
-                    'Usa Ver participantes para conocer quiénes se unieron.',
+                (tabs != null
+                        ? 'En Organizo están los partidos que creaste.\n\n'
+                              'En Me uní están los partidos a los que te '
+                              'uniste; desde ahí puedes salir de ellos.\n\n'
+                        : '') +
+                    'Pulsa el botón + para crear un partido.\n\n'
+                        'Usa el lápiz para editarlo y la papelera para eliminarlo.\n\n'
+                        'Completar equipo cierra los cupos y evita que otros '
+                        'usuarios se unan.\n\n'
+                        'Usa Ver participantes para conocer quiénes se unieron.',
               );
             },
           ),
         ],
-      ),
-      body: guardandoPartido
-          ? const Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 12),
-                  Text('Guardando partido...'),
+        bottom: tabs == null
+            ? null
+            : TabBar(
+                controller: tabs,
+                tabs: const [
+                  Tab(
+                    key: Key('pestana-organizo'),
+                    icon: Icon(Icons.edit_calendar),
+                    text: 'Organizo',
+                  ),
+                  Tab(
+                    key: Key('pestana-me-uni'),
+                    icon: Icon(Icons.group),
+                    text: 'Me uní',
+                  ),
                 ],
               ),
-            )
-          : cargando
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
+      ),
+      body: tabs == null || usuario == null
+          ? _cuerpoOrganizo()
+          : TabBarView(
+              controller: tabs,
               children: [
-                if (partidos.isNotEmpty) panelFiltros(),
-                Expanded(
-                  child: partidos.isEmpty
-                      ? const Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text('No tienes partidos todavía'),
-                              SizedBox(height: 8),
-                              Text(
-                                'Pulsa el botón + para crear tu primer partido',
-                              ),
-                            ],
-                          ),
-                        )
-                      : partidosVisibles.isEmpty
-                      ? const Center(
-                          child: Text(
-                            'No encontramos partidos con estos filtros',
-                            textAlign: TextAlign.center,
-                          ),
-                        )
-                      : RefreshIndicator(
-                          onRefresh: cargarPartidos,
-                          child: ListView.builder(
-                            itemCount: partidosVisibles.length,
-                            itemBuilder: (context, index) {
-                              final partido = partidosVisibles[index];
-                              final estaExpandido =
-                                  partidoExpandidoId == partido.id;
-
-                              return Card(
-                                margin: const EdgeInsets.all(8),
-                                child: ListTile(
-                                  title: Text(partido.nombre),
-                                  subtitle: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text('Deporte: ${partido.deporteTexto}'),
-                                      Text('Ubicación: ${partido.ubicacion}'),
-                                      Text('Fecha: ${fechaTexto(partido.fecha)}'),
-                                      Text(
-                                        'Cupos: ${partido.cantidadParticipantes}/'
-                                        '${partido.cantidadJugadores}',
-                                      ),
-                                      Text(
-                                        'Duración: '
-                                        '${partido.tiempoMin ?? 'No definida'}',
-                                      ),
-                                      Text('Estado: ${partido.estadoTexto}'),
-                                      if (partido.motivoReprogramacion != null)
-                                        Text(
-                                          'Reprogramado: '
-                                          '${partido.motivoReprogramacion}',
-                                        ),
-                                      if (partido.tieneRespuestasPendientes)
-                                        Text(
-                                          'Esperando respuesta de: '
-                                          '${partido.pendientesConfirmar.map((usuario) => usuario.nombre).join(', ')}',
-                                        ),
-                                      Text(
-                                        'Participantes: ${partido.cantidadParticipantes}',
-                                      ),
-                                      if (partido.participantes.isNotEmpty)
-                                        TextButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              partidoExpandidoId = estaExpandido
-                                                  ? null
-                                                  : partido.id;
-                                            });
-                                          },
-                                          child: Text(
-                                            estaExpandido
-                                                ? 'Ocultar participantes'
-                                                : 'Ver participantes',
-                                          ),
-                                        ),
-                                      if (estaExpandido)
-                                        Text(
-                                          partido.participantes
-                                              .map(
-                                                (participante) =>
-                                                    participante.nombre,
-                                              )
-                                              .join(', '),
-                                        ),
-                                      if (estaExpandido &&
-                                          partido.suplentes.isNotEmpty)
-                                        Text(
-                                          'Suplentes: '
-                                          '${partido.suplentes.map((suplente) => suplente.nombre).join(', ')}',
-                                        ),
-                                      _construirAcciones(partido),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
+                _cuerpoOrganizo(),
+                PartidosUnidosView(
+                  usuario: usuario,
+                  partidoService: partidoService,
                 ),
               ],
             ),
-      floatingActionButton: FloatingActionButton(
-        tooltip: 'Nuevo partido',
-        onPressed: guardandoPartido ? null : () => abrirFormulario(),
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: enOrganizo
+          ? FloatingActionButton(
+              tooltip: 'Nuevo partido',
+              onPressed: guardandoPartido ? null : () => abrirFormulario(),
+              child: const Icon(Icons.add),
+            )
+          : null,
     );
+  }
+
+  Widget _cuerpoOrganizo() {
+    return guardandoPartido
+        ? const Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 12),
+                Text('Guardando partido...'),
+              ],
+            ),
+          )
+        : cargando
+        ? const Center(child: CircularProgressIndicator())
+        : Column(
+            children: [
+              if (partidos.isNotEmpty) panelFiltros(),
+              Expanded(
+                child: partidos.isEmpty
+                    ? const Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('No tienes partidos todavía'),
+                            SizedBox(height: 8),
+                            Text(
+                              'Pulsa el botón + para crear tu primer partido',
+                            ),
+                          ],
+                        ),
+                      )
+                    : partidosVisibles.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'No encontramos partidos con estos filtros',
+                          textAlign: TextAlign.center,
+                        ),
+                      )
+                    : RefreshIndicator(
+                        onRefresh: cargarPartidos,
+                        child: ListView.builder(
+                          itemCount: partidosVisibles.length,
+                          itemBuilder: (context, index) {
+                            final partido = partidosVisibles[index];
+                            final estaExpandido =
+                                partidoExpandidoId == partido.id;
+
+                            return Card(
+                              margin: const EdgeInsets.all(8),
+                              child: ListTile(
+                                title: Text(partido.nombre),
+                                subtitle: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Deporte: ${partido.deporteTexto}'),
+                                    Text('Ubicación: ${partido.ubicacion}'),
+                                    Text('Fecha: ${fechaTexto(partido.fecha)}'),
+                                    Text(
+                                      'Cupos: ${partido.cantidadParticipantes}/'
+                                      '${partido.cantidadJugadores}',
+                                    ),
+                                    Text(
+                                      'Duración: '
+                                      '${partido.tiempoMin ?? 'No definida'}',
+                                    ),
+                                    Text('Estado: ${partido.estadoTexto}'),
+                                    if (partido.motivoReprogramacion != null)
+                                      Text(
+                                        'Reprogramado: '
+                                        '${partido.motivoReprogramacion}',
+                                      ),
+                                    if (partido.tieneRespuestasPendientes)
+                                      Text(
+                                        'Esperando respuesta de: '
+                                        '${partido.pendientesConfirmar.map((usuario) => usuario.nombre).join(', ')}',
+                                      ),
+                                    Text(
+                                      'Participantes: ${partido.cantidadParticipantes}',
+                                    ),
+                                    if (partido.participantes.isNotEmpty)
+                                      TextButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            partidoExpandidoId = estaExpandido
+                                                ? null
+                                                : partido.id;
+                                          });
+                                        },
+                                        child: Text(
+                                          estaExpandido
+                                              ? 'Ocultar participantes'
+                                              : 'Ver participantes',
+                                        ),
+                                      ),
+                                    if (estaExpandido)
+                                      Text(
+                                        partido.participantes
+                                            .map(
+                                              (participante) =>
+                                                  participante.nombre,
+                                            )
+                                            .join(', '),
+                                      ),
+                                    if (estaExpandido &&
+                                        partido.suplentes.isNotEmpty)
+                                      Text(
+                                        'Suplentes: '
+                                        '${partido.suplentes.map((suplente) => suplente.nombre).join(', ')}',
+                                      ),
+                                    _construirAcciones(partido),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+              ),
+            ],
+          );
   }
 }

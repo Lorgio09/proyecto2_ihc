@@ -92,7 +92,9 @@ class HomeView extends StatelessWidget {
                   key: const Key('boton-mis-partidos'),
                   texto: 'Mis partidos',
                   alPresionar: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const ListPartidoView()),
+                    MaterialPageRoute(
+                      builder: (_) => ListPartidoView(usuario: user),
+                    ),
                   ),
                 ),
                 BotonGuardar(

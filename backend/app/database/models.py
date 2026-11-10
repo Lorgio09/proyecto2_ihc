@@ -24,6 +24,7 @@ class Usuario(Base):
     partidos: Mapped[list["Partido"]] = relationship(
         back_populates="usuario",
         cascade="all, delete-orphan",
+        foreign_keys="Partido.usuario_id",
     )
     partidos_participados: Mapped[list["PartidoParticipante"]] = relationship(
         back_populates="usuario",
@@ -72,7 +73,30 @@ class Partido(Base):
         String(255), nullable=True
     )
 
-    usuario: Mapped[Usuario] = relationship(back_populates="partidos")
+    # Result validation: the organizer proposes teams and a rival captain,
+    # who accepts them before the match and later validates the score.
+    capitan_rival_id: Mapped[int | None] = mapped_column(
+        ForeignKey("usuarios.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    equipos_aceptados: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default=false(),
+    )
+
+    usuario: Mapped[Usuario] = relationship(
+        back_populates="partidos", foreign_keys=[usuario_id]
+    )
+    capitan_rival: Mapped[Usuario | None] = relationship(
+        foreign_keys=[capitan_rival_id]
+    )
+    resultados: Mapped[list["ResultadoPartido"]] = relationship(
+        back_populates="partido",
+        cascade="all, delete-orphan",
+        order_by="ResultadoPartido.version",
+    )
     participantes: Mapped[list["PartidoParticipante"]] = relationship(
         back_populates="partido",
         cascade="all, delete-orphan",
@@ -114,6 +138,9 @@ class PartidoParticipante(Base):
         server_default=false(),
     )
 
+    # "A" or "B" once the organizer proposes the teams.
+    equipo: Mapped[str | None] = mapped_column(String(1), nullable=True)
+
     partido: Mapped[Partido] = relationship(back_populates="participantes")
     usuario: Mapped[Usuario] = relationship(back_populates="partidos_participados")
 
@@ -145,3 +172,32 @@ class HistorialParticipacion(Base):
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
     )
+
+
+class ResultadoPartido(Base):
+    """One score version. A correction adds a new version; none is deleted."""
+
+    __tablename__ = "partido_resultados"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    partido_id: Mapped[int] = mapped_column(
+        ForeignKey("partidos.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    version: Mapped[int] = mapped_column(Integer, nullable=False)
+    goles_a: Mapped[int] = mapped_column(Integer, nullable=False)
+    goles_b: Mapped[int] = mapped_column(Integer, nullable=False)
+    # pendiente -> confirmado | disputado
+    estado: Mapped[str] = mapped_column(String(20), nullable=False)
+    motivo_disputa: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    registrado_en: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+    )
+    respondido_en: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
+    partido: Mapped[Partido] = relationship(back_populates="resultados")

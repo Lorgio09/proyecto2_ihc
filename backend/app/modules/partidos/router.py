@@ -13,6 +13,20 @@ from app.modules.partidos.schemas import (
     RespuestaPartido,
     RespuestaPartidoExplorar,
     Reprogramacion,
+    Disputa,
+    Marcador,
+    PropuestaEquipos,
+    RespuestaValidacion,
+)
+from app.modules.partidos.resultado import (
+    aceptar_equipos,
+    confirmar_resultado,
+    datos_validacion,
+    disputar_resultado,
+    listar_partidos_participando,
+    proponer_equipos,
+    puede_ver,
+    registrar_resultado,
 )
 from app.modules.partidos.service import (
     buscar_partido,
@@ -112,6 +126,17 @@ def obtener_historial(
     usuario: Usuario = Depends(current_user),
 ):
     return listar_historial(usuario, base_datos)
+
+
+@router.get("/participando", response_model=list[RespuestaPartidoExplorar])
+def participando(
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
+):
+    return [
+        datos_partido_publico(partido)
+        for partido in listar_partidos_participando(usuario, base_datos)
+    ]
 
 
 @router.get("/{partido_id}", response_model=RespuestaPartido)
@@ -274,3 +299,122 @@ def reconfirmar(
             status_code=status.HTTP_409_CONFLICT,
             detail={"codigo": error.codigo, "mensaje": error.mensaje},
         )
+
+
+# --- Result validation -----------------------------------------------------
+
+ERRORES_DE_PERMISO = {"SOLO_CAPITAN", "SOLO_ORGANIZADOR"}
+ERRORES_DE_DATOS = {"MOTIVO_OBLIGATORIO", "MARCADOR_INVALIDO", "EQUIPOS_INVALIDOS"}
+
+
+def error_validacion(error: ErrorPartido) -> HTTPException:
+    if error.codigo in ERRORES_DE_PERMISO:
+        codigo_http = status.HTTP_403_FORBIDDEN
+    elif error.codigo in ERRORES_DE_DATOS:
+        codigo_http = status.HTTP_422_UNPROCESSABLE_ENTITY
+    else:
+        codigo_http = status.HTTP_409_CONFLICT
+    return HTTPException(
+        status_code=codigo_http,
+        detail={"codigo": error.codigo, "mensaje": error.mensaje},
+    )
+
+
+def partido_visible(partido_id: int, usuario: Usuario, base_datos: Session):
+    partido = buscar_partido_publico(partido_id, base_datos)
+    if not partido or not puede_ver(partido, usuario):
+        raise no_encontrado()
+    return partido
+
+
+def partido_del_organizador(partido_id: int, usuario: Usuario, base_datos: Session):
+    partido = partido_visible(partido_id, usuario, base_datos)
+    if partido.usuario_id != usuario.id:
+        raise error_validacion(
+            ErrorPartido("SOLO_ORGANIZADOR", "Solo el organizador puede hacer esto")
+        )
+    return partido
+
+
+@router.get("/{partido_id}/validacion", response_model=RespuestaValidacion)
+def validacion(
+    partido_id: int,
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
+):
+    return datos_validacion(partido_visible(partido_id, usuario, base_datos), usuario)
+
+
+@router.put("/{partido_id}/equipos", response_model=RespuestaValidacion)
+def proponer(
+    partido_id: int,
+    datos: PropuestaEquipos,
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
+):
+    partido = partido_del_organizador(partido_id, usuario, base_datos)
+    try:
+        partido = proponer_equipos(
+            partido, datos.equipo_b, datos.capitan_rival_id, base_datos
+        )
+    except ErrorPartido as error:
+        raise error_validacion(error)
+    return datos_validacion(partido, usuario)
+
+
+@router.post("/{partido_id}/equipos/aceptar", response_model=RespuestaValidacion)
+def aceptar(
+    partido_id: int,
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
+):
+    partido_visible(partido_id, usuario, base_datos)
+    try:
+        partido = aceptar_equipos(partido_id, usuario, base_datos)
+    except ErrorPartido as error:
+        raise error_validacion(error)
+    return datos_validacion(partido, usuario)
+
+
+@router.post("/{partido_id}/resultados", response_model=RespuestaValidacion)
+def registrar(
+    partido_id: int,
+    datos: Marcador,
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
+):
+    partido = partido_del_organizador(partido_id, usuario, base_datos)
+    try:
+        partido = registrar_resultado(partido, datos.goles_a, datos.goles_b, base_datos)
+    except ErrorPartido as error:
+        raise error_validacion(error)
+    return datos_validacion(partido, usuario)
+
+
+@router.post("/{partido_id}/resultados/confirmar", response_model=RespuestaValidacion)
+def confirmar(
+    partido_id: int,
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
+):
+    partido_visible(partido_id, usuario, base_datos)
+    try:
+        partido = confirmar_resultado(partido_id, usuario, base_datos)
+    except ErrorPartido as error:
+        raise error_validacion(error)
+    return datos_validacion(partido, usuario)
+
+
+@router.post("/{partido_id}/resultados/disputar", response_model=RespuestaValidacion)
+def disputar(
+    partido_id: int,
+    datos: Disputa,
+    base_datos: Session = Depends(get_db),
+    usuario: Usuario = Depends(current_user),
+):
+    partido_visible(partido_id, usuario, base_datos)
+    try:
+        partido = disputar_resultado(partido_id, usuario, datos.motivo, base_datos)
+    except ErrorPartido as error:
+        raise error_validacion(error)
+    return datos_validacion(partido, usuario)

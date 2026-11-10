@@ -74,3 +74,51 @@ class RespuestaHistorial(BaseModel):
     fecha_partido: datetime | None
     estado: str
 
+
+
+class PropuestaEquipos(BaseModel):
+    equipo_b: list[int] = Field(min_length=1)
+    capitan_rival_id: int
+
+
+class Marcador(BaseModel):
+    goles_a: int = Field(ge=0, le=999)
+    goles_b: int = Field(ge=0, le=999)
+
+
+class Disputa(BaseModel):
+    motivo: str = Field(min_length=1, max_length=255)
+
+
+class RespuestaMarcador(BaseModel):
+    goles_a: int
+    goles_b: int
+
+
+class RespuestaVersionResultado(RespuestaMarcador):
+    version: int
+    estado: str
+    motivo_disputa: str | None
+    registrado_en: datetime
+    respondido_en: datetime | None
+
+
+class RespuestaValidacion(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    partido_id: int
+    nombre: str
+    fecha: datetime | None
+    ubicacion: str
+    organizador: RespuestaUsuarioPartido
+    titulares: list[RespuestaUsuarioPartido]
+    equipo_a: list[RespuestaUsuarioPartido]
+    equipo_b: list[RespuestaUsuarioPartido]
+    capitan_rival: RespuestaUsuarioPartido | None
+    equipos_aceptados: bool
+    partido_jugado: bool
+    estado_validacion: str
+    es_organizador: bool
+    es_capitan: bool
+    resultado_definitivo: RespuestaMarcador | None
+    resultados: list[RespuestaVersionResultado]

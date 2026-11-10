@@ -6,6 +6,11 @@ Usage (from backend/, with the virtualenv active):
     python seed.py --reset   # first delete the seed users' matches (and, by
                              # cascade, their participants and history)
 
+Result validation (Tarea 8) uses two more matches with players already in:
+    "Clásico de la facultad"  played 3 hours ago; teams accepted, the rival
+                              captain is jugador2.
+    "Amistoso del sábado"     next week; no teams proposed yet.
+
 Test accounts (password for all: Seed1234):
     organizador@unisport.test
     jugador@unisport.test
@@ -61,6 +66,74 @@ def reset(db) -> None:
     db.commit()
 
 
+# (nombre, horas_desde_ahora, equipo de cada jugador, capitán rival, aceptados)
+PARTIDOS_VALIDACION = [
+    (
+        "Clásico de la facultad",
+        -3,
+        {
+            "jugador@unisport.test": "A",
+            "jugador2@unisport.test": "B",
+            "jugador3@unisport.test": "B",
+        },
+        "jugador2@unisport.test",
+        True,
+    ),
+    (
+        "Amistoso del sábado",
+        24 * 7,
+        {
+            "jugador@unisport.test": None,
+            "jugador2@unisport.test": None,
+            "jugador3@unisport.test": None,
+        },
+        None,
+        False,
+    ),
+]
+
+
+def crear_partidos_de_validacion(db, usuarios, organizador, ahora) -> None:
+    """Matches for the result validation flow, created with their players.
+
+    The played one cannot be built through the API (a match needs a future
+    date to be created or joined), so the seed writes it directly.
+    """
+    for nombre, horas, equipos, capitan, aceptados in PARTIDOS_VALIDACION:
+        existe = db.scalar(
+            select(Partido).where(
+                Partido.usuario_id == organizador.id,
+                Partido.nombre == nombre,
+            )
+        )
+        if existe is not None:
+            continue
+        partido = Partido(
+            usuario_id=organizador.id,
+            nombre=nombre,
+            deporte="futbol",
+            cantidad_jugadores=6,
+            ubicacion="Cancha FICCT",
+            tiempo_min="60",
+            fecha=ahora + timedelta(hours=horas),
+            estado="cupos abiertos",
+            capitan_rival_id=usuarios[capitan].id if capitan else None,
+            equipos_aceptados=aceptados,
+        )
+        db.add(partido)
+        db.flush()
+        for orden, (email, equipo) in enumerate(equipos.items()):
+            db.add(
+                PartidoParticipante(
+                    partido_id=partido.id,
+                    usuario_id=usuarios[email].id,
+                    equipo=equipo,
+                    unido_en=ahora - timedelta(days=2, minutes=-orden),
+                )
+            )
+    db.commit()
+
+
 def main() -> None:
     with SessionLocal() as db:
         if "--reset" in sys.argv[1:]:
@@ -104,6 +177,8 @@ def main() -> None:
                 )
             )
         db.commit()
+
+        crear_partidos_de_validacion(db, usuarios, organizador, ahora)
 
         print(f"Usuarios: {db.query(Usuario).count()}")
         print(f"Partidos: {db.query(Partido).count()}")

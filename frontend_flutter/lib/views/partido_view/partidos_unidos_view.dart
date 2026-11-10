@@ -4,6 +4,7 @@ import '../../models/partido.dart';
 import '../../models/usuario.dart';
 import '../../services/partido.dart';
 import '../../widgets/mensaje.dart';
+import 'resultado_partido_view.dart';
 
 /// "Me uní" tab: matches the user joined (as player or substitute),
 /// with the leave action available right where the user looks for it.
@@ -46,7 +47,7 @@ class _PartidosUnidosViewState extends State<PartidosUnidosView> {
       mensajeError = null;
     });
     try {
-      final todos = await widget.partidoService.listarExplorar();
+      final todos = await widget.partidoService.listarParticipando();
       if (!mounted) return;
       setState(() => partidos = todos.where(estaUnido).toList());
     } catch (_) {
@@ -163,6 +164,20 @@ class _PartidosUnidosViewState extends State<PartidosUnidosView> {
                   if (esSuplente(partido))
                     const Text('Te uniste como suplente'),
                   const SizedBox(height: 8),
+                  OutlinedButton.icon(
+                    key: Key('boton-resultado-partido-${partido.id}'),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => ResultadoPartidoView(
+                          partidoId: partido.id,
+                          partidoService: widget.partidoService,
+                        ),
+                      ),
+                    ),
+                    icon: const Icon(Icons.scoreboard_outlined),
+                    label: const Text('Resultado'),
+                  ),
+                  const SizedBox(height: 4),
                   OutlinedButton.icon(
                     key: Key('boton-salir-partido-${partido.id}'),
                     onPressed: saliendo ? null : () => salir(partido),

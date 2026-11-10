@@ -7,6 +7,7 @@ import '../models/partido.dart';
 import 'auth_service.dart';
 
 import '../models/historial_partido.dart';
+import '../models/validacion.dart';
 
 class PartidoError implements Exception {
   final String codigo;
@@ -241,4 +242,76 @@ class PartidoService {
         )
         .toList();
   }
+
+  Future<List<Partido>> listarParticipando() async {
+    final respuesta = await client.get(
+      url('/participando'),
+      headers: await headers(),
+    );
+    if (respuesta.statusCode != 200) {
+      throw errorRespuesta(respuesta, 'No se pudieron cargar tus partidos');
+    }
+    final lista = jsonDecode(respuesta.body) as List;
+    return lista.map((partido) => Partido.fromJson(partido)).toList();
+  }
+
+  Future<Validacion> _validacion(
+    Future<http.Response> Function(Map<String, String> headers) pedir,
+    String mensaje,
+  ) async {
+    final respuesta = await pedir(await headers());
+    if (respuesta.statusCode != 200) {
+      throw errorRespuesta(respuesta, mensaje);
+    }
+    return Validacion.fromJson(
+      jsonDecode(utf8.decode(respuesta.bodyBytes)) as Map<String, dynamic>,
+    );
+  }
+
+  Future<Validacion> obtenerValidacion(int id) => _validacion(
+    (h) => client.get(url('/$id/validacion'), headers: h),
+    'No se pudo cargar el resultado',
+  );
+
+  Future<Validacion> proponerEquipos(
+    int id, {
+    required List<int> equipoB,
+    required int capitanId,
+  }) => _validacion(
+    (h) => client.put(
+      url('/$id/equipos'),
+      headers: h,
+      body: jsonEncode({'equipo_b': equipoB, 'capitan_rival_id': capitanId}),
+    ),
+    'No se pudieron proponer los equipos',
+  );
+
+  Future<Validacion> aceptarEquipos(int id) => _validacion(
+    (h) => client.post(url('/$id/equipos/aceptar'), headers: h),
+    'No se pudieron aceptar los equipos',
+  );
+
+  Future<Validacion> registrarResultado(int id, int golesA, int golesB) =>
+      _validacion(
+        (h) => client.post(
+          url('/$id/resultados'),
+          headers: h,
+          body: jsonEncode({'goles_a': golesA, 'goles_b': golesB}),
+        ),
+        'No se pudo registrar el marcador',
+      );
+
+  Future<Validacion> confirmarResultado(int id) => _validacion(
+    (h) => client.post(url('/$id/resultados/confirmar'), headers: h),
+    'No se pudo confirmar el resultado',
+  );
+
+  Future<Validacion> disputarResultado(int id, String motivo) => _validacion(
+    (h) => client.post(
+      url('/$id/resultados/disputar'),
+      headers: h,
+      body: jsonEncode({'motivo': motivo}),
+    ),
+    'No se pudo enviar la disputa',
+  );
 }

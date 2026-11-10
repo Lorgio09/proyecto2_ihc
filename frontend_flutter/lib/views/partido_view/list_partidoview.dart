@@ -8,6 +8,7 @@ import '../../widgets/mensaje.dart';
 import 'formulario_partido.dart';
 import 'partidos_unidos_view.dart';
 import 'reprogramar_partido.dart';
+import 'resultado_partido_view.dart';
 
 class ListPartidoView extends StatefulWidget {
   const ListPartidoView({super.key, this.partidoService, this.usuario});
@@ -383,6 +384,17 @@ class _ListPartidoViewState extends State<ListPartidoView>
   // Acciones de una tarjeta (completar/reabrir, editar, eliminar).
   // Antes estaban en el `trailing` del ListTile y estrechaban el texto;
   // ahora se dibujan debajo del contenido. La lógica de cada botón no cambia.
+  Future<void> abrirResultado(Partido partido) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ResultadoPartidoView(
+          partidoId: partido.id,
+          partidoService: partidoService,
+        ),
+      ),
+    );
+  }
+
   Widget _construirAcciones(Partido partido) {
     final estado = partido.estado.trim().toLowerCase();
     final estaEliminando = partidoEliminandoId == partido.id;
@@ -437,6 +449,12 @@ class _ListPartidoViewState extends State<ListPartidoView>
           key: const Key('boton-reprogramar-partido'),
           onPressed: () => reprogramarPartido(partido),
           child: const Text('Reprogramar'),
+        ),
+        IconButton(
+          key: const Key('boton-resultado-partido'),
+          tooltip: 'Resultado del partido',
+          onPressed: () => abrirResultado(partido),
+          icon: const Icon(Icons.scoreboard_outlined),
         ),
         IconButton(
           tooltip: 'Editar partido',

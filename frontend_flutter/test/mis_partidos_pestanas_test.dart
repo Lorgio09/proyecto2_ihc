@@ -44,15 +44,9 @@ class _Servicio extends PartidoService {
   @override
   Future<List<Partido>> listar() async => propios;
 
+  // The API may still send matches the user is not in; the tab filters them.
   @override
-  Future<List<Partido>> listarExplorar({
-    String? busqueda,
-    String? deporte,
-    String? zona,
-    DateTime? desde,
-    DateTime? hasta,
-    bool soloConCupos = false,
-  }) async => explorar;
+  Future<List<Partido>> listarParticipando() async => explorar;
 
   @override
   Future<Partido> salir(int id) async {

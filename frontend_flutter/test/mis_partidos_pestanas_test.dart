@@ -100,6 +100,43 @@ void main() {
     expect(find.text('Todavía no te uniste a ningún partido'), findsOneWidget);
   });
 
+  testWidgets('En un partido ya jugado solo se puede ver el resultado', (
+    tester,
+  ) async {
+    final servicio = _Servicio();
+    final jugado = _partido(2, 'Partido al que me uní', const [
+      _ana,
+      _yoParticipante,
+    ]);
+    servicio.explorar = [
+      Partido(
+        id: jugado.id,
+        nombre: jugado.nombre,
+        cantidadJugadores: jugado.cantidadJugadores,
+        ubicacion: jugado.ubicacion,
+        fecha: DateTime.now().subtract(const Duration(hours: 3)),
+        estado: jugado.estado,
+        organizador: jugado.organizador,
+        participantes: jugado.participantes,
+        cantidadParticipantes: jugado.cantidadParticipantes,
+        cuposDisponibles: jugado.cuposDisponibles,
+        deporte: jugado.deporte,
+      ),
+    ];
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ListPartidoView(partidoService: servicio, usuario: _yo),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Me uní'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Partido al que me uní'), findsOneWidget);
+    expect(find.byKey(const Key('boton-resultado-partido-2')), findsOneWidget);
+    expect(find.byKey(const Key('boton-salir-partido-2')), findsNothing);
+  });
+
   testWidgets('Sin usuario se mantiene la vista anterior', (tester) async {
     await tester.pumpWidget(
       MaterialApp(home: ListPartidoView(partidoService: _Servicio())),

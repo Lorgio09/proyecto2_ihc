@@ -17,7 +17,12 @@ from app.modules.partidos.resultado import (
     registrar_resultado,
 )
 from app.modules.partidos.schemas import DatosPartido
-from app.modules.partidos.service import ErrorPartido, crear_partido, unirse_partido
+from app.modules.partidos.service import (
+    ErrorPartido,
+    crear_partido,
+    salir_partido,
+    unirse_partido,
+)
 
 
 engine = create_engine(
@@ -247,6 +252,45 @@ def test_no_se_cambian_los_equipos_con_un_resultado_registrado(db, usuarios, par
     with pytest.raises(ErrorPartido) as error:
         proponer_equipos(partido_jugado, [carla.id], carla.id, db)
     assert codigo(error) in ("PARTIDO_YA_JUGADO", "EQUIPOS_BLOQUEADOS")
+
+
+# --- Leaving cannot break the validation ---
+
+
+def test_nadie_sale_de_un_partido_ya_jugado(db, usuarios, partido_jugado):
+    organizador, ana, beto, carla = usuarios
+    for jugador in (ana, carla):
+        with pytest.raises(ErrorPartido) as error:
+            salir_partido(partido_jugado.id, jugador, db)
+        assert codigo(error) == "PARTIDO_YA_JUGADO"
+
+
+def test_el_capitan_rival_no_puede_salir(db, usuarios, partido):
+    organizador, ana, beto, carla = usuarios
+    proponer_equipos(partido, [beto.id, carla.id], beto.id, db)
+    with pytest.raises(ErrorPartido) as error:
+        salir_partido(partido.id, beto, db)
+    assert codigo(error) == "CAPITAN_NO_PUEDE_SALIR"
+    assert datos_validacion(partido, organizador)["capitan_rival"].nombre == "beto"
+
+
+def test_con_equipos_aceptados_un_jugador_no_puede_salir(db, usuarios, partido):
+    organizador, ana, beto, carla = usuarios
+    proponer_equipos(partido, [beto.id, carla.id], beto.id, db)
+    aceptar_equipos(partido.id, beto, db)
+    with pytest.raises(ErrorPartido) as error:
+        salir_partido(partido.id, ana, db)
+    assert codigo(error) == "EQUIPOS_ACEPTADOS"
+
+
+def test_sin_equipos_aceptados_se_sigue_pudiendo_salir(db, usuarios, partido):
+    organizador, ana, beto, carla = usuarios
+    salir_partido(partido.id, ana, db)
+    proponer_equipos(partido, [beto.id, carla.id], beto.id, db)
+    salir_partido(partido.id, carla, db)
+
+    nombres = [u.nombre for u in datos_validacion(partido, organizador)["titulares"]]
+    assert nombres == ["beto"]
 
 
 # --- Played matches stay reachable for their participants ---

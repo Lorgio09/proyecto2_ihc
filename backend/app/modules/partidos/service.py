@@ -503,6 +503,30 @@ def salir_partido(
             "No estás unido a este partido",
         )
 
+    # Leaving must not break the result validation: the rival captain has
+    # to stay to validate the score, and accepted teams cannot shrink.
+    fecha = partido.fecha
+    if fecha is not None:
+        if fecha.tzinfo is None:
+            fecha = fecha.replace(tzinfo=timezone.utc)
+        if fecha <= datetime.now(timezone.utc):
+            raise ErrorPartido(
+                "PARTIDO_YA_JUGADO",
+                "No puedes salir de un partido que ya se jugó",
+            )
+    if partido.capitan_rival_id == usuario.id:
+        raise ErrorPartido(
+            "CAPITAN_NO_PUEDE_SALIR",
+            "Eres el capitán rival: pide al organizador que elija otro "
+            "capitán antes de salir",
+        )
+    if partido.equipos_aceptados and participante.equipo is not None:
+        raise ErrorPartido(
+            "EQUIPOS_ACEPTADOS",
+            "Los equipos ya fueron aceptados: pide al organizador que los "
+            "cambie antes de salir",
+        )
+
     era_suplente = participante.es_suplente
     base_datos.delete(participante)
     if not era_suplente:

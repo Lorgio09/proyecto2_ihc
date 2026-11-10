@@ -38,6 +38,11 @@ class _PartidosUnidosViewState extends State<PartidosUnidosView> {
       partido.participantes.any((p) => p.id == widget.usuario.id) ||
       partido.suplentes.any((s) => s.id == widget.usuario.id);
 
+  bool yaSeJugo(Partido partido) {
+    final fecha = partido.fecha;
+    return fecha != null && !fecha.isAfter(DateTime.now());
+  }
+
   bool esSuplente(Partido partido) =>
       partido.suplentes.any((s) => s.id == widget.usuario.id);
 
@@ -177,13 +182,19 @@ class _PartidosUnidosViewState extends State<PartidosUnidosView> {
                     icon: const Icon(Icons.scoreboard_outlined),
                     label: const Text('Resultado'),
                   ),
-                  const SizedBox(height: 4),
-                  OutlinedButton.icon(
-                    key: Key('boton-salir-partido-${partido.id}'),
-                    onPressed: saliendo ? null : () => salir(partido),
-                    icon: const Icon(Icons.logout),
-                    label: Text(saliendo ? 'Saliendo...' : 'Salir del partido'),
-                  ),
+                  // The API rejects leaving a played match, so the button
+                  // would only fail.
+                  if (!yaSeJugo(partido)) ...[
+                    const SizedBox(height: 4),
+                    OutlinedButton.icon(
+                      key: Key('boton-salir-partido-${partido.id}'),
+                      onPressed: saliendo ? null : () => salir(partido),
+                      icon: const Icon(Icons.logout),
+                      label: Text(
+                        saliendo ? 'Saliendo...' : 'Salir del partido',
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

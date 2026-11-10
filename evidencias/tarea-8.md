@@ -52,6 +52,7 @@ Cada marcador es una **versión**. Una corrección crea una versión nueva y no 
 | Mientras un marcador espera validación no se puede registrar otro (**409 `RESULTADO_PENDIENTE`**). Con uno confirmado no se registra ninguno más (**409 `RESULTADO_CONFIRMADO`**). | Evita marcadores duplicados y que el definitivo cambie. |
 | La disputa exige un motivo (**422 `MOTIVO_OBLIGATORIO`**). | El organizador necesita saber qué corregir. |
 | El historial se guarda en una tabla propia (`partido_resultados`), una fila por versión. | Conservar todas las versiones sin pisar ninguna. |
+| Nadie puede salir de un partido ya jugado (**409 `PARTIDO_YA_JUGADO`**). El capitán rival no puede salir (**409 `CAPITAN_NO_PUEDE_SALIR`**) y, con los equipos aceptados, tampoco los jugadores asignados a un equipo (**409 `EQUIPOS_ACEPTADOS`**). En "Me uní" no se muestra "Salir del partido" en partidos jugados. | Lo encontramos al revisar la tarea: si el capitán salía de un partido jugado, perdía el acceso a la pantalla Resultado y el marcador quedaba sin validar para siempre. Salir de un partido futuro sin equipos funciona igual que antes. |
 | Datos de prueba: la semilla crea **"Clásico de la facultad"** (jugado hace 3 horas, equipos aceptados, capitán: Segundo Jugador) y **"Amistoso del sábado"** (la semana próxima, sin equipos). | La app no deja crear ni unirse a partidos con fecha pasada, y un E2E no puede esperar a que pase la hora real. La semilla deja los datos listos y siempre iguales (`seed.py --reset`). |
 | En **Organizo**, la entrada es un ícono con tooltip junto a editar y eliminar; en **Me uní**, un botón con texto. | Un botón con texto en Organizo agrandaba la tarjeta y rompía un test de búsqueda existente (`list_partidoview_h7_test`). |
 
@@ -67,7 +68,8 @@ Cada marcador es una **versión**. Una corrección crea una versión nueva y no 
 | [`backend/app/database/models.py`](../backend/app/database/models.py) | `Partido.capitan_rival_id`, `Partido.equipos_aceptados`, `PartidoParticipante.equipo` y la tabla `ResultadoPartido`. |
 | [`backend/migrations/versions/c8a1d5e7f302_agrega_validacion_de_resultado.py`](../backend/migrations/versions/c8a1d5e7f302_agrega_validacion_de_resultado.py) | **Nueva** migración, reversible (se probó `upgrade`, `downgrade` y otra vez `upgrade`). |
 | [`backend/seed.py`](../backend/seed.py) | Los dos partidos de prueba con sus jugadores. |
-| [`backend/tests/test_partidos_resultado.py`](../backend/tests/test_partidos_resultado.py) | **Nuevo.** 16 pruebas del proceso, las restricciones y los códigos HTTP. |
+| [`backend/tests/test_partidos_resultado.py`](../backend/tests/test_partidos_resultado.py) | **Nuevo.** 20 pruebas del proceso, las restricciones (incluidas las de salida) y los códigos HTTP. |
+| [`backend/app/modules/partidos/service.py`](../backend/app/modules/partidos/service.py) | `salir_partido`: las tres restricciones de salida descritas en Decisiones. |
 | `backend/requirements.txt` | Se agrega `httpx`, que necesita el `TestClient` de FastAPI. |
 
 **Endpoints nuevos** (todos bajo `/api/partidos`):
@@ -90,8 +92,9 @@ Cada marcador es una **versión**. Una corrección crea una versión nueva y no 
 | [`frontend_flutter/lib/models/validacion.dart`](../frontend_flutter/lib/models/validacion.dart) | **Nuevo** modelo de la validación y de cada versión del marcador. |
 | [`frontend_flutter/lib/services/partido.dart`](../frontend_flutter/lib/services/partido.dart) | Llamadas a los endpoints nuevos. |
 | [`frontend_flutter/lib/views/partido_view/list_partidoview.dart`](../frontend_flutter/lib/views/partido_view/list_partidoview.dart) | Ícono "Resultado del partido" en las tarjetas de Organizo. |
-| [`frontend_flutter/lib/views/partido_view/partidos_unidos_view.dart`](../frontend_flutter/lib/views/partido_view/partidos_unidos_view.dart) | Botón "Resultado" y lista desde `/participando`. |
+| [`frontend_flutter/lib/views/partido_view/partidos_unidos_view.dart`](../frontend_flutter/lib/views/partido_view/partidos_unidos_view.dart) | Botón "Resultado", lista desde `/participando` y sin "Salir del partido" en partidos ya jugados. |
 | [`frontend_flutter/test/resultado_partido_test.dart`](../frontend_flutter/test/resultado_partido_test.dart) | **Nuevo.** 5 widget tests de la pantalla por rol y estado. |
+| [`frontend_flutter/test/mis_partidos_pestanas_test.dart`](../frontend_flutter/test/mis_partidos_pestanas_test.dart) | El servicio falso usa `/participando`, y una prueba nueva: en un partido ya jugado "Me uní" muestra "Resultado" pero no "Salir del partido". |
 | [`frontend_flutter/integration_test/validar_resultado_test.dart`](../frontend_flutter/integration_test/validar_resultado_test.dart) | **Nuevo** E2E del recorrido completo. |
 | [`frontend_flutter/integration_test/equipos_y_permisos_test.dart`](../frontend_flutter/integration_test/equipos_y_permisos_test.dart) | **Nuevo** E2E de permisos y estados pendientes. |
 | [`frontend_flutter/integration_test/helpers_resultado.dart`](../frontend_flutter/integration_test/helpers_resultado.dart) | **Nuevo.** Pasos compartidos de los dos E2E. |
@@ -104,8 +107,10 @@ Cada marcador es una **versión**. Una corrección crea una versión nueva y no 
 | [`c53f4d8`](https://github.com/Lorgio09/proyecto2_ihc/commit/c53f4d868ce453879cc3d24a7dc435a18d318396) | feat: validar el resultado del partido entre organizador y capitán rival (backend, migración, semilla y pruebas) |
 | [`248b0b8`](https://github.com/Lorgio09/proyecto2_ihc/commit/248b0b8f5c59990bcc45628827e9055afa26f2d5) | feat: pantalla Resultado del partido para validar el marcador |
 | [`3618164`](https://github.com/Lorgio09/proyecto2_ihc/commit/361816471716f2cea20bf746db88e26dd98aee62) | test: E2E de la validación del resultado y de los permisos de equipos |
+| [`071be9a`](https://github.com/Lorgio09/proyecto2_ihc/commit/071be9aa8f1a51fc43555b4df3569c7953a65f70) | test: actualizar la captura base de Mis partidos |
+| [`33a8472`](https://github.com/Lorgio09/proyecto2_ihc/commit/33a8472b34d857864592fdfeadf932cb83f31e5a) | fix: impedir salir de un partido cuando rompería la validación del resultado |
 
-El commit de esta evidencia agrega este archivo, las capturas, el resultado de la suite y el cambio de `run_suite.sh`.
+Los commits de evidencia (`docs: ...`) agregan este archivo, las capturas, el resultado de la suite y el cambio de `run_suite.sh`.
 
 ## 5. Capturas
 
@@ -168,7 +173,7 @@ Sobre "Amistoso del sábado" (todavía no se jugó):
 3. **Capitán** acepta → "Equipos aceptados. El marcador se registra al terminar el partido".
 4. **Persistencia al recargar:** se reinicia la app, y el organizador ve la aceptación guardada pero **no puede registrar el marcador** porque el partido todavía no terminó.
 
-Las restricciones que la app no deja intentar desde la interfaz (otro usuario que llama a la API, duplicados, motivo vacío) están cubiertas en `test_partidos_resultado.py`, incluida una prueba HTTP que comprueba los **403**.
+Las restricciones que la app no deja intentar desde la interfaz (otro usuario que llama a la API, duplicados, motivo vacío) están cubiertas en `test_partidos_resultado.py`, incluida una prueba HTTP que comprueba los **403**. Las restricciones de salida tienen cuatro pruebas propias, una de ellas comprueba que salir de un partido futuro sin equipos sigue funcionando.
 
 ## 7. Cómo ejecutar las pruebas
 
@@ -190,12 +195,12 @@ cd frontend_flutter && flutter test
 
 ## 8. Resultado de la suite
 
-Corrida completa del 10/11/2026 sobre el commit `3618164` (archivos: [`suite-despues-backend.txt`](tarea-8/suite-despues-backend.txt), [`suite-despues-flutter.txt`](tarea-8/suite-despues-flutter.txt)):
+Última corrida completa, 10/11/2026 a las 15:48, con el código del commit `33a8472` (archivos: [`suite-despues-backend.txt`](tarea-8/suite-despues-backend.txt), [`suite-despues-flutter.txt`](tarea-8/suite-despues-flutter.txt)):
 
 | Suite | Resultado |
 |---|---|
-| Backend (pytest) | **57 pasan** (41 anteriores + 16 nuevas) |
-| Widget tests (flutter test) | **44 pasan, 1 falla** en esta corrida; **45/45** después de corregir la captura base (ver abajo) |
+| Backend (pytest) | **61 pasan** (41 anteriores + 20 nuevas) |
+| Widget tests (flutter test) | **46 pasan** (40 anteriores + 6 nuevas) |
 | E2E `crear_partido_test` | 2 pasan |
 | E2E `cuenta_test` | 6 pasan |
 | E2E `equipos_y_permisos_test` (**nuevo**) | 1 pasa |
@@ -205,9 +210,9 @@ Corrida completa del 10/11/2026 sobre el commit `3618164` (archivos: [`suite-des
 | E2E `suplentes_test` | 1 pasa |
 | E2E `validar_resultado_test` (**nuevo**) | 1 pasa |
 
-Los 6 E2E anteriores siguen pasando: la funcionalidad nueva no introdujo regresiones.
+Los 6 E2E anteriores siguen pasando: la funcionalidad nueva no introdujo regresiones. `explorar_unirse_salir_test` y `suplentes_test` usan "Salir del partido", que se cambió en `33a8472`, y siguen en verde.
 
 ### Fallo pendiente explicado (ya corregido)
 
-- **`test/visual_test.dart: Mis partidos se ve igual que la captura base`.** Este test compara la pantalla con una captura guardada. **Ya fallaba en `main` antes de esta tarea** (commit `0321778`): la Tarea 7 agregó el botón "Reprogramar" a las tarjetas y la captura base no se actualizó. Se comprobó corriendo el test sobre una copia limpia de `origin/main`.
-- **Corrección** ([`071be9a`](https://github.com/Lorgio09/proyecto2_ihc/commit/071be9aa8f1a51fc43555b4df3569c7953a65f70)): se revisó que la pantalla actual es la correcta (tiene "Reprogramar" de la Tarea 7 y el ícono "Resultado del partido" de esta tarea) y se regeneró solo esa captura con `flutter test --update-goldens test/visual_test.dart --plain-name "Mis partidos se ve igual que la captura base"`. Después, `flutter test` da **45/45**. No quedan fallos pendientes.
+- **`test/visual_test.dart: Mis partidos se ve igual que la captura base`.** Este test compara la pantalla con una captura guardada. **Ya fallaba en `main` antes de esta tarea** (commit `0321778`): la Tarea 7 agregó el botón "Reprogramar" a las tarjetas y la captura base no se actualizó. Se comprobó corriendo el test sobre una copia limpia de `origin/main`. En la primera corrida de esta tarea (commit `3618164`) dio 44 pasan y 1 falla.
+- **Corrección** ([`071be9a`](https://github.com/Lorgio09/proyecto2_ihc/commit/071be9aa8f1a51fc43555b4df3569c7953a65f70)): se revisó que la pantalla actual es la correcta (tiene "Reprogramar" de la Tarea 7 y el ícono "Resultado del partido" de esta tarea) y se regeneró solo esa captura con `flutter test --update-goldens test/visual_test.dart --plain-name "Mis partidos se ve igual que la captura base"`. **No quedan fallos pendientes.**

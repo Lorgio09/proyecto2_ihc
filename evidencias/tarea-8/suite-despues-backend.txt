@@ -1,8 +1,8 @@
 Suite: despues
-Date:  2026-11-10 15:27:37
-Commit: 3618164
+Date:  2026-11-10 15:48:43
+Commit: 33a8472 (la corrida arrancó sobre d5ca478 con este cambio todavía sin commitear; el código probado es el de 33a8472)
 Device: linux
 
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-57 passed, 1 warning in 1.02s
+61 passed, 1 warning in 1.05s

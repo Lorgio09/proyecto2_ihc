@@ -23,3 +23,6 @@ Device: linux
 01:55 +1: All tests passed!
 === validar_resultado_test.dart
 01:51 +1: All tests passed!
+
+=== Widget tests después de regenerar test/goldens/mis_partidos.png (071be9a)
+00:02 +45: All tests passed!

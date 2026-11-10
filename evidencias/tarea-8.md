@@ -195,7 +195,7 @@ Corrida completa del 10/11/2026 sobre el commit `3618164` (archivos: [`suite-des
 | Suite | Resultado |
 |---|---|
 | Backend (pytest) | **57 pasan** (41 anteriores + 16 nuevas) |
-| Widget tests (flutter test) | **44 pasan, 1 falla** (ver fallo pendiente) |
+| Widget tests (flutter test) | **44 pasan, 1 falla** en esta corrida; **45/45** después de corregir la captura base (ver abajo) |
 | E2E `crear_partido_test` | 2 pasan |
 | E2E `cuenta_test` | 6 pasan |
 | E2E `equipos_y_permisos_test` (**nuevo**) | 1 pasa |
@@ -207,6 +207,7 @@ Corrida completa del 10/11/2026 sobre el commit `3618164` (archivos: [`suite-des
 
 Los 6 E2E anteriores siguen pasando: la funcionalidad nueva no introdujo regresiones.
 
-### Fallo pendiente explicado
+### Fallo pendiente explicado (ya corregido)
 
-- **`test/visual_test.dart: Mis partidos se ve igual que la captura base`.** Este test compara la pantalla con una captura guardada. **Ya fallaba en `main` antes de esta tarea** (commit `0321778`): la Tarea 7 agregó el botón "Reprogramar" a las tarjetas y la captura base no se actualizó. Se comprobó corriendo el test sobre una copia limpia de `origin/main`. No se regeneró aquí porque la captura es de otra funcionalidad; se corrige con `flutter test --update-goldens test/visual_test.dart` después de revisar que la pantalla nueva es la correcta.
+- **`test/visual_test.dart: Mis partidos se ve igual que la captura base`.** Este test compara la pantalla con una captura guardada. **Ya fallaba en `main` antes de esta tarea** (commit `0321778`): la Tarea 7 agregó el botón "Reprogramar" a las tarjetas y la captura base no se actualizó. Se comprobó corriendo el test sobre una copia limpia de `origin/main`.
+- **Corrección** ([`071be9a`](https://github.com/Lorgio09/proyecto2_ihc/commit/071be9aa8f1a51fc43555b4df3569c7953a65f70)): se revisó que la pantalla actual es la correcta (tiene "Reprogramar" de la Tarea 7 y el ícono "Resultado del partido" de esta tarea) y se regeneró solo esa captura con `flutter test --update-goldens test/visual_test.dart --plain-name "Mis partidos se ve igual que la captura base"`. Después, `flutter test` da **45/45**. No quedan fallos pendientes.

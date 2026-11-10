@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
-# Runs every test suite and saves the result under docs/evidencias/tarea-6/.
+# Runs every test suite and saves the result under docs/evidencias/tarea-6/,
+# or under SUITE_OUT_DIR when it is set.
 #
 # Usage: ./run_suite.sh <label> [flutter device, default: linux]
 #   ./run_suite.sh antes     # before a feature
 #   ./run_suite.sh despues   # after it
+#   SUITE_OUT_DIR=evidencias/tarea-8 ./run_suite.sh despues
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 LABEL="${1:?Usage: ./run_suite.sh <label> [device]}"
 DEVICE="${2:-linux}"
-OUT_DIR="$ROOT/docs/evidencias/tarea-6"
+OUT_DIR="${SUITE_OUT_DIR:-$ROOT/docs/evidencias/tarea-6}"
+case "$OUT_DIR" in /*) ;; *) OUT_DIR="$ROOT/$OUT_DIR" ;; esac
 mkdir -p "$OUT_DIR"
 
 header() {

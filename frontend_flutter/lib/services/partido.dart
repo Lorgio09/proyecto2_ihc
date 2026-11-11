@@ -184,6 +184,21 @@ class PartidoService {
     return Partido.fromJson(jsonDecode(respuesta.body));
   }
 
+  /// Analytics: records an interaction event. Fire and forget: a failure
+  /// here must never block or break what the person is doing.
+  Future<void> registrarEvento(
+    String evento,
+    Map<String, Object?> props,
+  ) async {
+    try {
+      await client.post(
+        Uri.parse('$apiBaseUrl/api/analitica/eventos'),
+        headers: await headers(),
+        body: jsonEncode({'evento': evento, 'props': props}),
+      );
+    } catch (_) {}
+  }
+
   Future<Partido> unirse(int id) async {
     final respuesta = await client.post(
       url('/$id/unirse'),

@@ -168,6 +168,11 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
   }
 
   Future<void> unirse(Partido partido) async {
+    // Start event of the join flow; the success one (partido_unido) is
+    // recorded by the backend once joining is saved.
+    partidoService.registrarEvento('union_iniciada', {
+      'deporte': partido.deporte,
+    });
     setState(() => partidoUniendoseId = partido.id);
 
     try {

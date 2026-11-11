@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
+from app.modules.analitica.router import router as analitica_router
 from app.modules.auth.router import router as auth_router
 from app.modules.partidos.router import router as partidos_router
 
@@ -22,3 +23,4 @@ app.add_middleware(
 
 app.include_router(auth_router)
 app.include_router(partidos_router)
+app.include_router(analitica_router)

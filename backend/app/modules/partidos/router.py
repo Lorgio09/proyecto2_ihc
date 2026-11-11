@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.database.connection import get_db
 from app.database.models import Usuario
+from app.modules.analitica.service import PARTIDO_UNIDO, track
 from app.modules.auth.service import current_user
 from app.modules.partidos.schemas import (
     ActualizacionPartido,
@@ -233,7 +234,19 @@ def unirse(
         partido = unirse_partido(partido_id, usuario, base_datos)
         if not partido:
             raise no_encontrado()
-        return datos_partido(partido)
+        datos = datos_partido(partido)
+        # Success event: only reached once joining was saved.
+        track(
+            base_datos,
+            PARTIDO_UNIDO,
+            {
+                "deporte": partido.deporte,
+                "como_suplente": any(
+                    suplente.id == usuario.id for suplente in datos["suplentes"]
+                ),
+            },
+        )
+        return datos
     except ErrorPartido as error:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,

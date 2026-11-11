@@ -72,3 +72,17 @@ WHERE cantidad_jugadores < 1;
 UPDATE partidos
 SET cantidad_jugadores = 10
 WHERE id = 1;
+## Analítica de interacción
+
+Pregunta: *de quienes empiezan a unirse a un partido, ¿cuántos lo terminan?*
+
+| Evento | Cuándo se dispara | Propiedades |
+|---|---|---|
+| `union_iniciada` | La app, al tocar "Unirse" en Explorar | `deporte` |
+| `partido_unido` | El backend, solo cuando unirse se guardó | `deporte`, `como_suplente` |
+
+No se guarda quién hizo la acción (ni id de usuario, ni email, ni nombre).
+
+- Panel: `http://127.0.0.1:8000/analitica` (conteos, % que termina y últimos eventos).
+- Datos en JSON: `GET /api/analitica/resumen`.
+- Google Analytics 4: con `GA_MEASUREMENT_ID` y `GA_API_SECRET` en `.env`, cada evento también se envía a GA (Informes → Tiempo real). Vacíos, solo se guarda en la tabla `eventos`. Las pruebas nunca envían a GA.

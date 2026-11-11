@@ -1,6 +1,15 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, false, func
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    false,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.connection import Base
@@ -201,3 +210,21 @@ class ResultadoPartido(Base):
     )
 
     partido: Mapped[Partido] = relationship(back_populates="resultados")
+
+
+class Evento(Base):
+    """An interaction event for analytics: what happened, when and the minimal
+    properties a question needs. Never who did it (no user id, no email)."""
+
+    __tablename__ = "eventos"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    evento: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+    props: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    fecha: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        server_default=func.now(),
+    )
+

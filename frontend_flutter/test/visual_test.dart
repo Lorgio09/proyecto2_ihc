@@ -71,8 +71,40 @@ Future<void> _mostrar(WidgetTester tester, Widget pantalla) async {
   await tester.pumpAndSettle();
 }
 
+/// Linux and Windows anti-alias glyph edges slightly differently (about 0.5 %
+/// to 1.5 % of the pixels), so the same screen never matches byte for byte
+/// across machines. Up to 2 % is tolerated; a real change to a screen (a new
+/// button, a moved block) differs far more and still fails.
+class _ComparadorConTolerancia extends LocalFileComparator {
+  _ComparadorConTolerancia(super.testFile);
+
+  static const tolerancia = 0.02;
+
+  @override
+  Future<bool> compare(Uint8List imageBytes, Uri golden) async {
+    final resultado = await GoldenFileComparator.compareLists(
+      imageBytes,
+      await getGoldenBytes(golden),
+    );
+    if (resultado.passed || resultado.diffPercent <= tolerancia) {
+      resultado.dispose();
+      return true;
+    }
+    final error = await generateFailureOutput(resultado, golden, basedir);
+    resultado.dispose();
+    throw FlutterError(error);
+  }
+}
+
 void main() {
-  setUpAll(_cargarFuentes);
+  setUpAll(() async {
+    goldenFileComparator = _ComparadorConTolerancia(
+      (goldenFileComparator as LocalFileComparator).basedir.resolve(
+        'visual_test.dart',
+      ),
+    );
+    await _cargarFuentes();
+  });
 
   testWidgets('el login se ve igual que la captura base', (tester) async {
     await _mostrar(tester, const LoginView());

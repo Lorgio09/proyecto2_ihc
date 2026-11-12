@@ -624,6 +624,14 @@ class _ListPartidoViewState extends State<ListPartidoView>
                                         'Esperando respuesta de: '
                                         '${partido.pendientesConfirmar.map((usuario) => usuario.nombre).join(', ')}',
                                       ),
+                                    if (partido.bajasTardias.isNotEmpty)
+                                      Text(
+                                        'Bajas tardías: '
+                                        '${partido.bajasTardias.map((usuario) => usuario.nombre).join(', ')}',
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.error,
+                                        ),
+                                      ),
                                     Text(
                                       'Participantes: ${partido.cantidadParticipantes}',
                                     ),

@@ -11,6 +11,12 @@ Result validation (Tarea 8) uses two more matches with players already in:
                               captain is jugador2.
     "Amistoso del sábado"     next week; no teams proposed yet.
 
+Late withdrawal (Tarea 9) uses two more:
+    "Baja con tiempo"          in 2 days, 1 spot: jugador holds it and
+                               jugador2 waits as substitute.
+    "Baja de último momento"   starts in 90 minutes; jugador3 is in, so leaving
+                               now counts as a late withdrawal.
+
 Test accounts (password for all: Seed1234):
     organizador@unisport.test
     jugador@unisport.test
@@ -134,6 +140,59 @@ def crear_partidos_de_validacion(db, usuarios, organizador, ahora) -> None:
     db.commit()
 
 
+# (nombre, minutos_desde_ahora, cupos, [(email, es_suplente)])
+PARTIDOS_BAJA = [
+    (
+        "Baja con tiempo",
+        60 * 48,
+        1,
+        [("jugador@unisport.test", False), ("jugador2@unisport.test", True)],
+    ),
+    (
+        "Baja de último momento",
+        90,
+        4,
+        [("jugador3@unisport.test", False)],
+    ),
+]
+
+
+def crear_partidos_de_baja(db, usuarios, organizador, ahora) -> None:
+    """Matches for the late withdrawal flow, created with their players."""
+    for nombre, minutos, cupos, jugadores in PARTIDOS_BAJA:
+        existe = db.scalar(
+            select(Partido).where(
+                Partido.usuario_id == organizador.id,
+                Partido.nombre == nombre,
+            )
+        )
+        if existe is not None:
+            continue
+        titulares = sum(1 for _, es_suplente in jugadores if not es_suplente)
+        partido = Partido(
+            usuario_id=organizador.id,
+            nombre=nombre,
+            deporte="futbol",
+            cantidad_jugadores=cupos,
+            ubicacion="Cancha FICCT",
+            tiempo_min="60",
+            fecha=ahora + timedelta(minutes=minutos),
+            estado="equipo completo" if titulares >= cupos else "cupos abiertos",
+        )
+        db.add(partido)
+        db.flush()
+        for orden, (email, es_suplente) in enumerate(jugadores):
+            db.add(
+                PartidoParticipante(
+                    partido_id=partido.id,
+                    usuario_id=usuarios[email].id,
+                    es_suplente=es_suplente,
+                    unido_en=ahora - timedelta(days=1, minutes=-orden),
+                )
+            )
+    db.commit()
+
+
 def main() -> None:
     with SessionLocal() as db:
         if "--reset" in sys.argv[1:]:
@@ -179,6 +238,7 @@ def main() -> None:
         db.commit()
 
         crear_partidos_de_validacion(db, usuarios, organizador, ahora)
+        crear_partidos_de_baja(db, usuarios, organizador, ahora)
 
         print(f"Usuarios: {db.query(Usuario).count()}")
         print(f"Partidos: {db.query(Partido).count()}")

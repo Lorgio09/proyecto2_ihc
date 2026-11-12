@@ -36,6 +36,8 @@ class Partido {
   // After a reschedule: why it changed and which holders still have to answer.
   final String? motivoReprogramacion;
   final List<UsuarioPartido> pendientesConfirmar;
+  // Players who left less than 2 hours before kick-off (visible to the organizer).
+  final List<UsuarioPartido> bajasTardias;
 
   final String deporte; // Nuevo atributo para el deporte
 
@@ -56,10 +58,16 @@ class Partido {
     this.cantidadSuplentes = 0,
     this.motivoReprogramacion,
     this.pendientesConfirmar = const [],
+    this.bajasTardias = const [],
     required this.deporte,
   });
 
   bool get tieneRespuestasPendientes => pendientesConfirmar.isNotEmpty;
+
+  /// Leaving from now on counts as a late withdrawal (same 2 h rule as the API).
+  bool get salidaSeriaTardia =>
+      fecha != null &&
+      fecha!.difference(DateTime.now()) < const Duration(hours: 2);
 
   bool debeReconfirmar(int usuarioId) =>
       pendientesConfirmar.any((usuario) => usuario.id == usuarioId);
@@ -85,6 +93,7 @@ class Partido {
     final participantesJson = json['participantes'] as List? ?? [];
     final suplentesJson = json['suplentes'] as List? ?? [];
     final pendientesJson = json['pendientes_confirmar'] as List? ?? [];
+    final bajasJson = json['bajas_tardias'] as List? ?? [];
     final organizadorJson = json['organizador'];
 
     return Partido(
@@ -111,6 +120,10 @@ class Partido {
       cantidadSuplentes: json['cantidad_suplentes'] as int? ?? 0,
       motivoReprogramacion: json['motivo_reprogramacion'] as String?,
       pendientesConfirmar: pendientesJson
+          .whereType<Map<String, dynamic>>()
+          .map(UsuarioPartido.fromJson)
+          .toList(),
+      bajasTardias: bajasJson
           .whereType<Map<String, dynamic>>()
           .map(UsuarioPartido.fromJson)
           .toList(),

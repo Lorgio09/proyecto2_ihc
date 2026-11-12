@@ -69,7 +69,13 @@ class _PartidosUnidosViewState extends State<PartidosUnidosView> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Salir del partido'),
-        content: const Text('¿Quieres salir de este partido?'),
+        content: Text(
+          partido.salidaSeriaTardia
+              ? 'Faltan menos de 2 horas para el partido. Si sales ahora, '
+                    'quedará registrado como baja tardía y el organizador lo '
+                    'verá. ¿Quieres salir igual?'
+              : '¿Quieres salir de este partido?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),

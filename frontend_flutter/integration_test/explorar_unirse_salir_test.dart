@@ -67,6 +67,9 @@ void main() {
     var tarjeta = await _tarjeta(tester);
     expect(find.descendant(of: tarjeta, matching: find.text('Cupos: 0/8')),
         findsOneWidget);
+    // The card can be on screen while its button is still below the edge.
+    await tester.ensureVisible(_en(tarjeta, 'boton-unirse-partido'));
+    await tester.pumpAndSettle();
     await tester.tap(_en(tarjeta, 'boton-unirse-partido'));
     await _esperar(tester, find.text('Te uniste al partido'));
 
@@ -91,6 +94,8 @@ void main() {
     await tester.pumpAndSettle();
     await _abrirExplorar(tester);
     tarjeta = await _tarjeta(tester);
+    await tester.ensureVisible(_en(tarjeta, 'boton-salir-partido'));
+    await tester.pumpAndSettle();
     await tester.tap(_en(tarjeta, 'boton-salir-partido'));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('confirmar-salir-partido')));

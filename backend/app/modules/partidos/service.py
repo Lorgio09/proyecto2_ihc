@@ -2,7 +2,7 @@
 from datetime import date, datetime, time, timedelta, timezone
 
 from sqlalchemy import exists, func, select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, object_session, selectinload
 
 from app.database.models import HistorialParticipacion, Partido, PartidoParticipante, Usuario
 from app.modules.partidos.schemas import (
@@ -10,6 +10,11 @@ from app.modules.partidos.schemas import (
     DatosPartido,
     Reprogramacion,
 )
+
+
+# A player may leave freely until this long before kick-off; later it counts
+# as a late withdrawal ("baja tardía") that the organizer can see.
+PLAZO_BAJA = timedelta(hours=2)
 
 
 class ErrorPartido(ValueError):
@@ -476,6 +481,15 @@ def unirse_partido(
     return partido
 
 
+def es_baja_tardia(partido: Partido) -> bool:
+    fecha = partido.fecha
+    if fecha is None:
+        return False
+    if fecha.tzinfo is None:
+        fecha = fecha.replace(tzinfo=timezone.utc)
+    return fecha - datetime.now(timezone.utc) < PLAZO_BAJA
+
+
 def salir_partido(
     partido_id: int,
     usuario: Usuario,
@@ -527,8 +541,17 @@ def salir_partido(
             "cambie antes de salir",
         )
 
+    tardia = es_baja_tardia(partido)
     era_suplente = participante.es_suplente
     base_datos.delete(participante)
+    if tardia:
+        base_datos.add(
+            HistorialParticipacion(
+                usuario_id=usuario.id,
+                partido_id=partido.id,
+                accion="baja_tardia",
+            )
+        )
     if not era_suplente:
         # The first substitute takes the freed spot; with none waiting, the
         # spot opens up again.
@@ -538,6 +561,26 @@ def salir_partido(
     base_datos.commit()
     base_datos.refresh(partido)
     return partido
+
+
+def bajas_tardias(partido: Partido) -> list[Usuario]:
+    sesion = object_session(partido)
+    if sesion is None:
+        return []
+    return list(
+        sesion.scalars(
+            select(Usuario)
+            .join(
+                HistorialParticipacion,
+                HistorialParticipacion.usuario_id == Usuario.id,
+            )
+            .where(
+                HistorialParticipacion.partido_id == partido.id,
+                HistorialParticipacion.accion == "baja_tardia",
+            )
+            .order_by(HistorialParticipacion.fecha_evento, HistorialParticipacion.id)
+        ).all()
+    )
 
 
 def datos_partido(partido: Partido) -> dict:
@@ -568,6 +611,7 @@ def datos_partido(partido: Partido) -> dict:
         "cantidad_suplentes": len(suplentes),
         "motivo_reprogramacion": partido.motivo_reprogramacion,
         "pendientes_confirmar": pendientes,
+        "bajas_tardias": bajas_tardias(partido),
         "cupos_disponibles": max(
             partido.cantidad_jugadores - cantidad_participantes,
             0,

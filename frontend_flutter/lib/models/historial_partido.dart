@@ -43,6 +43,7 @@ class HistorialPartido {
     if (accion == 'se_unio') return 'Te uniste al partido';
     if (accion == 'se_unio_suplente') return 'Te uniste como suplente';
     if (accion == 'paso_a_titular') return 'Pasaste a titular';
+    if (accion == 'baja_tardia') return 'Te diste de baja tarde';
     return accion;
   }
 

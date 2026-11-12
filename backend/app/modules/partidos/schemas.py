@@ -57,6 +57,7 @@ class RespuestaPartido(DatosPartido):
     cupos_disponibles: int = 0
     motivo_reprogramacion: str | None = None
     pendientes_confirmar: list[RespuestaUsuarioPartido] = []
+    bajas_tardias: list[RespuestaUsuarioPartido] = []
 
 
 class RespuestaPartidoExplorar(RespuestaPartido):

@@ -186,10 +186,23 @@ class _ListPartidoViewState extends State<ListPartidoView>
     }
   }
 
+  void _fallo(String flujo, String motivo) {
+    partidoService.registrarEvento('tarea_fallida', {
+      'flujo': flujo,
+      'motivo': motivo,
+    });
+  }
+
   Future<void> abrirFormulario({Partido? partido}) async {
+    final creando = partido == null;
+    // Start of the "create a match" funnel (editing is not part of it).
+    if (creando) partidoService.registrarEvento('partido_creacion_iniciada', {});
     final datos = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (context) => FormularioPartido(partido: partido),
+      builder: (context) => FormularioPartido(
+        partido: partido,
+        alFallar: creando ? (motivo) => _fallo('crear_partido', motivo) : null,
+      ),
     );
 
     if (datos == null) return;
@@ -272,12 +285,19 @@ class _ListPartidoViewState extends State<ListPartidoView>
         context,
         'Espera a que todos los titulares respondan antes de reprogramar otra vez',
       );
+      _fallo('reprogramar', 'REPROGRAMACION_PENDIENTE');
       return;
     }
 
+    partidoService.registrarEvento('reprogramacion_iniciada', {
+      'deporte': partido.deporte,
+    });
     final datos = await showDialog<DatosReprogramacion>(
       context: context,
-      builder: (context) => ReprogramarPartidoDialog(partido: partido),
+      builder: (context) => ReprogramarPartidoDialog(
+        partido: partido,
+        alFallar: (motivo) => _fallo('reprogramar', motivo),
+      ),
     );
     if (datos == null) return;
 

@@ -197,13 +197,16 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
     try {
       await partidoService.reconfirmar(partido.id);
       await cargarPartidos();
-      if (mounted) mostrarMensaje(context, 'Confirmaste tu lugar en el partido');
+      if (mounted)
+        mostrarMensaje(context, 'Confirmaste tu lugar en el partido');
     } catch (error) {
       if (mounted) mostrarMensaje(context, error.toString());
     }
   }
 
   Future<void> salir(Partido partido) async {
+    // Start of the "leave a match" funnel; baja_registrada comes from the API.
+    partidoService.registrarEvento('baja_iniciada', {});
     final confirmar = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -349,10 +352,7 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
               spacing: 8,
               runSpacing: 4,
               children: [
-                OutlinedButton(
-                  onPressed: filtrarHoy,
-                  child: const Text('Hoy'),
-                ),
+                OutlinedButton(onPressed: filtrarHoy, child: const Text('Hoy')),
                 OutlinedButton(
                   onPressed: filtrarSemana,
                   child: const Text('Próximos 7 días'),
@@ -400,236 +400,203 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                 context,
                 'Ayuda para explorar partidos',
                 'Utiliza la búsqueda y los filtros para encontrar partidos.\n\n'
-                'Pulsa Unirse cuando un partido tenga cupos disponibles.\n\n'
-                'Si no puedes unirte, la tarjeta mostrará el motivo.\n\n'
-                'Usa Ver participantes para consultar quiénes se unieron.',
+                    'Pulsa Unirse cuando un partido tenga cupos disponibles.\n\n'
+                    'Si no puedes unirte, la tarjeta mostrará el motivo.\n\n'
+                    'Usa Ver participantes para consultar quiénes se unieron.',
               );
             },
           ),
         ],
       ),
-      body: Column(
-        children: [
-          panelFiltros(),
-          Expanded(
-            child: cargando
-                ? const Center(child: CircularProgressIndicator())
-                : partidos.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'No encontramos partidos que coincidan con los filtros.',
-                          textAlign: TextAlign.center,
-                        ),
-                      )
-                    : RefreshIndicator(
-                        onRefresh: cargarPartidos,
-                        child: ListView.builder(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          itemCount: partidos.length,
-                          itemBuilder: (context, index) {
-                            final partido = partidos[index];
-                            final motivo = motivoBloqueo(partido);
-                            final estaExpandido =
-                                partidoExpandidoId == partido.id;
-                            final estaUniendose =
-                                partidoUniendoseId == partido.id;
-                            final estaSaliendo =
-                                partidoSaliendoId == partido.id;
-                            final estaUnidoAlPartido = estaUnido(partido);
-                            final organizador =
-                                partido.organizador?.nombre ?? 'Sin nombre';
+      // The filters scroll with the list: with active filters the panel grows
+      // and, fixed on top, it overflowed small screens.
+      body: RefreshIndicator(
+        onRefresh: cargarPartidos,
+        child: ListView.builder(
+          padding: const EdgeInsets.only(bottom: 8),
+          itemCount: cargando || partidos.isEmpty ? 2 : partidos.length + 1,
+          itemBuilder: (context, indice) {
+            if (indice == 0) return panelFiltros();
+            if (cargando) {
+              return const Padding(
+                padding: EdgeInsets.all(32),
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+            if (partidos.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.all(32),
+                child: Text(
+                  'No encontramos partidos que coincidan con los filtros.',
+                  textAlign: TextAlign.center,
+                ),
+              );
+            }
+            final partido = partidos[indice - 1];
+            final motivo = motivoBloqueo(partido);
+            final estaExpandido = partidoExpandidoId == partido.id;
+            final estaUniendose = partidoUniendoseId == partido.id;
+            final estaSaliendo = partidoSaliendoId == partido.id;
+            final estaUnidoAlPartido = estaUnido(partido);
+            final organizador = partido.organizador?.nombre ?? 'Sin nombre';
 
-                            return Card(
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
+            return Card(
+              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            partido.nombre,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 6),
+                          Text('Deporte: ${partido.deporteTexto}'),
+                          Text('Organizador: $organizador'),
+                          Text('Ubicación: ${partido.ubicacion}'),
+                          Text('Fecha: ${fechaTexto(partido.fecha)}'),
+                          Text(
+                            'Cupos: ${partido.cantidadParticipantes}/'
+                            '${partido.cantidadJugadores}',
+                          ),
+                          Text('Estado: ${partido.estadoTexto}'),
+                          Text(
+                            'Participantes: '
+                            '${partido.cantidadParticipantes}',
+                          ),
+                          if (partido.cantidadSuplentes > 0)
+                            Text(
+                              'Suplentes: '
+                              '${partido.cantidadSuplentes}',
+                            ),
+                          if (posicionSuplente(partido) != null)
+                            Text(
+                              'Eres suplente (posición '
+                              '${posicionSuplente(partido)})',
+                            ),
+                          if (partido.motivoReprogramacion != null)
+                            Text(
+                              'Reprogramado: '
+                              '${partido.motivoReprogramacion}',
+                            ),
+                          if (partido.debeReconfirmar(widget.usuario.id))
+                            const Text(
+                              'El partido cambió. ¿Sigues jugando?',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          if (partido.participantes.isNotEmpty)
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  partidoExpandidoId = estaExpandido
+                                      ? null
+                                      : partido.id;
+                                });
+                              },
+                              child: Text(
+                                estaExpandido
+                                    ? 'Ocultar participantes'
+                                    : 'Ver participantes',
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            partido.nombre,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleMedium,
-                                          ),
-                                          const SizedBox(height: 6),
-                                          Text('Deporte: ${partido.deporteTexto}'),
-                                          Text('Organizador: $organizador'),
-                                          Text('Ubicación: ${partido.ubicacion}'),
-                                          Text(
-                                            'Fecha: ${fechaTexto(partido.fecha)}',
-                                          ),
-                                          Text(
-                                            'Cupos: ${partido.cantidadParticipantes}/'
-                                            '${partido.cantidadJugadores}',
-                                          ),
-                                          Text('Estado: ${partido.estadoTexto}'),
-                                          Text(
-                                            'Participantes: '
-                                            '${partido.cantidadParticipantes}',
-                                          ),
-                                          if (partido.cantidadSuplentes > 0)
-                                            Text(
-                                              'Suplentes: '
-                                              '${partido.cantidadSuplentes}',
-                                            ),
-                                          if (posicionSuplente(partido) != null)
-                                            Text(
-                                              'Eres suplente (posición '
-                                              '${posicionSuplente(partido)})',
-                                            ),
-                                          if (partido.motivoReprogramacion != null)
-                                            Text(
-                                              'Reprogramado: '
-                                              '${partido.motivoReprogramacion}',
-                                            ),
-                                          if (partido.debeReconfirmar(
-                                            widget.usuario.id,
-                                          ))
-                                            const Text(
-                                              'El partido cambió. ¿Sigues jugando?',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          if (partido.participantes.isNotEmpty)
-                                            TextButton(
-                                              onPressed: () {
-                                                setState(() {
-                                                  partidoExpandidoId = estaExpandido
-                                                      ? null
-                                                      : partido.id;
-                                                });
-                                              },
-                                              child: Text(
-                                                estaExpandido
-                                                    ? 'Ocultar participantes'
-                                                    : 'Ver participantes',
-                                              ),
-                                            ),
-                                          if (estaExpandido)
-                                            Text(
-                                              partido.participantes
-                                                  .map(
-                                                    (participante) =>
-                                                        participante.nombre,
-                                                  )
-                                                  .join(', '),
-                                            ),
-                                        ],
+                            ),
+                          if (estaExpandido)
+                            Text(
+                              partido.participantes
+                                  .map((participante) => participante.nombre)
+                                  .join(', '),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    SizedBox(
+                      width: 180,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (partido.debeReconfirmar(widget.usuario.id))
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: ElevatedButton(
+                                key: const Key('boton-reconfirmar-partido'),
+                                onPressed: () => reconfirmar(partido),
+                                child: const Text('Sigo jugando'),
+                              ),
+                            ),
+                          if (estaUnidoAlPartido)
+                            ElevatedButton(
+                              key: const Key('boton-salir-partido'),
+                              onPressed: estaSaliendo
+                                  ? null
+                                  : () => salir(partido),
+                              child: estaSaliendo
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
                                       ),
+                                    )
+                                  : Text(
+                                      partido.debeReconfirmar(widget.usuario.id)
+                                          ? 'Me retiro'
+                                          : 'Salir del partido',
                                     ),
-                                    const SizedBox(width: 16),
-                                    SizedBox(
-                                      width: 180,
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.stretch,
-                                        children: [
-                                          if (partido.debeReconfirmar(
-                                            widget.usuario.id,
-                                          ))
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                bottom: 8,
-                                              ),
-                                              child: ElevatedButton(
-                                                key: const Key(
-                                                  'boton-reconfirmar-partido',
-                                                ),
-                                                onPressed: () =>
-                                                    reconfirmar(partido),
-                                                child: const Text('Sigo jugando'),
-                                              ),
-                                            ),
-                                          if (estaUnidoAlPartido)
-                                            ElevatedButton(
-                                              key: const Key('boton-salir-partido'),
-                                              onPressed: estaSaliendo
-                                                  ? null
-                                                  : () => salir(partido),
-                                              child: estaSaliendo
-                                                  ? const SizedBox(
-                                                      width: 18,
-                                                      height: 18,
-                                                      child:
-                                                          CircularProgressIndicator(
-                                                            strokeWidth: 2,
-                                                          ),
-                                                    )
-                                                  : Text(
-                                                      partido.debeReconfirmar(
-                                                        widget.usuario.id,
-                                                      )
-                                                          ? 'Me retiro'
-                                                          : 'Salir del partido',
-                                                    ),
-                                            )
-                                          else if (motivo == null)
-                                            ElevatedButton(
-                                              key: const Key('boton-unirse-partido'),
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: Colors.green.shade800,
-                                                foregroundColor: Colors.white,
-                                                minimumSize: const Size(180, 56),
-                                                textStyle: const TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              onPressed: estaUniendose
-                                                  ? null
-                                                  : () => unirse(partido),
-                                              child: estaUniendose
-                                                  ? const SizedBox(
-                                                      width: 24,
-                                                      height: 24,
-                                                      child:
-                                                          CircularProgressIndicator(
-                                                            strokeWidth: 2,
-                                                            color: Colors.white,
-                                                          ),
-                                                    )
-                                                  : Text(
-                                                      partido.cuposDisponibles <= 0
-                                                          ? 'Unirse como suplente'
-                                                          : 'Unirse',
-                                                    ),
-                                            )
-                                          else
-                                            Text(
-                                              motivo,
-                                              style: TextStyle(
-                                                color:
-                                                    motivo ==
-                                                        'Ya estás unido a este partido'
-                                                    ? Colors.green
-                                                    : Theme.of(context)
-                                                          .colorScheme
-                                                          .error,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
+                            )
+                          else if (motivo == null)
+                            ElevatedButton(
+                              key: const Key('boton-unirse-partido'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green.shade800,
+                                foregroundColor: Colors.white,
+                                minimumSize: const Size(180, 56),
+                                textStyle: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            );
-                          },
-                        ),
+                              onPressed: estaUniendose
+                                  ? null
+                                  : () => unirse(partido),
+                              child: estaUniendose
+                                  ? const SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : Text(
+                                      partido.cuposDisponibles <= 0
+                                          ? 'Unirse como suplente'
+                                          : 'Unirse',
+                                    ),
+                            )
+                          else
+                            Text(
+                              motivo,
+                              style: TextStyle(
+                                color: motivo == 'Ya estás unido a este partido'
+                                    ? Colors.green
+                                    : Theme.of(context).colorScheme.error,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                        ],
                       ),
-          ),
-        ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

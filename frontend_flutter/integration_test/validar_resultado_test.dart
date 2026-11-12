@@ -5,6 +5,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:frontend_flutter/main.dart';
 import 'package:frontend_flutter/services/auth_service.dart';
 
+import 'helpers_analitica.dart';
 import 'helpers_resultado.dart';
 
 // Requires the backend running with seed data (backend/seed.py --reset).
@@ -24,6 +25,8 @@ void main() {
     (tester) async {
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
+
+      final antes = await conteoEventos();
 
       // 1. The organizer registers the score: it waits for the captain.
       await entrar(tester, organizador);
@@ -116,6 +119,13 @@ void main() {
       );
       expect(find.byKey(const Key('boton-registrar-marcador')), findsNothing);
       expect(find.byKey(const Key('boton-confirmar-resultado')), findsNothing);
+
+      // Two scores registered, one disputed and one confirmed.
+      await expectEventos(antes, {
+        'resultado_registrado': 2,
+        'resultado_disputado': 1,
+        'resultado_confirmado': 1,
+      });
     },
   );
 }

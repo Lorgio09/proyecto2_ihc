@@ -54,10 +54,14 @@ Future<Finder> _tarjeta(WidgetTester tester) async {
   await tester.scrollUntilVisible(
     tarjeta,
     300,
-    scrollable: find.descendant(
-      of: find.byType(ListView),
-      matching: find.byType(Scrollable),
-    ),
+    // The filters panel scrolls with the list and its text fields are
+    // scrollables too: the list's own one is the first.
+    scrollable: find
+        .descendant(
+          of: find.byType(ListView),
+          matching: find.byType(Scrollable),
+        )
+        .first,
   );
   await tester.ensureVisible(tarjeta);
   await tester.pumpAndSettle();

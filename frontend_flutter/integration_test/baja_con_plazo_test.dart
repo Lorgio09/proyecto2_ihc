@@ -5,6 +5,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:frontend_flutter/main.dart';
 import 'package:frontend_flutter/services/auth_service.dart';
 
+import 'helpers_analitica.dart';
 import 'helpers_resultado.dart';
 
 // Requires the backend running with seed data (backend/seed.py --reset).
@@ -82,6 +83,7 @@ void main() {
     (tester) async {
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
+      final antes = await conteoEventos();
 
       // 1. With 2 days to go, Jugador Demo leaves: a normal confirmation.
       await entrar(tester, jugadorEquipoA);
@@ -115,6 +117,9 @@ void main() {
       await salirAlInicio(tester);
       tarjeta = await _tarjetaDelOrganizador(tester, _tardio);
       expect(_en(tarjeta, 'Bajas tardías: Tercer Jugador'), findsOneWidget);
+
+      // Two withdrawals started and two recorded.
+      await expectEventos(antes, {'baja_iniciada': 2, 'baja_registrada': 2});
     },
   );
 }

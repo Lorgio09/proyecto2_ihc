@@ -13,9 +13,15 @@ class DatosReprogramacion {
 
 /// Diálogo para cambiar fecha, hora o lugar de un partido con un motivo.
 class ReprogramarPartidoDialog extends StatefulWidget {
-  const ReprogramarPartidoDialog({super.key, required this.partido});
+  const ReprogramarPartidoDialog({
+    super.key,
+    required this.partido,
+    this.alFallar,
+  });
 
   final Partido partido;
+  // Analytics: called with a reason from the fixed list when saving is blocked.
+  final void Function(String motivo)? alFallar;
 
   @override
   State<ReprogramarPartidoDialog> createState() =>
@@ -80,14 +86,17 @@ class _ReprogramarPartidoDialogState extends State<ReprogramarPartidoDialog> {
 
     if (!cambiaFecha && !cambiaLugar) {
       setState(() => error = 'Cambia la fecha, la hora o el lugar');
+      widget.alFallar?.call('SIN_CAMBIOS');
       return;
     }
     if (cambiaFecha && !nuevaFecha!.isAfter(DateTime.now())) {
       setState(() => error = 'La nueva fecha debe ser futura');
+      widget.alFallar?.call('FECHA_NO_FUTURA');
       return;
     }
     if (motivo.isEmpty) {
       setState(() => error = 'Escribe el motivo del cambio');
+      widget.alFallar?.call('MOTIVO_OBLIGATORIO');
       return;
     }
 

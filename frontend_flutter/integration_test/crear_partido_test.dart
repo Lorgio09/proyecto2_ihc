@@ -5,6 +5,8 @@ import 'package:integration_test/integration_test.dart';
 import 'package:frontend_flutter/main.dart';
 import 'package:frontend_flutter/services/auth_service.dart';
 
+import 'helpers_analitica.dart';
+
 // Requires the backend running with seed data (backend/seed.py).
 const _email = 'organizador@unisport.test';
 const _password = 'Seed1234';
@@ -42,6 +44,7 @@ void main() {
     final nombre = 'Partido E2E ${DateTime.now().millisecondsSinceEpoch}';
 
     await _iniciarSesion(tester);
+    final antes = await conteoEventos();
     await _abrirFormularioNuevoPartido(tester);
 
     final campos = find.descendant(
@@ -75,11 +78,16 @@ void main() {
     );
     expect(tarjeta, findsOneWidget);
     expect(find.text('Ubicación: Cancha E2E'), findsWidgets);
+    await expectEventos(antes, {
+      'partido_creacion_iniciada': 1,
+      'partido_creado': 1,
+    });
   });
 
   testWidgets('Organizador intenta guardar sin fecha y ve el error',
       (tester) async {
     await _iniciarSesion(tester);
+    final antes = await conteoEventos();
     await _abrirFormularioNuevoPartido(tester);
 
     await tester.tap(find.byKey(const Key('boton-guardar-partido')));
@@ -87,5 +95,11 @@ void main() {
 
     expect(find.text('La fecha es obligatoria'), findsOneWidget);
     expect(find.text('Nuevo partido'), findsOneWidget);
+    // Started but blocked by validation: no success, one failure.
+    await expectEventos(antes, {
+      'partido_creacion_iniciada': 1,
+      'tarea_fallida': 1,
+      'partido_creado': 0,
+    });
   });
 }

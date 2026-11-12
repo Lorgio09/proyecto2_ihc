@@ -5,7 +5,18 @@ from sqlalchemy.orm import Session
 
 from app.database.connection import get_db
 from app.database.models import Usuario
-from app.modules.analitica.service import PARTIDO_UNIDO, track
+from app.modules.analitica.service import (
+    BAJA_REGISTRADA,
+    BUSQUEDA_SIN_RESULTADOS,
+    PARTIDO_CREADO,
+    PARTIDO_REPROGRAMADO,
+    PARTIDO_UNIDO,
+    RESULTADO_CONFIRMADO,
+    RESULTADO_DISPUTADO,
+    RESULTADO_REGISTRADO,
+    registrar as registrar_evento,
+    registrar_fallo,
+)
 from app.modules.auth.service import current_user
 from app.modules.partidos.schemas import (
     ActualizacionPartido,
@@ -32,6 +43,7 @@ from app.modules.partidos.resultado import (
 from app.modules.partidos.service import (
     buscar_partido,
     buscar_partido_publico,
+    es_baja_tardia,
     crear_partido,
     completar_equipo as completar_equipo_servicio,
     datos_partido,
@@ -67,12 +79,16 @@ def crear(
     usuario: Usuario = Depends(current_user),
 ):
     try:
-        return datos_partido(crear_partido(datos, usuario, base_datos))
+        partido = crear_partido(datos, usuario, base_datos)
     except ErrorPartido as error:
+        registrar_fallo(base_datos, "crear_partido", error.codigo)
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail={"codigo": error.codigo, "mensaje": error.mensaje},
         )
+    respuesta = datos_partido(partido)
+    registrar_evento(base_datos, PARTIDO_CREADO, {"deporte": partido.deporte})
+    return respuesta
 
 
 @router.get("", response_model=list[RespuestaPartido])
@@ -94,7 +110,7 @@ def explorar(
     base_datos: Session = Depends(get_db),
     usuario: Usuario = Depends(current_user),
 ):
-    return [
+    partidos = [
         datos_partido_publico(partido)
         for partido in listar_partidos_publicos(
             usuario=usuario,
@@ -107,6 +123,21 @@ def explorar(
             solo_con_cupos=solo_con_cupos,
         )
     ]
+    # Which filters were used, never what was typed.
+    filtros = [
+        nombre
+        for nombre, valor in (
+            ("busqueda", busqueda and busqueda.strip()),
+            ("deporte", deporte),
+            ("zona", zona and zona.strip()),
+            ("fechas", desde or hasta),
+            ("solo_con_cupos", solo_con_cupos),
+        )
+        if valor
+    ]
+    if not partidos and filtros:
+        registrar_evento(base_datos, BUSQUEDA_SIN_RESULTADOS, {"filtros": ",".join(filtros)})
+    return partidos
 
 
 @router.get("/explorar/{partido_id}", response_model=RespuestaPartidoExplorar)
@@ -236,7 +267,7 @@ def unirse(
             raise no_encontrado()
         datos = datos_partido(partido)
         # Success event: only reached once joining was saved.
-        track(
+        registrar_evento(
             base_datos,
             PARTIDO_UNIDO,
             {
@@ -248,6 +279,7 @@ def unirse(
         )
         return datos
     except ErrorPartido as error:
+        registrar_fallo(base_datos, "unirse", error.codigo)
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail={"codigo": error.codigo, "mensaje": error.mensaje},
@@ -260,12 +292,17 @@ def salir(
     base_datos: Session = Depends(get_db),
     usuario: Usuario = Depends(current_user),
 ):
+    previo = buscar_partido_publico(partido_id, base_datos)
+    tardia = previo is not None and es_baja_tardia(previo)
     try:
         partido = salir_partido(partido_id, usuario, base_datos)
         if not partido:
             raise no_encontrado()
-        return datos_partido(partido)
+        datos = datos_partido(partido)
+        registrar_evento(base_datos, BAJA_REGISTRADA, {"tardia": tardia})
+        return datos
     except ErrorPartido as error:
+        registrar_fallo(base_datos, "darse_de_baja", error.codigo)
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail={"codigo": error.codigo, "mensaje": error.mensaje},
@@ -283,8 +320,11 @@ def reprogramar(
     if not partido:
         raise no_encontrado()
     try:
-        return datos_partido(reprogramar_partido(partido, datos, base_datos))
+        datos_respuesta = datos_partido(reprogramar_partido(partido, datos, base_datos))
+        registrar_evento(base_datos, PARTIDO_REPROGRAMADO, {"deporte": partido.deporte})
+        return datos_respuesta
     except ErrorPartido as error:
+        registrar_fallo(base_datos, "reprogramar", error.codigo)
         codigo_http = (
             status.HTTP_409_CONFLICT
             if error.codigo == "REPROGRAMACION_PENDIENTE"
@@ -343,6 +383,7 @@ def partido_visible(partido_id: int, usuario: Usuario, base_datos: Session):
 def partido_del_organizador(partido_id: int, usuario: Usuario, base_datos: Session):
     partido = partido_visible(partido_id, usuario, base_datos)
     if partido.usuario_id != usuario.id:
+        registrar_fallo(base_datos, "validar_resultado", "SOLO_ORGANIZADOR")
         raise error_validacion(
             ErrorPartido("SOLO_ORGANIZADOR", "Solo el organizador puede hacer esto")
         )
@@ -371,6 +412,7 @@ def proponer(
             partido, datos.equipo_b, datos.capitan_rival_id, base_datos
         )
     except ErrorPartido as error:
+        registrar_fallo(base_datos, "validar_resultado", error.codigo)
         raise error_validacion(error)
     return datos_validacion(partido, usuario)
 
@@ -385,6 +427,7 @@ def aceptar(
     try:
         partido = aceptar_equipos(partido_id, usuario, base_datos)
     except ErrorPartido as error:
+        registrar_fallo(base_datos, "validar_resultado", error.codigo)
         raise error_validacion(error)
     return datos_validacion(partido, usuario)
 
@@ -400,7 +443,9 @@ def registrar(
     try:
         partido = registrar_resultado(partido, datos.goles_a, datos.goles_b, base_datos)
     except ErrorPartido as error:
+        registrar_fallo(base_datos, "validar_resultado", error.codigo)
         raise error_validacion(error)
+    registrar_evento(base_datos, RESULTADO_REGISTRADO)
     return datos_validacion(partido, usuario)
 
 
@@ -414,7 +459,9 @@ def confirmar(
     try:
         partido = confirmar_resultado(partido_id, usuario, base_datos)
     except ErrorPartido as error:
+        registrar_fallo(base_datos, "validar_resultado", error.codigo)
         raise error_validacion(error)
+    registrar_evento(base_datos, RESULTADO_CONFIRMADO)
     return datos_validacion(partido, usuario)
 
 
@@ -429,5 +476,7 @@ def disputar(
     try:
         partido = disputar_resultado(partido_id, usuario, datos.motivo, base_datos)
     except ErrorPartido as error:
+        registrar_fallo(base_datos, "validar_resultado", error.codigo)
         raise error_validacion(error)
+    registrar_evento(base_datos, RESULTADO_DISPUTADO)
     return datos_validacion(partido, usuario)

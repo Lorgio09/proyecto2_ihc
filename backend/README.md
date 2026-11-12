@@ -74,15 +74,20 @@ SET cantidad_jugadores = 10
 WHERE id = 1;
 ## Analítica de interacción
 
-Pregunta: *de quienes empiezan a unirse a un partido, ¿cuántos lo terminan?*
+Pregunta general: *en cada flujo principal, ¿cuántos de los que empiezan terminan y en qué paso se traban?*
 
-| Evento | Cuándo se dispara | Propiedades |
+| Flujo | Inicio (app) | Éxito (backend, solo si se guardó) |
 |---|---|---|
-| `union_iniciada` | La app, al tocar "Unirse" en Explorar | `deporte` |
-| `partido_unido` | El backend, solo cuando unirse se guardó | `deporte`, `como_suplente` |
+| Crear partido | `partido_creacion_iniciada` | `partido_creado` |
+| Unirse a un partido | `union_iniciada` | `partido_unido` |
+| Reprogramar | `reprogramacion_iniciada` | `partido_reprogramado` |
+| Validar el resultado | `resultado_registrado` | `resultado_confirmado` (y `resultado_disputado`) |
+| Darse de baja | `baja_iniciada` | `baja_registrada` (`tardia`) |
 
-No se guarda quién hizo la acción (ni id de usuario, ni email, ni nombre).
+Además: `tarea_fallida` (`flujo` y `motivo` de una lista fija de códigos) y `busqueda_sin_resultados` (solo qué filtros se usaron). El plan completo, con `archivo:línea` y la pregunta de cada evento, está en `evidencias/tarea-9.md`.
 
-- Panel: `http://127.0.0.1:8000/analitica` (conteos, % que termina y últimos eventos).
+No se guarda quién hizo la acción (ni id de usuario, ni email, ni nombre) ni ningún texto escrito por el usuario (búsquedas, motivos).
+
+- Panel: `http://127.0.0.1:8000/analitica` (un embudo por flujo, la caída entre pasos, la mayor caída, errores y búsquedas vacías).
 - Datos en JSON: `GET /api/analitica/resumen`.
 - Google Analytics 4: con `GA_MEASUREMENT_ID` y `GA_API_SECRET` en `.env`, cada evento también se envía a GA (Informes → Tiempo real). Vacíos, solo se guarda en la tabla `eventos`. Las pruebas nunca envían a GA.

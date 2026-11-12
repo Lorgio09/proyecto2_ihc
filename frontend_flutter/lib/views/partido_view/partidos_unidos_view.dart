@@ -65,6 +65,8 @@ class _PartidosUnidosViewState extends State<PartidosUnidosView> {
   }
 
   Future<void> salir(Partido partido) async {
+    // Start of the "leave a match" funnel; baja_registrada comes from the API.
+    widget.partidoService.registrarEvento('baja_iniciada', {});
     final confirmar = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(

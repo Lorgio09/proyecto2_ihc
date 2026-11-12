@@ -6,9 +6,11 @@ import '../../widgets/boton_guardar.dart';
 import '../../widgets/input.dart';
 
 class FormularioPartido extends StatefulWidget {
-  const FormularioPartido({super.key, this.partido});
+  const FormularioPartido({super.key, this.partido, this.alFallar});
 
   final Partido? partido;
+  // Analytics: called with a reason from the fixed list when saving is blocked.
+  final void Function(String motivo)? alFallar;
 
   @override
   State<FormularioPartido> createState() => _FormularioPartidoState();
@@ -106,13 +108,18 @@ class _FormularioPartidoState extends State<FormularioPartido> {
     final primeraFecha = DateTime(hoy.year, hoy.month, hoy.day + 1);
     if (fecha == null) {
       setState(() => errorFecha = 'La fecha es obligatoria');
+      widget.alFallar?.call('FECHA_OBLIGATORIA');
       return;
     }
     if (fecha!.isBefore(primeraFecha)) {
       setState(() => errorFecha = 'La fecha debe ser futura');
+      widget.alFallar?.call('FECHA_NO_FUTURA');
       return;
     }
-    if (!formularioKey.currentState!.validate()) return;
+    if (!formularioKey.currentState!.validate()) {
+      widget.alFallar?.call('CAMPOS_INCOMPLETOS');
+      return;
+    }
 
     Navigator.pop(context, {
       'nombre': nombreController.text.trim(),

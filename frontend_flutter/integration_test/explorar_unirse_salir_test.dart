@@ -5,6 +5,8 @@ import 'package:integration_test/integration_test.dart';
 import 'package:frontend_flutter/main.dart';
 import 'package:frontend_flutter/services/auth_service.dart';
 
+import 'helpers_analitica.dart';
+
 // Requires the backend running with seed data (backend/seed.py --reset).
 const _password = 'Seed1234';
 const _partido = 'Futsal nocturno';
@@ -32,10 +34,14 @@ Future<Finder> _tarjeta(WidgetTester tester) async {
   await tester.scrollUntilVisible(
     tarjeta,
     300,
-    scrollable: find.descendant(
-      of: find.byType(ListView),
-      matching: find.byType(Scrollable),
-    ),
+    // The filters panel scrolls with the list and its text fields are
+    // scrollables too: the list's own one is the first.
+    scrollable: find
+        .descendant(
+          of: find.byType(ListView),
+          matching: find.byType(Scrollable),
+        )
+        .first,
   );
   return tarjeta;
 }
@@ -62,6 +68,7 @@ void main() {
   testWidgets('Jugador se une, lo ve en su historial y luego sale',
       (tester) async {
     await _iniciarSesion(tester, 'jugador@unisport.test');
+    final antes = await conteoEventos();
     await _abrirExplorar(tester);
 
     var tarjeta = await _tarjeta(tester);
@@ -107,6 +114,30 @@ void main() {
     expect(find.descendant(of: tarjeta, matching: find.text('Cupos: 0/8')),
         findsOneWidget);
     expect(_en(tarjeta, 'boton-unirse-partido'), findsOneWidget);
+    // Both funnels recorded their start and their success.
+    await expectEventos(antes, {
+      'union_iniciada': 1,
+      'partido_unido': 1,
+      'baja_iniciada': 1,
+      'baja_registrada': 1,
+    });
+  });
+
+  testWidgets('Una búsqueda sin resultados queda registrada', (tester) async {
+    await _iniciarSesion(tester, 'jugador@unisport.test');
+    final antes = await conteoEventos();
+    await _abrirExplorar(tester);
+    await _esperar(tester, find.text('Buscar por nombre'));
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Buscar por nombre'),
+      'zzz partido que no existe',
+    );
+    await tester.tap(find.byTooltip('Buscar partidos'));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+
+    expect(find.byType(Card).evaluate().length, lessThanOrEqualTo(1));
+    await expectEventos(antes, {'busqueda_sin_resultados': 1});
   });
 
   testWidgets('Organizador no ve sus propios partidos en Explorar',

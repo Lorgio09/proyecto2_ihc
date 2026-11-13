@@ -1,0 +1,15 @@
+{
+  "nombre": "Fulbito del viernes",
+  "organizador": {
+    "id": 1,
+    "nombre": "Organizador Demo",
+    "email": "organizador@unisport.test"
+  },
+  "participantes": [
+    {
+      "id": 2,
+      "nombre": "Jugador Demo",
+      "email": "jugador@unisport.test"
+    }
+  ]
+}

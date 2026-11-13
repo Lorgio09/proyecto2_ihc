@@ -15,7 +15,7 @@ Partido _partido({List<UsuarioPartido> titulares = const []}) {
     ubicacion: 'Cancha central',
     fecha: DateTime.now().add(const Duration(days: 2)),
     estado: 'cupos abiertos',
-    organizador: const UsuarioPartido(id: 99, nombre: 'Org', email: 'o@t.com'),
+    organizador: const UsuarioPartido(id: 99, nombre: 'Org'),
     participantes: titulares,
     cantidadParticipantes: titulares.length,
     cuposDisponibles: 10 - titulares.length,
@@ -39,42 +39,44 @@ class _Servicio extends PartidoService {
 
   @override
   Future<Partido> unirse(int id) async {
-    partido = _partido(
-      titulares: const [UsuarioPartido(id: 7, nombre: 'Yo', email: 'yo@unisport.test')],
-    );
+    partido = _partido(titulares: const [UsuarioPartido(id: 7, nombre: 'Yo')]);
     return partido;
   }
 
   @override
-  Future<void> registrarEvento(String evento, Map<String, Object?> props) async {
+  Future<void> registrarEvento(
+    String evento,
+    Map<String, Object?> props,
+  ) async {
     eventos.add((evento, props));
   }
 }
 
 void main() {
-  testWidgets('tocar Unirse registra union_iniciada una vez y sin datos personales', (
-    tester,
-  ) async {
-    await tester.binding.setSurfaceSize(const Size(500, 1000));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
-    final servicio = _Servicio();
-    await tester.pumpWidget(
-      MaterialApp(
-        home: ExplorarPartidosView(usuario: _yo, partidoService: servicio),
-      ),
-    );
-    await tester.pumpAndSettle();
+  testWidgets(
+    'tocar Unirse registra union_iniciada una vez y sin datos personales',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(500, 1000));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      final servicio = _Servicio();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ExplorarPartidosView(usuario: _yo, partidoService: servicio),
+        ),
+      );
+      await tester.pumpAndSettle();
 
-    expect(servicio.eventos, isEmpty);
+      expect(servicio.eventos, isEmpty);
 
-    await tester.ensureVisible(find.byKey(const Key('boton-unirse-partido')));
-    await tester.tap(find.byKey(const Key('boton-unirse-partido')));
-    await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('boton-unirse-partido')));
+      await tester.tap(find.byKey(const Key('boton-unirse-partido')));
+      await tester.pumpAndSettle();
 
-    expect(servicio.eventos, hasLength(1));
-    final (evento, props) = servicio.eventos.single;
-    expect(evento, 'union_iniciada');
-    expect(props, {'deporte': 'basquet'});
-    expect(props.toString(), isNot(contains('@')));
-  });
+      expect(servicio.eventos, hasLength(1));
+      final (evento, props) = servicio.eventos.single;
+      expect(evento, 'union_iniciada');
+      expect(props, {'deporte': 'basquet'});
+      expect(props.toString(), isNot(contains('@')));
+    },
+  );
 }

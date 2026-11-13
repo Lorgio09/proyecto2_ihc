@@ -8,11 +8,10 @@ import 'package:frontend_flutter/views/partido_view/explorar_partidos_view.dart'
 import 'package:frontend_flutter/views/partido_view/list_partidoview.dart';
 
 const _yo = Usuario(id: 7, nombre: 'Yo', email: 'yo@unisport.test');
-const _ana = UsuarioPartido(id: 1, nombre: 'Ana', email: 'ana@test.com');
-const _beto = UsuarioPartido(id: 2, nombre: 'Beto', email: 'beto@test.com');
-const _carla = UsuarioPartido(id: 3, nombre: 'Carla', email: 'carla@test.com');
-const _yoComoParticipante =
-    UsuarioPartido(id: 7, nombre: 'Yo', email: 'yo@unisport.test');
+const _ana = UsuarioPartido(id: 1, nombre: 'Ana');
+const _beto = UsuarioPartido(id: 2, nombre: 'Beto');
+const _carla = UsuarioPartido(id: 3, nombre: 'Carla');
+const _yoComoParticipante = UsuarioPartido(id: 7, nombre: 'Yo');
 
 Partido _partido({
   String estado = 'equipo completo',
@@ -27,11 +26,7 @@ Partido _partido({
     ubicacion: 'Cancha central',
     fecha: DateTime.now().add(const Duration(days: 2)),
     estado: estado,
-    organizador: const UsuarioPartido(
-      id: 99,
-      nombre: 'Org',
-      email: 'org@test.com',
-    ),
+    organizador: const UsuarioPartido(id: 99, nombre: 'Org'),
     participantes: titulares,
     cantidadParticipantes: titulares.length,
     cuposDisponibles: (cupos - titulares.length).clamp(0, cupos),
@@ -87,8 +82,9 @@ void main() {
     expect(find.text('Cupos: 2/2'), findsOneWidget);
   });
 
-  testWidgets('con lugares libres el botón sigue diciendo Unirse',
-      (tester) async {
+  testWidgets('con lugares libres el botón sigue diciendo Unirse', (
+    tester,
+  ) async {
     await _abrirExplorar(
       tester,
       _Servicio(_partido(estado: 'cupos abiertos', cupos: 3)),
@@ -98,8 +94,9 @@ void main() {
     expect(find.text('Unirse como suplente'), findsNothing);
   });
 
-  testWidgets('equipo cerrado por el organizador con lugares libres rechaza',
-      (tester) async {
+  testWidgets('equipo cerrado por el organizador con lugares libres rechaza', (
+    tester,
+  ) async {
     await _abrirExplorar(tester, _Servicio(_partido(cupos: 3)));
 
     expect(find.text('El equipo ya está completo'), findsOneWidget);
@@ -126,8 +123,9 @@ void main() {
     expect(find.byKey(const Key('boton-unirse-partido')), findsNothing);
   });
 
-  testWidgets('al unirse como suplente avisa que quedó en espera',
-      (tester) async {
+  testWidgets('al unirse como suplente avisa que quedó en espera', (
+    tester,
+  ) async {
     final servicio = _Servicio(
       _partido(),
       alUnirse: () => _partido(suplentes: const [_yoComoParticipante]),
@@ -141,8 +139,9 @@ void main() {
     expect(find.text('Eres suplente (posición 1)'), findsOneWidget);
   });
 
-  testWidgets('al unirse con lugar libre sigue avisando Te uniste al partido',
-      (tester) async {
+  testWidgets('al unirse con lugar libre sigue avisando Te uniste al partido', (
+    tester,
+  ) async {
     final servicio = _Servicio(
       _partido(estado: 'cupos abiertos', cupos: 3),
       alUnirse: () => _partido(
@@ -159,8 +158,9 @@ void main() {
     expect(find.text('Te uniste al partido'), findsOneWidget);
   });
 
-  testWidgets('el organizador ve a los suplentes aparte de los titulares',
-      (tester) async {
+  testWidgets('el organizador ve a los suplentes aparte de los titulares', (
+    tester,
+  ) async {
     await tester.binding.setSurfaceSize(const Size(500, 1000));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(
@@ -181,16 +181,16 @@ void main() {
 
   test('el historial traduce los eventos de suplentes', () {
     HistorialPartido evento(String accion) => HistorialPartido(
-          id: 1,
-          accion: accion,
-          fechaEvento: DateTime(2026, 11, 1),
-          partidoId: 1,
-          nombrePartido: 'Duelo de dos',
-          deporte: 'futbol',
-          ubicacion: 'Cancha central',
-          fechaPartido: null,
-          estado: 'equipo completo',
-        );
+      id: 1,
+      accion: accion,
+      fechaEvento: DateTime(2026, 11, 1),
+      partidoId: 1,
+      nombrePartido: 'Duelo de dos',
+      deporte: 'futbol',
+      ubicacion: 'Cancha central',
+      fechaPartido: null,
+      estado: 'equipo completo',
+    );
 
     expect(evento('se_unio').accionTexto, 'Te uniste al partido');
     expect(evento('se_unio_suplente').accionTexto, 'Te uniste como suplente');

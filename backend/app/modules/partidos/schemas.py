@@ -4,11 +4,16 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class RespuestaUsuarioPartido(BaseModel):
+    """A person as seen inside a match: only what the screens show.
+
+    The email is left out on purpose: seeing who organizes or plays only needs
+    the name, and sending it would expose it to anyone exploring matches.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
     nombre: str
-    email: str
 
 
 class DatosPartido(BaseModel):

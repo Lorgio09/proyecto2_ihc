@@ -5,9 +5,9 @@ import 'package:frontend_flutter/models/validacion.dart';
 import 'package:frontend_flutter/services/partido.dart';
 import 'package:frontend_flutter/views/partido_view/resultado_partido_view.dart';
 
-const _org = UsuarioPartido(id: 1, nombre: 'Org', email: 'org@test.com');
-const _ana = UsuarioPartido(id: 2, nombre: 'Ana', email: 'ana@test.com');
-const _beto = UsuarioPartido(id: 3, nombre: 'Beto', email: 'beto@test.com');
+const _org = UsuarioPartido(id: 1, nombre: 'Org');
+const _ana = UsuarioPartido(id: 2, nombre: 'Ana');
+const _beto = UsuarioPartido(id: 3, nombre: 'Beto');
 
 Validacion _validacion({
   required String estado,

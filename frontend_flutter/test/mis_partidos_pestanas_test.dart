@@ -6,12 +6,8 @@ import 'package:frontend_flutter/services/partido.dart';
 import 'package:frontend_flutter/views/partido_view/list_partidoview.dart';
 
 const _yo = Usuario(id: 7, nombre: 'Yo', email: 'yo@unisport.test');
-const _yoParticipante = UsuarioPartido(
-  id: 7,
-  nombre: 'Yo',
-  email: 'yo@unisport.test',
-);
-const _ana = UsuarioPartido(id: 1, nombre: 'Ana', email: 'ana@test.com');
+const _yoParticipante = UsuarioPartido(id: 7, nombre: 'Yo');
+const _ana = UsuarioPartido(id: 1, nombre: 'Ana');
 
 Partido _partido(int id, String nombre, List<UsuarioPartido> titulares) {
   return Partido(
@@ -21,11 +17,7 @@ Partido _partido(int id, String nombre, List<UsuarioPartido> titulares) {
     ubicacion: 'Cancha central',
     fecha: DateTime.now().add(const Duration(days: 2)),
     estado: 'cupos abiertos',
-    organizador: const UsuarioPartido(
-      id: 99,
-      nombre: 'Org',
-      email: 'org@test.com',
-    ),
+    organizador: const UsuarioPartido(id: 99, nombre: 'Org'),
     participantes: titulares,
     cantidadParticipantes: titulares.length,
     cuposDisponibles: 10 - titulares.length,

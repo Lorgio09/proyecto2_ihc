@@ -1,0 +1,13 @@
+{
+  "nombre": "Fulbito del viernes",
+  "organizador": {
+    "id": 1,
+    "nombre": "Organizador Demo"
+  },
+  "participantes": [
+    {
+      "id": 2,
+      "nombre": "Jugador Demo"
+    }
+  ]
+}

@@ -1,19 +1,15 @@
+/// A person inside a match. Only the name: the screens never show the email,
+/// so the API does not send it (data minimization).
 class UsuarioPartido {
   final int id;
   final String nombre;
-  final String email;
 
-  const UsuarioPartido({
-    required this.id,
-    required this.nombre,
-    required this.email,
-  });
+  const UsuarioPartido({required this.id, required this.nombre});
 
   factory UsuarioPartido.fromJson(Map<String, dynamic> json) {
     return UsuarioPartido(
       id: json['id'] as int,
       nombre: json['nombre'] as String,
-      email: json['email'] as String,
     );
   }
 }
@@ -40,7 +36,6 @@ class Partido {
   final List<UsuarioPartido> bajasTardias;
 
   final String deporte; // Nuevo atributo para el deporte
-
 
   const Partido({
     required this.id,

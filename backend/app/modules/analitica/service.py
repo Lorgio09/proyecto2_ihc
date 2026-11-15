@@ -32,6 +32,8 @@ BAJA_INICIADA = "baja_iniciada"
 BAJA_REGISTRADA = "baja_registrada"
 TAREA_FALLIDA = "tarea_fallida"
 BUSQUEDA_SIN_RESULTADOS = "busqueda_sin_resultados"
+MIS_DATOS_VISTOS = "mis_datos_vistos"
+MIS_DATOS_DESCARGADOS = "mis_datos_descargados"
 
 # One funnel per main flow: start -> (intermediate steps) -> success.
 EMBUDOS = {
@@ -40,6 +42,7 @@ EMBUDOS = {
     "reprogramar": [REPROGRAMACION_INICIADA, PARTIDO_REPROGRAMADO],
     "validar_resultado": [RESULTADO_REGISTRADO, RESULTADO_CONFIRMADO],
     "darse_de_baja": [BAJA_INICIADA, BAJA_REGISTRADA],
+    "descargar_datos": [MIS_DATOS_VISTOS, MIS_DATOS_DESCARGADOS],
 }
 
 # Fixed list of reasons a task can fail: the API error codes plus the checks
@@ -68,6 +71,9 @@ EVENTOS_DESDE_LA_APP = {
     REPROGRAMACION_INICIADA,
     BAJA_INICIADA,
     TAREA_FALLIDA,
+    # The file is written on the phone, so both steps happen in the app.
+    MIS_DATOS_VISTOS,
+    MIS_DATOS_DESCARGADOS,
 }
 PROPS_PERMITIDAS = {"deporte", "como_suplente", "tardia", "flujo", "motivo", "filtros"}
 

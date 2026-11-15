@@ -10,6 +10,7 @@ import '../partido_view/explorar_partidos_view.dart';
 import '../partido_view/list_partidoview.dart';
 import '../partido_view/historial_partidos_view.dart';
 import '../../widgets/marca.dart';
+import '../cuenta/mi_cuenta_view.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key, required this.user, required this.authService});
@@ -36,6 +37,13 @@ class HomeView extends StatelessWidget {
                     'otros usuarios y unirte si todavía tienen cupos.',
               );
             },
+          ),
+          IconButton(
+            key: const Key('boton-mi-cuenta'),
+            tooltip: 'Mi cuenta',
+            onPressed: () => Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => const MiCuentaView())),
+            icon: const Icon(Icons.person_outline),
           ),
           IconButton(
             tooltip: 'Cambiar contraseña',

@@ -44,6 +44,7 @@ NOMBRES_FLUJO = {
     "reprogramar": "Reprogramar (Tarea 7)",
     "validar_resultado": "Validar el resultado (Tarea 8)",
     "darse_de_baja": "Darse de baja (Tarea 9)",
+    "descargar_datos": "Descargar mis datos (Tarea 10)",
 }
 
 

@@ -103,12 +103,15 @@ void main() {
     await tester.tap(find.byKey(const Key('boton-descargar-datos')));
     await tester.pumpAndSettle();
 
-    final archivo = servicio.guardados['unisport-mis-datos.json'];
-    expect(archivo, isNotNull);
-    expect(jsonDecode(archivo!)['cuenta']['email'], 'ana@correo.com');
+    // One file per download, named with the date and time.
+    expect(servicio.guardados, hasLength(1));
+    final nombre = servicio.guardados.keys.single;
+    expect(nombre, matches(RegExp(r'^unisport-mis-datos-\d{8}-\d{6}\.json$')));
+    final archivo = servicio.guardados[nombre]!;
+    expect(jsonDecode(archivo)['cuenta']['email'], 'ana@correo.com');
     expect(servicio.eventos, ['mis_datos_vistos', 'mis_datos_descargados']);
     expect(
-      find.text('Tus datos se guardaron en Descargas/unisport-mis-datos.json'),
+      find.text('Tus datos se guardaron en Descargas/$nombre'),
       findsOneWidget,
     );
   });

@@ -29,7 +29,13 @@ class _MiCuentaViewState extends State<MiCuentaView> {
   bool descargando = false;
   bool eliminando = false;
 
-  static const nombreArchivo = 'unisport-mis-datos.json';
+  /// A new name per download, with date and time: Android does not let the
+  /// app overwrite a file in Downloads created by an earlier install.
+  static String nombreArchivo(DateTime ahora) {
+    String dos(int valor) => valor.toString().padLeft(2, '0');
+    return 'unisport-mis-datos-${ahora.year}${dos(ahora.month)}${dos(ahora.day)}'
+        '-${dos(ahora.hour)}${dos(ahora.minute)}${dos(ahora.second)}.json';
+  }
 
   @override
   void initState() {
@@ -53,18 +59,16 @@ class _MiCuentaViewState extends State<MiCuentaView> {
   Future<void> descargar() async {
     final contenido = datos;
     if (contenido == null) return;
+    final nombre = nombreArchivo(DateTime.now());
     setState(() => descargando = true);
     try {
       await servicio.guardarEnDescargas(
-        nombreArchivo,
+        nombre,
         const JsonEncoder.withIndent('  ').convert(contenido),
       );
       servicio.registrarEvento('mis_datos_descargados');
       if (mounted) {
-        mostrarMensaje(
-          context,
-          'Tus datos se guardaron en Descargas/$nombreArchivo',
-        );
+        mostrarMensaje(context, 'Tus datos se guardaron en Descargas/$nombre');
       }
     } catch (_) {
       if (mounted) mostrarMensaje(context, 'No se pudo guardar el archivo');
@@ -329,7 +333,8 @@ class _MiCuentaViewState extends State<MiCuentaView> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Se guarda como $nombreArchivo en la carpeta Descargas.',
+              'Se guarda en la carpeta Descargas como unisport-mis-datos-'
+              'con la fecha y la hora.',
               style: textos.bodySmall?.copyWith(color: Blueslate),
             ),
             const Divider(height: 24),

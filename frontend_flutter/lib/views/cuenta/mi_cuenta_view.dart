@@ -333,8 +333,8 @@ class _MiCuentaViewState extends State<MiCuentaView> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Se guarda en la carpeta Descargas como unisport-mis-datos-'
-              'con la fecha y la hora.',
+              'Se guarda en tu carpeta Descargas, con la fecha y la hora en '
+              'el nombre del archivo.',
               style: textos.bodySmall?.copyWith(color: Blueslate),
             ),
             const Divider(height: 24),

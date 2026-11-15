@@ -174,3 +174,13 @@ cd frontend_flutter
 flutter test
 flutter test integration_test/mis_datos_y_salida_test.dart -d emulator-5554 --dart-define=API_BASE_URL=http://10.0.2.2:8010
 ```
+
+---
+
+## Capturas (emulador Android, backend real con el seed)
+
+| | | |
+|---|---|---|
+| <img src="tarea-10/01-inicio-mi-cuenta.png" width="240"><br>**1.** Inicio: el ícono de persona abre "Mi cuenta". | <img src="tarea-10/02-mis-datos.png" width="240"><br>**2.** Mis datos: todo lo que guardamos, el aviso de analítica anónima y la salida, en la misma pantalla. | <img src="tarea-10/03-datos-descargados.png" width="240"><br>**3.** Descarga: el aviso dice el nombre exacto del archivo en Descargas. |
+| <img src="tarea-10/04-eliminar-bloqueado.png" width="240"><br>**4.** Bloqueo (organizador): por qué, qué partidos, qué hacer y que nada cambió. | <img src="tarea-10/05-confirmar-eliminar-cuenta.png" width="240"><br>**5.** Confirmación honesta: consecuencias reales y botones del mismo tamaño. | <img src="tarea-10/06-confirmar-salir-partido.png" width="240"><br>**6.** Salir de un partido: el lugar pasa al primer suplente; botón "Salir del partido" en vez de "Sí". |
+| <img src="tarea-10/07-confirmar-eliminar-partido.png" width="240"><br>**7.** Eliminar partido: qué se borra, a quién afecta y que no se puede deshacer. | <img src="tarea-10/08-cuenta-eliminada.png" width="240"><br>**8.** Después de eliminar: vuelve al login con "Tu cuenta fue eliminada". | <img src="tarea-10/09-login-rechazado.png" width="240"><br>**9.** La cuenta eliminada ya no puede iniciar sesión. |

@@ -227,6 +227,7 @@ def test_panel_muestra_un_embudo_por_flujo_y_la_mayor_caida(db, cliente, duelo):
     assert set(embudos) == {
         "crear_partido", "unirse", "reprogramar", "validar_resultado", "darse_de_baja",
         "descargar_datos",
+        "eliminar_cuenta",
     }
     unirse = embudos["unirse"]
     assert [paso["cantidad"] for paso in unirse["pasos"]] == [4, 1]

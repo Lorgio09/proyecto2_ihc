@@ -34,6 +34,8 @@ TAREA_FALLIDA = "tarea_fallida"
 BUSQUEDA_SIN_RESULTADOS = "busqueda_sin_resultados"
 MIS_DATOS_VISTOS = "mis_datos_vistos"
 MIS_DATOS_DESCARGADOS = "mis_datos_descargados"
+ELIMINACION_INICIADA = "eliminacion_iniciada"
+CUENTA_ELIMINADA = "cuenta_eliminada"
 
 # One funnel per main flow: start -> (intermediate steps) -> success.
 EMBUDOS = {
@@ -43,6 +45,7 @@ EMBUDOS = {
     "validar_resultado": [RESULTADO_REGISTRADO, RESULTADO_CONFIRMADO],
     "darse_de_baja": [BAJA_INICIADA, BAJA_REGISTRADA],
     "descargar_datos": [MIS_DATOS_VISTOS, MIS_DATOS_DESCARGADOS],
+    "eliminar_cuenta": [ELIMINACION_INICIADA, CUENTA_ELIMINADA],
 }
 
 # Fixed list of reasons a task can fail: the API error codes plus the checks
@@ -61,6 +64,8 @@ MOTIVOS = {
     # Permission denied
     "SOLO_ORGANIZADOR", "SOLO_CAPITAN", "ORGANIZADOR_NO_PUEDE_UNIRSE",
     "ORGANIZADOR_NO_PUEDE_SALIR", "CAPITAN_NO_PUEDE_SALIR",
+    # Account deletion stopped by UniSport's rule
+    "ORGANIZA_PARTIDOS_CON_JUGADORES", "CAPITAN_CON_RESULTADO_PENDIENTE",
 }
 
 # Only start events and the app's own validation failures come from the app;
@@ -74,6 +79,7 @@ EVENTOS_DESDE_LA_APP = {
     # The file is written on the phone, so both steps happen in the app.
     MIS_DATOS_VISTOS,
     MIS_DATOS_DESCARGADOS,
+    ELIMINACION_INICIADA,
 }
 PROPS_PERMITIDAS = {"deporte", "como_suplente", "tardia", "flujo", "motivo", "filtros"}
 

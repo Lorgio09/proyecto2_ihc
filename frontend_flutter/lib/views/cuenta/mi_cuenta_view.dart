@@ -5,13 +5,17 @@ import 'package:flutter/material.dart';
 import '../../consts/color.dart';
 import '../../services/cuenta_service.dart';
 import '../../widgets/mensaje.dart';
+import '../autenticacion/login_view.dart';
 
-/// "Mi cuenta": everything UniSport keeps about the person, and the way to
-/// take it with them.
+/// "Mi cuenta": everything UniSport keeps about the person, the way to take
+/// it with them and the way to leave.
 class MiCuentaView extends StatefulWidget {
-  const MiCuentaView({super.key, this.cuentaService});
+  const MiCuentaView({super.key, this.cuentaService, this.alSalir});
 
   final CuentaService? cuentaService;
+
+  /// Where to go once the account is gone; the login screen by default.
+  final void Function(BuildContext context)? alSalir;
 
   @override
   State<MiCuentaView> createState() => _MiCuentaViewState();
@@ -22,6 +26,7 @@ class _MiCuentaViewState extends State<MiCuentaView> {
   Map<String, dynamic>? datos;
   String? error;
   bool descargando = false;
+  bool eliminando = false;
 
   static const nombreArchivo = 'unisport-mis-datos.json';
 
@@ -67,6 +72,214 @@ class _MiCuentaViewState extends State<MiCuentaView> {
     }
   }
 
+  /// Leaving is as short as signing up: one button, one honest confirmation.
+  /// When UniSport's rule stops it, say why and what to do instead.
+  Future<void> eliminar() async {
+    servicio.registrarEvento('eliminacion_iniciada');
+    setState(() => eliminando = true);
+    try {
+      final previa = await servicio.antesDeEliminar();
+      if (!mounted) return;
+      final bloqueos = (previa['bloqueos'] as List)
+          .cast<Map<String, dynamic>>();
+      if (bloqueos.isNotEmpty) {
+        await _mostrarBloqueo(bloqueos);
+        return;
+      }
+      final confirmado = await _confirmar(
+        previa['consecuencias'] as Map<String, dynamic>,
+      );
+      if (confirmado != true || !mounted) return;
+
+      await servicio.eliminarCuenta();
+      if (!mounted) return;
+      final mensajero = ScaffoldMessenger.of(context);
+      (widget.alSalir ?? _irAlLogin)(context);
+      mensajero.showSnackBar(
+        const SnackBar(content: Text('Tu cuenta fue eliminada')),
+      );
+    } on CuentaBloqueada catch (bloqueo) {
+      // Something changed between the check and the confirmation; the
+      // backend already recorded this block.
+      if (mounted) await _mostrarBloqueo(bloqueo.bloqueos, registrar: false);
+    } catch (_) {
+      if (mounted) {
+        mostrarMensaje(
+          context,
+          'No se pudo eliminar la cuenta. Inténtalo de nuevo.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => eliminando = false);
+    }
+  }
+
+  void _irAlLogin(BuildContext context) {
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginView()),
+      (_) => false,
+    );
+  }
+
+  Future<void> _mostrarBloqueo(
+    List<Map<String, dynamic>> bloqueos, {
+    bool registrar = true,
+  }) async {
+    if (registrar) {
+      for (final bloqueo in bloqueos) {
+        servicio.registrarEvento(
+          'tarea_fallida',
+          props: {
+            'flujo': 'eliminar_cuenta',
+            'motivo': bloqueo['codigo'] as String,
+          },
+        );
+      }
+    }
+    await showDialog<void>(
+      context: context,
+      builder: (contexto) => AlertDialog(
+        icon: const Icon(Icons.info_outline),
+        title: const Text('Todavía no puedes eliminar tu cuenta'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final bloqueo in bloqueos)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(bloqueo['mensaje'] as String),
+                ),
+              const Text('Tu cuenta y tus datos siguen igual.'),
+            ],
+          ),
+        ),
+        actions: [
+          FilledButton(
+            key: const Key('cerrar-bloqueo'),
+            onPressed: () => Navigator.of(contexto).pop(),
+            child: const Text('Entendido'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<bool?> _confirmar(Map<String, dynamic> consecuencias) {
+    final futuros = consecuencias['partidos_futuros'] as int;
+    final ascensos = consecuencias['ascensos_de_suplentes'] as int;
+    final organizados = consecuencias['partidos_organizados_eliminados'] as int;
+    final resultados = consecuencias['resultados_anonimizados'] as int;
+    String partidos(int n) => n == 1 ? '1 partido' : '$n partidos';
+    String plural(int n) => n == 1 ? '' : 'n';
+
+    final puntos = [
+      'Se borran tu nombre, tu correo, tu teléfono y tu historial.',
+      if (futuros > 0)
+        'Sales de ${partidos(futuros)} que aún no se juega${plural(futuros)}.'
+            '${ascensos > 0 ? ' Tu lugar de titular pasa al primer suplente.' : ''}',
+      if (organizados > 0)
+        'Se elimina${plural(organizados)} ${partidos(organizados)} '
+            'que organizas.',
+      if (resultados > 0)
+        'Los resultados confirmados de ${partidos(resultados)} se conservan, '
+            'pero aparecerás como "Usuario eliminado".',
+      'Ya no podrás iniciar sesión con esta cuenta. No se puede deshacer.',
+    ];
+
+    return showDialog<bool>(
+      context: context,
+      builder: (contexto) => AlertDialog(
+        title: const Text('¿Eliminar tu cuenta?'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final punto in puntos)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('•  '),
+                      Expanded(child: Text(punto)),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          // Same size and same weight: neither choice is pushed on the person.
+          // IntrinsicHeight + stretch keep both equal even if a label wraps.
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    key: const Key('cancelar-eliminar-cuenta'),
+                    onPressed: () => Navigator.of(contexto).pop(false),
+                    child: const Text('Cancelar'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton(
+                    key: const Key('confirmar-eliminar-cuenta'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Theme.of(contexto).colorScheme.error,
+                      foregroundColor: Theme.of(contexto).colorScheme.onError,
+                    ),
+                    onPressed: () => Navigator.of(contexto).pop(true),
+                    child: const Text('Eliminar cuenta'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _seccionEliminar(BuildContext context) {
+    final textos = Theme.of(context).textTheme;
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Eliminar mi cuenta', style: textos.titleLarge),
+            const SizedBox(height: 4),
+            Text(
+              'Borra tu cuenta y tus datos. Antes de confirmar verás qué '
+              'pasa con tus partidos.',
+              style: textos.bodyMedium?.copyWith(color: Blueslate),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                key: const Key('boton-eliminar-cuenta'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                ),
+                onPressed: eliminando ? null : eliminar,
+                icon: const Icon(Icons.delete_outline),
+                label: const Text('Eliminar mi cuenta'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   int _cantidad(String clave) => (datos?[clave] as List?)?.length ?? 0;
 
   @override
@@ -92,7 +305,11 @@ class _MiCuentaViewState extends State<MiCuentaView> {
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               padding: const EdgeInsets.all(16),
-              children: [_seccionDatos(context)],
+              children: [
+                _seccionDatos(context),
+                const SizedBox(height: 16),
+                _seccionEliminar(context),
+              ],
             ),
     );
   }

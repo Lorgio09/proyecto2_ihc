@@ -6,6 +6,7 @@ import '../../services/partido.dart';
 import '../../widgets/mensaje.dart';
 import 'resultado_partido_view.dart';
 import '../../widgets/tarjeta_partido.dart';
+import 'confirmar_salida.dart';
 
 /// "Me uní" tab: matches the user joined (as player or substitute),
 /// with the leave action available right where the user looks for it.
@@ -68,31 +69,12 @@ class _PartidosUnidosViewState extends State<PartidosUnidosView> {
   Future<void> salir(Partido partido) async {
     // Start of the "leave a match" funnel; baja_registrada comes from the API.
     widget.partidoService.registrarEvento('baja_iniciada', {});
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Salir del partido'),
-        content: Text(
-          partido.salidaSeriaTardia
-              ? 'Faltan menos de 2 horas para el partido. Si sales ahora, '
-                    'quedará registrado como baja tardía y el organizador lo '
-                    'verá. ¿Quieres salir igual?'
-              : '¿Quieres salir de este partido?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('No'),
-          ),
-          TextButton(
-            key: const Key('confirmar-salir-partido'),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Sí, salir'),
-          ),
-        ],
-      ),
+    final confirmar = await confirmarSalida(
+      context,
+      partido,
+      widget.usuario.id,
     );
-    if (confirmar != true) return;
+    if (!confirmar || !mounted) return;
 
     setState(() => partidoSaliendoId = partido.id);
     try {

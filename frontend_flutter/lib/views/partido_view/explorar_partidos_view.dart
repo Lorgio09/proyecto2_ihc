@@ -6,6 +6,7 @@ import '../../services/partido.dart';
 import '../../widgets/ayuda.dart';
 import '../../widgets/mensaje.dart';
 import '../../widgets/tarjeta_partido.dart';
+import 'confirmar_salida.dart';
 
 class ExplorarPartidosView extends StatefulWidget {
   const ExplorarPartidosView({
@@ -208,31 +209,12 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
   Future<void> salir(Partido partido) async {
     // Start of the "leave a match" funnel; baja_registrada comes from the API.
     partidoService.registrarEvento('baja_iniciada', {});
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Salir del partido'),
-        content: Text(
-          partido.salidaSeriaTardia
-              ? 'Faltan menos de 2 horas para el partido. Si sales ahora, '
-                    'quedará registrado como baja tardía y el organizador lo '
-                    'verá. ¿Quieres salir igual?'
-              : '¿Quieres salir de este partido?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('No'),
-          ),
-          TextButton(
-            key: const Key('confirmar-salir-partido'),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Sí, salir'),
-          ),
-        ],
-      ),
+    final confirmar = await confirmarSalida(
+      context,
+      partido,
+      widget.usuario.id,
     );
-    if (confirmar != true) return;
+    if (!confirmar || !mounted) return;
 
     setState(() => partidoSaliendoId = partido.id);
     try {
@@ -420,7 +402,6 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -461,7 +442,8 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
             if (partidos.isEmpty) {
               return const EstadoVacio(
                 icono: Icons.search_off,
-                titulo: 'No encontramos partidos que coincidan con los filtros.',
+                titulo:
+                    'No encontramos partidos que coincidan con los filtros.',
                 mensaje: 'Prueba con otra zona, deporte o fecha.',
               );
             }
@@ -536,7 +518,9 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                       onPressed: estaSaliendo ? null : () => salir(partido),
                       child: estaSaliendo
                           ? spinner
-                          : Text(reconfirma ? 'Me retiro' : 'Salir del partido'),
+                          : Text(
+                              reconfirma ? 'Me retiro' : 'Salir del partido',
+                            ),
                     )
                   else if (motivo == null)
                     FilledButton(

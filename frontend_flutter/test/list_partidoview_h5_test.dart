@@ -39,15 +39,16 @@ void main() {
   testWidgets('cancelar completar equipo no llama al servicio', (tester) async {
     final service = FakePartidoService();
     await tester.pumpWidget(
-      MaterialApp(
-        home: ListPartidoView(partidoService: service),
-      ),
+      MaterialApp(home: ListPartidoView(partidoService: service)),
     );
     await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const Key('boton-completar-partido')));
     await tester.pumpAndSettle();
-    expect(find.text('Al completar el equipo se cerrarán los cupos y otros usuarios no podrán unirse al partido. ¿Quieres continuar?'), findsOneWidget);
+    expect(
+      find.text('Se cierran los cupos y nadie más podrá unirse.'),
+      findsOneWidget,
+    );
 
     await tester.tap(find.text('Cancelar'));
     await tester.pumpAndSettle();
@@ -58,9 +59,7 @@ void main() {
   testWidgets('confirmar completar equipo llama al servicio', (tester) async {
     final service = FakePartidoService();
     await tester.pumpWidget(
-      MaterialApp(
-        home: ListPartidoView(partidoService: service),
-      ),
+      MaterialApp(home: ListPartidoView(partidoService: service)),
     );
     await tester.pumpAndSettle();
 

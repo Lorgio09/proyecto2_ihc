@@ -4,6 +4,7 @@ import '../../models/partido.dart';
 import '../../models/usuario.dart';
 import '../../services/partido.dart';
 import '../../widgets/ayuda.dart';
+import '../../widgets/confirmacion.dart';
 import '../../widgets/mensaje.dart';
 import '../../widgets/tarjeta_partido.dart';
 import 'formulario_partido.dart';
@@ -168,7 +169,6 @@ class _ListPartidoViewState extends State<ListPartidoView>
     );
   }
 
-
   Future<void> cargarPartidos() async {
     setState(() {
       cargando = true;
@@ -206,7 +206,9 @@ class _ListPartidoViewState extends State<ListPartidoView>
   Future<void> abrirFormulario({Partido? partido}) async {
     final creando = partido == null;
     // Start of the "create a match" funnel (editing is not part of it).
-    if (creando) partidoService.registrarEvento('partido_creacion_iniciada', {});
+    if (creando) {
+      partidoService.registrarEvento('partido_creacion_iniciada', {});
+    }
     final datos = await showDialog<Map<String, dynamic>>(
       context: context,
       builder: (context) => FormularioPartido(
@@ -255,26 +257,22 @@ class _ListPartidoViewState extends State<ListPartidoView>
   }
 
   Future<void> borrarPartido(Partido partido) async {
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Eliminar partido'),
-        content: const Text('¿Quieres eliminar este partido?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('No'),
-          ),
-          TextButton(
-            key: const Key('confirmar-eliminar-partido'),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Sí'),
-          ),
-        ],
-      ),
+    final jugadores = partido.cantidadParticipantes + partido.cantidadSuplentes;
+    final confirmar = await confirmarAccion(
+      context,
+      titulo: 'Eliminar ${partido.nombre}',
+      consecuencias: [
+        'Se borra el partido con sus resultados y su historial.',
+        if (jugadores > 0)
+          '${jugadores == 1 ? 'El jugador unido deja' : 'Los $jugadores jugadores unidos dejan'} '
+              'de verlo en Mis partidos.',
+        'No se puede deshacer.',
+      ],
+      textoConfirmar: 'Eliminar partido',
+      keyConfirmar: const Key('confirmar-eliminar-partido'),
+      destructiva: true,
     );
-
-    if (confirmar != true) return;
+    if (!confirmar || !mounted) return;
 
     setState(() => partidoEliminandoId = partido.id);
 
@@ -331,28 +329,17 @@ class _ListPartidoViewState extends State<ListPartidoView>
   }
 
   Future<void> completarEquipo(Partido partido) async {
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Completar equipo'),
-        content: const Text(
-          'Al completar el equipo se cerrarán los cupos y otros usuarios '
-          'no podrán unirse al partido. ¿Quieres continuar?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            key: const Key('confirmar-completar-partido'),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Completar equipo'),
-          ),
-        ],
-      ),
+    final confirmar = await confirmarAccion(
+      context,
+      titulo: 'Completar equipo',
+      consecuencias: [
+        'Se cierran los cupos y nadie más podrá unirse.',
+        'Puedes reabrirlo después si cambias de idea.',
+      ],
+      textoConfirmar: 'Completar equipo',
+      keyConfirmar: const Key('confirmar-completar-partido'),
     );
-    if (confirmar != true) return;
+    if (!confirmar || !mounted) return;
 
     setState(() => partidoCompletandoId = partido.id);
 
@@ -372,25 +359,16 @@ class _ListPartidoViewState extends State<ListPartidoView>
   }
 
   Future<void> reabrirEquipo(Partido partido) async {
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Reabrir equipo'),
-        content: const Text('¿Quieres volver a abrir los cupos del partido?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('No'),
-          ),
-          TextButton(
-            key: const Key('confirmar-reabrir-partido'),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Sí, reabrir'),
-          ),
-        ],
-      ),
+    final confirmar = await confirmarAccion(
+      context,
+      titulo: 'Reabrir equipo',
+      consecuencias: [
+        'Se vuelven a abrir los cupos y otros jugadores podrán unirse.',
+      ],
+      textoConfirmar: 'Reabrir equipo',
+      keyConfirmar: const Key('confirmar-reabrir-partido'),
     );
-    if (confirmar != true) return;
+    if (!confirmar || !mounted) return;
 
     setState(() => partidoReabriendoId = partido.id);
     try {
@@ -537,7 +515,6 @@ class _ListPartidoViewState extends State<ListPartidoView>
       ],
     );
   }
-
 
   @override
   Widget build(BuildContext context) {

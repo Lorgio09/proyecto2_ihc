@@ -108,8 +108,9 @@ void main() {
     expect(_texto(tarjeta, 'Cancha Central'), findsNothing);
   });
 
-  testWidgets('Organizador completa su equipo y luego lo reabre',
-      (tester) async {
+  testWidgets('Organizador completa su equipo y luego lo reabre', (
+    tester,
+  ) async {
     await _abrirMisPartidos(tester);
 
     var tarjeta = await _tarjeta(tester, 'Basket 3x3');
@@ -152,22 +153,25 @@ void main() {
     expect(_texto(tarjeta, 'Cupos abiertos'), findsOneWidget);
   });
 
-  testWidgets('Organizador cancela eliminar y el partido se queda',
-      (tester) async {
+  testWidgets('Organizador cancela eliminar y el partido se queda', (
+    tester,
+  ) async {
     await _abrirMisPartidos(tester);
 
     final tarjeta = await _tarjeta(tester, 'Voley de tarde');
     await _opcionDelMenu(tester, tarjeta, 'Eliminar partido');
-    expect(find.text('¿Quieres eliminar este partido?'), findsOneWidget);
-    await tester.tap(find.text('No'));
+    expect(find.text('Eliminar Voley de tarde'), findsOneWidget);
+    expect(find.text('No se puede deshacer.'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('cancelar-confirmacion')));
     await tester.pumpAndSettle();
 
-    expect(find.text('¿Quieres eliminar este partido?'), findsNothing);
+    expect(find.text('Eliminar Voley de tarde'), findsNothing);
     expect(await _tarjeta(tester, 'Voley de tarde'), findsOneWidget);
   });
 
-  testWidgets('Organizador elimina un partido y desaparece de la lista',
-      (tester) async {
+  testWidgets('Organizador elimina un partido y desaparece de la lista', (
+    tester,
+  ) async {
     await _abrirMisPartidos(tester);
 
     final tarjeta = await _tarjeta(tester, 'Voley de tarde');

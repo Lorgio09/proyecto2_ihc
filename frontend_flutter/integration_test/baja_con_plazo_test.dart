@@ -88,7 +88,7 @@ void main() {
       // 1. With 2 days to go, Jugador Demo leaves: a normal confirmation.
       await entrar(tester, jugadorEquipoA);
       final avisoATiempo = await _salirDesdeMeUni(tester, _aTiempo);
-      expect(avisoATiempo, contains('¿Quieres salir de este partido?'));
+      expect(avisoATiempo, contains('Puedes volver a unirte'));
       expect(avisoATiempo, isNot(contains('baja tardía')));
       await salirAlInicio(tester);
       await cerrarSesion(tester);

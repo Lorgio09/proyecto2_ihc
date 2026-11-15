@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../consts/color.dart';
 import '../../services/cuenta_service.dart';
+import '../../widgets/confirmacion.dart';
 import '../../widgets/mensaje.dart';
 import '../autenticacion/login_view.dart';
 
@@ -89,7 +90,7 @@ class _MiCuentaViewState extends State<MiCuentaView> {
       final confirmado = await _confirmar(
         previa['consecuencias'] as Map<String, dynamic>,
       );
-      if (confirmado != true || !mounted) return;
+      if (!confirmado || !mounted) return;
 
       await servicio.eliminarCuenta();
       if (!mounted) return;
@@ -166,7 +167,7 @@ class _MiCuentaViewState extends State<MiCuentaView> {
     );
   }
 
-  Future<bool?> _confirmar(Map<String, dynamic> consecuencias) {
+  Future<bool> _confirmar(Map<String, dynamic> consecuencias) {
     final futuros = consecuencias['partidos_futuros'] as int;
     final ascensos = consecuencias['ascensos_de_suplentes'] as int;
     final organizados = consecuencias['partidos_organizados_eliminados'] as int;
@@ -188,60 +189,14 @@ class _MiCuentaViewState extends State<MiCuentaView> {
       'Ya no podrás iniciar sesión con esta cuenta. No se puede deshacer.',
     ];
 
-    return showDialog<bool>(
-      context: context,
-      builder: (contexto) => AlertDialog(
-        title: const Text('¿Eliminar tu cuenta?'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (final punto in puntos)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('•  '),
-                      Expanded(child: Text(punto)),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        ),
-        actions: [
-          // Same size and same weight: neither choice is pushed on the person.
-          // IntrinsicHeight + stretch keep both equal even if a label wraps.
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    key: const Key('cancelar-eliminar-cuenta'),
-                    onPressed: () => Navigator.of(contexto).pop(false),
-                    child: const Text('Cancelar'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton(
-                    key: const Key('confirmar-eliminar-cuenta'),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Theme.of(contexto).colorScheme.error,
-                      foregroundColor: Theme.of(contexto).colorScheme.onError,
-                    ),
-                    onPressed: () => Navigator.of(contexto).pop(true),
-                    child: const Text('Eliminar cuenta'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+    return confirmarAccion(
+      context,
+      titulo: '¿Eliminar tu cuenta?',
+      consecuencias: puntos,
+      textoConfirmar: 'Eliminar cuenta',
+      keyConfirmar: const Key('confirmar-eliminar-cuenta'),
+      keyCancelar: const Key('cancelar-eliminar-cuenta'),
+      destructiva: true,
     );
   }
 
@@ -375,6 +330,15 @@ class _MiCuentaViewState extends State<MiCuentaView> {
             const SizedBox(height: 6),
             Text(
               'Se guarda como $nombreArchivo en la carpeta Descargas.',
+              style: textos.bodySmall?.copyWith(color: Blueslate),
+            ),
+            const Divider(height: 24),
+            // Transparency: the analytics exist, and they are not about you.
+            Text(
+              'Para mejorar la app, UniSport cuenta acciones como "se unió '
+              'a un partido" sin tu nombre, tu correo ni ningún dato que te '
+              'identifique. Por eso no aparecen en tus datos.',
+              key: const Key('aviso-analitica'),
               style: textos.bodySmall?.copyWith(color: Blueslate),
             ),
           ],

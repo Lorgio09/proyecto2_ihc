@@ -29,13 +29,16 @@ void main() {
     await tester.pumpAndSettle(const Duration(seconds: 5));
     final tarjeta = find.widgetWithText(Card, _partido);
     await mostrar(tester, tarjeta);
-    final reprogramar = find.descendant(
+    // "Reprogramar" lives in the card's "⋮" menu.
+    final menu = find.descendant(
       of: tarjeta,
-      matching: find.byKey(const Key('boton-reprogramar-partido')),
+      matching: find.byTooltip('Más acciones'),
     );
-    await tester.ensureVisible(reprogramar);
+    await tester.ensureVisible(menu);
     await tester.pumpAndSettle();
-    await tester.tap(reprogramar);
+    await tester.tap(menu);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('boton-reprogramar-partido')));
     await tester.pumpAndSettle();
 
     await tester.enterText(
@@ -51,7 +54,7 @@ void main() {
     await tester.pumpAndSettle(const Duration(seconds: 3));
 
     await mostrar(tester, find.widgetWithText(Card, _partido));
-    expect(find.text('Ubicación: Coliseo techado'), findsOneWidget);
+    expect(find.text('Coliseo techado'), findsOneWidget);
     expect(find.text('Reprogramado: Pronóstico de lluvia'), findsOneWidget);
     await expectEventos(antes, {
       'reprogramacion_iniciada': 1,

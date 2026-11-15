@@ -111,7 +111,7 @@ void main() {
     await _unirse(tester, 'Te uniste al partido');
     tarjeta = await _tarjeta(tester);
     expect(_texto(tarjeta, 'Cupos: 2/2'), findsOneWidget);
-    expect(_texto(tarjeta, 'Estado: Equipo completo'), findsOneWidget);
+    expect(_texto(tarjeta, 'Equipo completo'), findsOneWidget);
     await tester.pageBack();
     await tester.pumpAndSettle();
     await _cerrarSesion(tester);

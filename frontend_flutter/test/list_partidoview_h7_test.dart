@@ -157,8 +157,7 @@ void main() {
     await tester.tap(find.text('Buscar partidos'));
     await tester.pump();
 
-    expect(find.byIcon(Icons.edit), findsOneWidget);
-    expect(find.byIcon(Icons.delete), findsOneWidget);
+    expect(find.byTooltip('Más acciones'), findsOneWidget);
     expect(find.byKey(const Key('boton-completar-partido')), findsOneWidget);
   });
 }

@@ -82,13 +82,16 @@ Future<void> abrirResultadoComoOrganizador(
   await _abrirMisPartidos(tester);
   final tarjeta = find.widgetWithText(Card, partido);
   await mostrar(tester, tarjeta);
-  final boton = find.descendant(
+  // "Resultado del partido" lives in the card's "⋮" menu.
+  final menu = find.descendant(
     of: tarjeta,
-    matching: find.byTooltip('Resultado del partido'),
+    matching: find.byTooltip('Más acciones'),
   );
-  await tester.ensureVisible(boton);
+  await tester.ensureVisible(menu);
   await tester.pumpAndSettle();
-  await tester.tap(boton);
+  await tester.tap(menu);
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(const Key('boton-resultado-partido')));
   await _esperarResultado(tester);
 }
 

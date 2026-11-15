@@ -36,19 +36,25 @@ Future<FakePartidoService> abrirLista(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('las acciones aparecen debajo del contenido de la tarjeta', (
+  testWidgets('la acción principal va debajo del contenido y el resto en el menú', (
     tester,
   ) async {
     await abrirLista(tester);
 
-    final estado = tester.getTopLeft(find.text('Estado: Cupos abiertos'));
-    final completar = tester.getTopLeft(find.byKey(const Key('boton-completar-partido')));
-    final editar = tester.getTopLeft(find.byIcon(Icons.edit));
-    final eliminar = tester.getTopLeft(find.byIcon(Icons.delete));
+    final cupos = tester.getTopLeft(find.text('Cupos: 0/10'));
+    final completar = tester.getTopLeft(
+      find.byKey(const Key('boton-completar-partido')),
+    );
+    expect(completar.dy, greaterThan(cupos.dy));
 
-    expect(completar.dy, greaterThan(estado.dy));
-    expect(editar.dy, greaterThan(estado.dy));
-    expect(eliminar.dy, greaterThan(estado.dy));
+    // Editing and deleting live in the "⋮" menu, not as loose icons (H8).
+    expect(find.byIcon(Icons.edit), findsNothing);
+    await tester.tap(find.byTooltip('Más acciones'));
+    await tester.pumpAndSettle();
+    expect(find.text('Reprogramar'), findsOneWidget);
+    expect(find.text('Resultado del partido'), findsOneWidget);
+    expect(find.text('Editar partido'), findsOneWidget);
+    expect(find.text('Eliminar partido'), findsOneWidget);
   });
 
   testWidgets('los botones conservan su comportamiento: eliminar confirma', (
@@ -56,7 +62,9 @@ void main() {
   ) async {
     final service = await abrirLista(tester);
 
-    await tester.tap(find.byIcon(Icons.delete));
+    await tester.tap(find.byTooltip('Más acciones'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Eliminar partido'));
     await tester.pumpAndSettle();
 
     expect(find.byType(AlertDialog), findsOneWidget);

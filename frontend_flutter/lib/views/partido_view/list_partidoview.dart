@@ -5,6 +5,7 @@ import '../../models/usuario.dart';
 import '../../services/partido.dart';
 import '../../widgets/ayuda.dart';
 import '../../widgets/mensaje.dart';
+import '../../widgets/tarjeta_partido.dart';
 import 'formulario_partido.dart';
 import 'partidos_unidos_view.dart';
 import 'reprogramar_partido.dart';
@@ -93,71 +94,80 @@ class _ListPartidoViewState extends State<ListPartidoView>
     });
   }
 
+  /// Compact filters: search on top, state and "Buscar" in one row, and
+  /// "Limpiar filtros" only when there is something to clear.
   Widget panelFiltros() {
-    return Card(
-      margin: const EdgeInsets.fromLTRB(8, 8, 8, 4),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            TextField(
-              controller: busquedaController,
-              onChanged: (_) => setState(() {}),
-              decoration: const InputDecoration(
-                labelText: 'Buscar por nombre o ubicación',
-                hintText: 'Ej. Oriente o Cancha central',
-                prefixIcon: Icon(Icons.search),
-              ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+      child: Column(
+        children: [
+          TextField(
+            controller: busquedaController,
+            onChanged: (_) => setState(() {}),
+            onSubmitted: (_) => aplicarFiltros(),
+            decoration: const InputDecoration(
+              labelText: 'Buscar por nombre o ubicación',
+              hintText: 'Ej. Oriente o Cancha central',
+              prefixIcon: Icon(Icons.search),
+              isDense: true,
             ),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              initialValue: estadoFiltro,
-              decoration: const InputDecoration(
-                labelText: 'Filtrar por estado',
-                prefixIcon: Icon(Icons.filter_list),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  initialValue: estadoFiltro,
+                  isDense: true,
+                  // Shares the row with the button: it must shrink, not overflow.
+                  isExpanded: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Filtrar por estado',
+                    isDense: true,
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'todos', child: Text('Todos')),
+                    DropdownMenuItem(
+                      value: 'cupos abiertos',
+                      child: Text('Cupos abiertos'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'equipo completo',
+                      child: Text('Equipo completo'),
+                    ),
+                  ],
+                  onChanged: (valor) {
+                    if (valor == null) return;
+                    setState(() => estadoFiltro = valor);
+                  },
+                ),
               ),
-              items: const [
-                DropdownMenuItem(value: 'todos', child: Text('Todos')),
-                DropdownMenuItem(
-                  value: 'cupos abiertos',
-                  child: Text('Cupos abiertos'),
-                ),
-                DropdownMenuItem(
-                  value: 'equipo completo',
-                  child: Text('Equipo completo'),
-                ),
-              ],
-              onChanged: (valor) {
-                if (valor == null) return;
-                setState(() => estadoFiltro = valor);
-              },
-            ),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Tooltip(
+              const SizedBox(width: 8),
+              Tooltip(
                 message: 'Aplicar la búsqueda y el estado seleccionado',
-                child: OutlinedButton.icon(
+                child: FilledButton(
                   onPressed: hayFiltrosPendientes ? aplicarFiltros : null,
-                  icon: const Icon(Icons.search),
-                  label: const Text('Buscar partidos'),
+                  child: const Text('Buscar partidos'),
                 ),
               ),
-            ),
+            ],
+          ),
+          if (hayFiltrosActivos)
             Align(
               alignment: Alignment.centerRight,
               child: Tooltip(
                 message: 'Borrar búsqueda y estado seleccionado',
                 child: TextButton(
-                  onPressed: hayFiltrosActivos ? limpiarFiltros : null,
+                  onPressed: limpiarFiltros,
                   child: const Text('Limpiar filtros'),
                 ),
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }
+
 
   Future<void> cargarPartidos() async {
     setState(() {
@@ -415,86 +425,119 @@ class _ListPartidoViewState extends State<ListPartidoView>
     );
   }
 
+  /// The main action stays visible; the rest live in the "⋮" menu so the card
+  /// is not crowded (H8).
   Widget _construirAcciones(Partido partido) {
     final estado = partido.estado.trim().toLowerCase();
-    final estaEliminando = partidoEliminandoId == partido.id;
     final estaCompletando = partidoCompletandoId == partido.id;
     final estaReabriendo = partidoReabriendoId == partido.id;
 
-    return Wrap(
-      spacing: 8,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        if (estado == 'cupos abiertos')
-          ElevatedButton(
-            key: const Key('boton-completar-partido'),
-            onPressed: estaCompletando ? null : () => completarEquipo(partido),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(
-                0xFFB45309,
-              ), // 5.0:1 against white text
-              foregroundColor: Colors.white,
+    Widget cargando() => const SizedBox(
+      width: 18,
+      height: 18,
+      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+    );
+
+    if (estado == 'cupos abiertos') {
+      return ElevatedButton.icon(
+        key: const Key('boton-completar-partido'),
+        onPressed: estaCompletando ? null : () => completarEquipo(partido),
+        icon: const Icon(Icons.lock_outline, size: 18),
+        label: estaCompletando ? cargando() : const Text('Completar equipo'),
+      );
+    }
+    if (estado == 'equipo completo') {
+      return ElevatedButton.icon(
+        key: const Key('boton-reabrir-partido'),
+        onPressed: estaReabriendo ? null : () => reabrirEquipo(partido),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.green.shade800,
+          foregroundColor: Colors.white,
+        ),
+        icon: const Icon(Icons.lock_open, size: 18),
+        label: estaReabriendo ? cargando() : const Text('Reabrir equipo'),
+      );
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _menuAcciones(Partido partido) {
+    if (partidoEliminandoId == partido.id) {
+      return const Padding(
+        padding: EdgeInsets.all(14),
+        child: SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      );
+    }
+
+    PopupMenuItem<String> opcion(
+      String valor,
+      String texto,
+      IconData icono, {
+      Key? key,
+      Color? color,
+    }) {
+      return PopupMenuItem<String>(
+        key: key,
+        value: valor,
+        child: Row(
+          children: [
+            Icon(icono, size: 20, color: color),
+            const SizedBox(width: 12),
+            Flexible(
+              child: Text(
+                texto,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: color),
+              ),
             ),
-            child: estaCompletando
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Text('Completar equipo'),
-          ),
-        if (estado == 'equipo completo')
-          ElevatedButton(
-            key: const Key('boton-reabrir-partido'),
-            onPressed: estaReabriendo ? null : () => reabrirEquipo(partido),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green.shade800,
-              foregroundColor: Colors.white,
-            ),
-            child: estaReabriendo
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Text('Reabrir equipo'),
-          ),
-        OutlinedButton(
+          ],
+        ),
+      );
+    }
+
+    return PopupMenuButton<String>(
+      tooltip: 'Más acciones',
+      icon: const Icon(Icons.more_vert),
+      onSelected: (valor) {
+        switch (valor) {
+          case 'reprogramar':
+            reprogramarPartido(partido);
+          case 'resultado':
+            abrirResultado(partido);
+          case 'editar':
+            abrirFormulario(partido: partido);
+          case 'eliminar':
+            borrarPartido(partido);
+        }
+      },
+      itemBuilder: (context) => [
+        opcion(
+          'reprogramar',
+          'Reprogramar',
+          Icons.event_repeat,
           key: const Key('boton-reprogramar-partido'),
-          onPressed: () => reprogramarPartido(partido),
-          child: const Text('Reprogramar'),
         ),
-        IconButton(
+        opcion(
+          'resultado',
+          'Resultado del partido',
+          Icons.scoreboard_outlined,
           key: const Key('boton-resultado-partido'),
-          tooltip: 'Resultado del partido',
-          onPressed: () => abrirResultado(partido),
-          icon: const Icon(Icons.scoreboard_outlined),
         ),
-        IconButton(
-          tooltip: 'Editar partido',
-          onPressed: () => abrirFormulario(partido: partido),
-          icon: const Icon(Icons.edit),
-        ),
-        IconButton(
-          tooltip: 'Eliminar partido',
-          onPressed: estaEliminando ? null : () => borrarPartido(partido),
-          icon: estaEliminando
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.delete),
+        opcion('editar', 'Editar partido', Icons.edit_outlined),
+        opcion(
+          'eliminar',
+          'Eliminar partido',
+          Icons.delete_outline,
+          color: Theme.of(context).colorScheme.error,
         ),
       ],
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -587,23 +630,21 @@ class _ListPartidoViewState extends State<ListPartidoView>
               if (partidos.isNotEmpty) panelFiltros(),
               Expanded(
                 child: partidos.isEmpty
-                    ? const Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text('No tienes partidos todavía'),
-                            SizedBox(height: 8),
-                            Text(
-                              'Pulsa el botón + para crear tu primer partido',
-                            ),
-                          ],
-                        ),
+                    ? const EstadoVacio(
+                        icono: Icons.sports_soccer,
+                        titulo: 'No tienes partidos todavía',
+                        mensaje:
+                            'Crea el primero con el botón "Nuevo partido" y '
+                            'compártelo para completar tu equipo.',
                       )
                     : partidosVisibles.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'No encontramos partidos con estos filtros',
-                          textAlign: TextAlign.center,
+                    ? EstadoVacio(
+                        icono: Icons.search_off,
+                        titulo: 'No encontramos partidos con estos filtros',
+                        mensaje: 'Prueba con otra búsqueda u otro estado.',
+                        accion: TextButton(
+                          onPressed: limpiarFiltros,
+                          child: const Text('Limpiar filtros'),
                         ),
                       )
                     : RefreshIndicator(
@@ -615,81 +656,41 @@ class _ListPartidoViewState extends State<ListPartidoView>
                             final estaExpandido =
                                 partidoExpandidoId == partido.id;
 
-                            return Card(
-                              margin: const EdgeInsets.all(8),
-                              child: ListTile(
-                                title: Text(partido.nombre),
-                                subtitle: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Deporte: ${partido.deporteTexto}'),
-                                    Text('Ubicación: ${partido.ubicacion}'),
-                                    Text('Fecha: ${fechaTexto(partido.fecha)}'),
-                                    Text(
-                                      'Cupos: ${partido.cantidadParticipantes}/'
-                                      '${partido.cantidadJugadores}',
-                                    ),
-                                    Text(
-                                      'Duración: '
-                                      '${partido.tiempoMin ?? 'No definida'}',
-                                    ),
-                                    Text('Estado: ${partido.estadoTexto}'),
-                                    if (partido.motivoReprogramacion != null)
-                                      Text(
-                                        'Reprogramado: '
-                                        '${partido.motivoReprogramacion}',
-                                      ),
-                                    if (partido.tieneRespuestasPendientes)
-                                      Text(
+                            final error = Theme.of(context).colorScheme.error;
+                            return TarjetaPartido(
+                              partido: partido,
+                              participantesAbiertos: estaExpandido,
+                              alAlternarParticipantes: () => setState(() {
+                                partidoExpandidoId = estaExpandido
+                                    ? null
+                                    : partido.id;
+                              }),
+                              mostrarNombresDeSuplentes: true,
+                              avisos: [
+                                if (partido.motivoReprogramacion != null)
+                                  AvisoTarjeta(
+                                    icono: Icons.event_repeat,
+                                    texto:
+                                        'Reprogramado: ${partido.motivoReprogramacion}',
+                                  ),
+                                if (partido.tieneRespuestasPendientes)
+                                  AvisoTarjeta(
+                                    icono: Icons.hourglass_top,
+                                    texto:
                                         'Esperando respuesta de: '
                                         '${partido.pendientesConfirmar.map((usuario) => usuario.nombre).join(', ')}',
-                                      ),
-                                    if (partido.bajasTardias.isNotEmpty)
-                                      Text(
+                                  ),
+                                if (partido.bajasTardias.isNotEmpty)
+                                  AvisoTarjeta(
+                                    icono: Icons.warning_amber_rounded,
+                                    color: error,
+                                    texto:
                                         'Bajas tardías: '
                                         '${partido.bajasTardias.map((usuario) => usuario.nombre).join(', ')}',
-                                        style: TextStyle(
-                                          color: Theme.of(context).colorScheme.error,
-                                        ),
-                                      ),
-                                    Text(
-                                      'Participantes: ${partido.cantidadParticipantes}',
-                                    ),
-                                    if (partido.participantes.isNotEmpty)
-                                      TextButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            partidoExpandidoId = estaExpandido
-                                                ? null
-                                                : partido.id;
-                                          });
-                                        },
-                                        child: Text(
-                                          estaExpandido
-                                              ? 'Ocultar participantes'
-                                              : 'Ver participantes',
-                                        ),
-                                      ),
-                                    if (estaExpandido)
-                                      Text(
-                                        partido.participantes
-                                            .map(
-                                              (participante) =>
-                                                  participante.nombre,
-                                            )
-                                            .join(', '),
-                                      ),
-                                    if (estaExpandido &&
-                                        partido.suplentes.isNotEmpty)
-                                      Text(
-                                        'Suplentes: '
-                                        '${partido.suplentes.map((suplente) => suplente.nombre).join(', ')}',
-                                      ),
-                                    _construirAcciones(partido),
-                                  ],
-                                ),
-                              ),
+                                  ),
+                              ],
+                              menu: _menuAcciones(partido),
+                              acciones: _construirAcciones(partido),
                             );
                           },
                         ),

@@ -60,6 +60,20 @@ Future<void> _tocar(WidgetTester tester, Finder boton) async {
   await tester.pumpAndSettle();
 }
 
+/// Secondary actions live in the card's "⋮" menu.
+Future<void> _opcionDelMenu(
+  WidgetTester tester,
+  Finder tarjeta,
+  String opcion,
+) async {
+  await _tocar(
+    tester,
+    find.descendant(of: tarjeta, matching: find.byTooltip('Más acciones')),
+  );
+  await tester.tap(find.text(opcion));
+  await tester.pumpAndSettle();
+}
+
 Finder _texto(Finder tarjeta, String texto) =>
     find.descendant(of: tarjeta, matching: find.text(texto));
 
@@ -75,11 +89,8 @@ void main() {
     await _abrirMisPartidos(tester);
 
     var tarjeta = await _tarjeta(tester, 'Fulbito del viernes');
-    expect(_texto(tarjeta, 'Ubicación: Cancha Central'), findsOneWidget);
-    await _tocar(
-      tester,
-      find.descendant(of: tarjeta, matching: find.byTooltip('Editar partido')),
-    );
+    expect(_texto(tarjeta, 'Cancha Central'), findsOneWidget);
+    await _opcionDelMenu(tester, tarjeta, 'Editar partido');
     expect(find.text('Editar partido'), findsOneWidget);
 
     final campos = find.descendant(
@@ -93,8 +104,8 @@ void main() {
     await _limpiarAvisos(tester);
 
     tarjeta = await _tarjeta(tester, 'Fulbito del viernes');
-    expect(_texto(tarjeta, 'Ubicación: Cancha Editada'), findsOneWidget);
-    expect(_texto(tarjeta, 'Ubicación: Cancha Central'), findsNothing);
+    expect(_texto(tarjeta, 'Cancha Editada'), findsOneWidget);
+    expect(_texto(tarjeta, 'Cancha Central'), findsNothing);
   });
 
   testWidgets('Organizador completa su equipo y luego lo reabre',
@@ -102,7 +113,7 @@ void main() {
     await _abrirMisPartidos(tester);
 
     var tarjeta = await _tarjeta(tester, 'Basket 3x3');
-    expect(_texto(tarjeta, 'Estado: Cupos abiertos'), findsOneWidget);
+    expect(_texto(tarjeta, 'Cupos abiertos'), findsOneWidget);
     await _tocar(
       tester,
       find.descendant(
@@ -116,7 +127,7 @@ void main() {
     await _limpiarAvisos(tester);
 
     tarjeta = await _tarjeta(tester, 'Basket 3x3');
-    expect(_texto(tarjeta, 'Estado: Equipo completo'), findsOneWidget);
+    expect(_texto(tarjeta, 'Equipo completo'), findsOneWidget);
     expect(
       find.descendant(
         of: tarjeta,
@@ -138,7 +149,7 @@ void main() {
     await _limpiarAvisos(tester);
 
     tarjeta = await _tarjeta(tester, 'Basket 3x3');
-    expect(_texto(tarjeta, 'Estado: Cupos abiertos'), findsOneWidget);
+    expect(_texto(tarjeta, 'Cupos abiertos'), findsOneWidget);
   });
 
   testWidgets('Organizador cancela eliminar y el partido se queda',
@@ -146,13 +157,7 @@ void main() {
     await _abrirMisPartidos(tester);
 
     final tarjeta = await _tarjeta(tester, 'Voley de tarde');
-    await _tocar(
-      tester,
-      find.descendant(
-        of: tarjeta,
-        matching: find.byTooltip('Eliminar partido'),
-      ),
-    );
+    await _opcionDelMenu(tester, tarjeta, 'Eliminar partido');
     expect(find.text('¿Quieres eliminar este partido?'), findsOneWidget);
     await tester.tap(find.text('No'));
     await tester.pumpAndSettle();
@@ -166,13 +171,7 @@ void main() {
     await _abrirMisPartidos(tester);
 
     final tarjeta = await _tarjeta(tester, 'Voley de tarde');
-    await _tocar(
-      tester,
-      find.descendant(
-        of: tarjeta,
-        matching: find.byTooltip('Eliminar partido'),
-      ),
-    );
+    await _opcionDelMenu(tester, tarjeta, 'Eliminar partido');
     await tester.tap(find.byKey(const Key('confirmar-eliminar-partido')));
     await _esperar(tester, find.text('Partido eliminado'));
     expect(find.text('Partido eliminado'), findsOneWidget);

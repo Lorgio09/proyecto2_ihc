@@ -5,6 +5,7 @@ import '../../models/usuario.dart';
 import '../../services/partido.dart';
 import '../../widgets/mensaje.dart';
 import 'resultado_partido_view.dart';
+import '../../widgets/tarjeta_partido.dart';
 
 /// "Me uní" tab: matches the user joined (as player or substitute),
 /// with the leave action available right where the user looks for it.
@@ -134,21 +135,10 @@ class _PartidosUnidosViewState extends State<PartidosUnidosView> {
     }
 
     if (partidos.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Todavía no te uniste a ningún partido'),
-              SizedBox(height: 8),
-              Text(
-                'Busca uno en Explorar partidos desde el inicio.',
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
+      return const EstadoVacio(
+        icono: Icons.group_add_outlined,
+        titulo: 'Todavía no te uniste a ningún partido',
+        mensaje: 'Busca uno en Explorar partidos desde el inicio.',
       );
     }
 
@@ -160,51 +150,43 @@ class _PartidosUnidosViewState extends State<PartidosUnidosView> {
           final partido = partidos[index];
           final saliendo = partidoSaliendoId == partido.id;
 
-          return Card(
-            margin: const EdgeInsets.all(8),
-            child: ListTile(
-              title: Text(partido.nombre),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Deporte: ${partido.deporteTexto}'),
-                  Text(
-                    'Organizador: ${partido.organizador?.nombre ?? 'Sin datos'}',
+          return TarjetaPartido(
+            partido: partido,
+            organizador: partido.organizador?.nombre ?? 'Sin datos',
+            avisos: [
+              if (esSuplente(partido))
+                const AvisoTarjeta(
+                  icono: Icons.event_seat_outlined,
+                  texto: 'Te uniste como suplente',
+                ),
+            ],
+            acciones: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                OutlinedButton.icon(
+                  key: Key('boton-resultado-partido-${partido.id}'),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => ResultadoPartidoView(
+                        partidoId: partido.id,
+                        partidoService: widget.partidoService,
+                      ),
+                    ),
                   ),
-                  Text('Ubicación: ${partido.ubicacion}'),
-                  Text('Fecha: ${fechaTexto(partido.fecha)}'),
-                  Text('Estado: ${partido.estadoTexto}'),
-                  if (esSuplente(partido))
-                    const Text('Te uniste como suplente'),
-                  const SizedBox(height: 8),
+                  icon: const Icon(Icons.scoreboard_outlined),
+                  label: const Text('Resultado'),
+                ),
+                // The API rejects leaving a played match, so the button
+                // would only fail.
+                if (!yaSeJugo(partido))
                   OutlinedButton.icon(
-                    key: Key('boton-resultado-partido-${partido.id}'),
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => ResultadoPartidoView(
-                          partidoId: partido.id,
-                          partidoService: widget.partidoService,
-                        ),
-                      ),
-                    ),
-                    icon: const Icon(Icons.scoreboard_outlined),
-                    label: const Text('Resultado'),
+                    key: Key('boton-salir-partido-${partido.id}'),
+                    onPressed: saliendo ? null : () => salir(partido),
+                    icon: const Icon(Icons.logout),
+                    label: Text(saliendo ? 'Saliendo...' : 'Salir del partido'),
                   ),
-                  // The API rejects leaving a played match, so the button
-                  // would only fail.
-                  if (!yaSeJugo(partido)) ...[
-                    const SizedBox(height: 4),
-                    OutlinedButton.icon(
-                      key: Key('boton-salir-partido-${partido.id}'),
-                      onPressed: saliendo ? null : () => salir(partido),
-                      icon: const Icon(Icons.logout),
-                      label: Text(
-                        saliendo ? 'Saliendo...' : 'Salir del partido',
-                      ),
-                    ),
-                  ],
-                ],
-              ),
+              ],
             ),
           );
         },

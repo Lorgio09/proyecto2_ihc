@@ -27,7 +27,14 @@ Future<void> _abrirFormularioNuevoPartido(WidgetTester tester) async {
   await tester.pumpAndSettle(const Duration(seconds: 5));
   await tester.tap(find.byType(FloatingActionButton));
   await tester.pumpAndSettle();
-  expect(find.text('Nuevo partido'), findsOneWidget);
+  // The dialog's title; the button that opens it says the same.
+  expect(
+    find.descendant(
+      of: find.byType(AlertDialog),
+      matching: find.text('Nuevo partido'),
+    ),
+    findsOneWidget,
+  );
 }
 
 void main() {
@@ -38,8 +45,9 @@ void main() {
     await AuthService().logout();
   });
 
-  testWidgets('Organizador crea un partido y lo ve en Mis partidos',
-      (tester) async {
+  testWidgets('Organizador crea un partido y lo ve en Mis partidos', (
+    tester,
+  ) async {
     // A unique name keeps the assertion exact across repeated runs.
     final nombre = 'Partido E2E ${DateTime.now().millisecondsSinceEpoch}';
 
@@ -63,29 +71,32 @@ void main() {
     await tester.tap(find.byKey(const Key('boton-guardar-partido')));
     await tester.pumpAndSettle(const Duration(seconds: 5));
 
-    // Scope to the list tile: a confirmation snackbar may repeat the name.
+    // Scope to the match card: a confirmation snackbar may repeat the name.
     final tarjeta = find.descendant(
-      of: find.byType(ListTile),
+      of: find.byType(Card),
       matching: find.text(nombre),
     );
     await tester.scrollUntilVisible(
       tarjeta,
       300,
-      scrollable: find.descendant(
-        of: find.byType(ListView),
-        matching: find.byType(Scrollable),
-      ),
+      scrollable: find
+          .descendant(
+            of: find.byType(ListView),
+            matching: find.byType(Scrollable),
+          )
+          .first,
     );
     expect(tarjeta, findsOneWidget);
-    expect(find.text('Ubicación: Cancha E2E'), findsWidgets);
+    expect(find.text('Cancha E2E'), findsWidgets);
     await expectEventos(antes, {
       'partido_creacion_iniciada': 1,
       'partido_creado': 1,
     });
   });
 
-  testWidgets('Organizador intenta guardar sin fecha y ve el error',
-      (tester) async {
+  testWidgets('Organizador intenta guardar sin fecha y ve el error', (
+    tester,
+  ) async {
     await _iniciarSesion(tester);
     final antes = await conteoEventos();
     await _abrirFormularioNuevoPartido(tester);
@@ -94,7 +105,14 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('La fecha es obligatoria'), findsOneWidget);
-    expect(find.text('Nuevo partido'), findsOneWidget);
+    // The dialog's title; the button that opens it says the same.
+    expect(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.text('Nuevo partido'),
+      ),
+      findsOneWidget,
+    );
     // Started but blocked by validation: no success, one failure.
     await expectEventos(antes, {
       'partido_creacion_iniciada': 1,

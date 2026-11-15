@@ -4,7 +4,7 @@ import '../consts/color.dart';
 
 final elevatedButtonTheme = ElevatedButtonThemeData(
   style: ElevatedButton.styleFrom(
-    backgroundColor: CoralgLow,
+    backgroundColor: CoralAccesible,
     foregroundColor: white,
   ),
 );

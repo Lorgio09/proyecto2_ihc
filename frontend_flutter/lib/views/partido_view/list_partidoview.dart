@@ -558,10 +558,11 @@ class _ListPartidoViewState extends State<ListPartidoView>
               ],
             ),
       floatingActionButton: enOrganizo
-          ? FloatingActionButton(
+          ? FloatingActionButton.extended(
               tooltip: 'Nuevo partido',
               onPressed: guardandoPartido ? null : () => abrirFormulario(),
-              child: const Icon(Icons.add),
+              icon: const Icon(Icons.add),
+              label: const Text('Nuevo partido'),
             )
           : null,
     );

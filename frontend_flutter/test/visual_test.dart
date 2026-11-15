@@ -7,6 +7,7 @@ import 'package:frontend_flutter/models/partido.dart';
 import 'package:frontend_flutter/models/usuario.dart';
 import 'package:frontend_flutter/services/auth_service.dart';
 import 'package:frontend_flutter/services/partido.dart';
+import 'package:frontend_flutter/theme/app_theme.dart';
 import 'package:frontend_flutter/views/autenticacion/login_view.dart';
 import 'package:frontend_flutter/views/autenticacion/register_view.dart';
 import 'package:frontend_flutter/views/home_view/home_view.dart';
@@ -58,7 +59,10 @@ Future<void> _mostrar(WidgetTester tester, Widget pantalla) async {
   await tester.pumpWidget(
     MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(fontFamily: 'Roboto'),
+      // The app's real theme, so the screenshots show its real colors.
+      theme: temaPrincipal.copyWith(
+        textTheme: temaPrincipal.textTheme.apply(fontFamily: 'Roboto'),
+      ),
       home: pantalla,
     ),
   );

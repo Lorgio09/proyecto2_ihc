@@ -10,6 +10,7 @@ import '../autenticacion/login_view.dart';
 import '../partido_view/explorar_partidos_view.dart';
 import '../partido_view/list_partidoview.dart';
 import '../partido_view/historial_partidos_view.dart';
+import '../../widgets/marca.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key, required this.user, required this.authService});
@@ -67,12 +68,7 @@ class HomeView extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset(
-                  'assets/icons/futbol.png',
-                  width: 144,
-                  height: 144,
-                  semanticLabel: 'Ilustración de fútbol',
-                ),
+                const MarcaUniSport(compacta: true),
                 const SizedBox(height: 24),
                 Text(
                   '¡Bienvenido, ${user.nombre}!',

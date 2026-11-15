@@ -7,6 +7,7 @@ import '../../widgets/input.dart';
 import '../home_view/home_view.dart';
 import 'olvide_contraseña.dart';
 import 'register_view.dart';
+import '../../widgets/marca.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -74,13 +75,9 @@ class _LoginViewState extends State<LoginView> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     spacing: 16,
                     children: [
-                      Center(
-                        child: Image.asset(
-                          'assets/icons/futbol.png',
-                          width: 166,
-                          height: 216,
-                          semanticLabel: 'Ilustración de usuario',
-                        ),
+                      const Padding(
+                        padding: EdgeInsets.only(top: 24, bottom: 16),
+                        child: MarcaUniSport(),
                       ),
                       Input(
                         etiqueta: 'Email',

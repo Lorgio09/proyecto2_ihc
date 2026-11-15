@@ -5,6 +5,7 @@ import '../../services/auth_service.dart';
 import '../../widgets/boton_guardar.dart';
 import '../../widgets/input.dart';
 import '../home_view/home_view.dart';
+import '../../widgets/marca.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -84,6 +85,7 @@ class _RegisterViewState extends State<RegisterView> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const SizedBox(height: 8),
+                      const MarcaUniSport(compacta: true),
                       Input(
                         etiqueta: 'Nombre',
                         controlador: _nombre_controlador,

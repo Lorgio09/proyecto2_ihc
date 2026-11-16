@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class Input extends StatelessWidget {
+class Input extends StatefulWidget {
   const Input({
     super.key,
     required this.etiqueta,
@@ -19,28 +19,59 @@ class Input extends StatelessWidget {
   final FormFieldValidator<String>? validator;
 
   @override
+  State<Input> createState() => _InputState();
+}
+
+class _InputState extends State<Input> {
+  // A password field starts hidden; the eye lets the person check what they typed.
+  late bool _oculto = widget.ocultarTexto;
+
+  @override
+  void didUpdateWidget(Input anterior) {
+    super.didUpdateWidget(anterior);
+    if (anterior.ocultarTexto != widget.ocultarTexto) {
+      _oculto = widget.ocultarTexto;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(etiqueta, style: Theme.of(context).textTheme.bodyMedium),
+        Text(widget.etiqueta, style: Theme.of(context).textTheme.bodyMedium),
         const SizedBox(height: 7),
         ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 52),
           child: TextFormField(
-            controller: controlador,
-            readOnly: soloLectura,
+            controller: widget.controlador,
+            readOnly: widget.soloLectura,
             style: TextStyle(
-              color: soloLectura ? const Color.fromARGB(255, 56, 56, 56) : null,
+              color: widget.soloLectura
+                  ? const Color.fromARGB(255, 56, 56, 56)
+                  : null,
             ),
-            obscureText: ocultarTexto,
-            enableSuggestions: !ocultarTexto,
-            autocorrect: !ocultarTexto,
-            validator: validator,
+            obscureText: _oculto,
+            enableSuggestions: !widget.ocultarTexto,
+            autocorrect: !widget.ocultarTexto,
+            validator: widget.validator,
             decoration: InputDecoration(
-              hintText: placeholder,
-              filled: soloLectura,
-              fillColor: soloLectura ? Colors.grey.shade200 : null,
+              hintText: widget.placeholder,
+              filled: widget.soloLectura,
+              fillColor: widget.soloLectura ? Colors.grey.shade200 : null,
+              suffixIcon: widget.ocultarTexto
+                  ? IconButton(
+                      tooltip: _oculto
+                          ? 'Mostrar contraseña'
+                          : 'Ocultar contraseña',
+                      icon: Icon(
+                        _oculto
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                      ),
+                      onPressed: () => setState(() => _oculto = !_oculto),
+                    )
+                  : null,
             ),
           ),
         ),

@@ -50,7 +50,12 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
     super.dispose();
   }
 
+  // Only the latest request may update the screen: an older answer that
+  // arrives late would overwrite the results of the current search.
+  int _ultimaCarga = 0;
+
   Future<void> cargarPartidos() async {
+    final carga = ++_ultimaCarga;
     setState(() => cargando = true);
     try {
       final resultado = await partidoService.listarExplorar(
@@ -61,9 +66,11 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
         hasta: rangoFechas?.end,
         soloConCupos: soloConCupos,
       );
-      if (mounted) setState(() => partidos = resultado);
+      if (mounted && carga == _ultimaCarga) {
+        setState(() => partidos = resultado);
+      }
     } catch (error) {
-      if (mounted) {
+      if (mounted && carga == _ultimaCarga) {
         final mensaje = error is PartidoError
             ? error.mensaje
             : 'No se pudieron cargar los partidos disponibles';
@@ -75,7 +82,7 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
         );
       }
     } finally {
-      if (mounted) setState(() => cargando = false);
+      if (mounted && carga == _ultimaCarga) setState(() => cargando = false);
     }
   }
 

@@ -134,7 +134,11 @@ void main() {
       'zzz partido que no existe',
     );
     await tester.tap(find.byTooltip('Buscar partidos'));
-    await tester.pumpAndSettle(const Duration(seconds: 3));
+    // The answer arrives outside the frames, so pumpAndSettle can return
+    // before it: wait until only the filters card is left.
+    for (var i = 0; i < 50 && find.byType(Card).evaluate().length > 1; i++) {
+      await tester.pump(const Duration(milliseconds: 200));
+    }
 
     expect(find.byType(Card).evaluate().length, lessThanOrEqualTo(1));
     await expectEventos(antes, {'busqueda_sin_resultados': 1});

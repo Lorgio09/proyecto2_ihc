@@ -3,10 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend_flutter/models/partido.dart';
 import 'package:frontend_flutter/views/partido_view/formulario_partido.dart';
 
-Partido crearPartido({
-  required String estado,
-  String deporte = 'futbol',
-}) {
+Partido crearPartido({required String estado, String deporte = 'futbol'}) {
   return Partido(
     id: 1,
     nombre: 'Partido de prueba',
@@ -33,10 +30,46 @@ Future<void> mostrarFormulario(
       ),
     ),
   );
-
 }
 
 void main() {
+  testWidgets('todas las etiquetas van sobre su caja, también Deporte', (
+    tester,
+  ) async {
+    await mostrarFormulario(tester, estado: 'cupos abiertos');
+
+    final etiqueta = tester.getRect(find.text('Deporte'));
+    final caja = tester.getRect(find.byType(DropdownButtonFormField<String>));
+
+    // Deporte used the floating label that sits on the border of the box,
+    // unlike every other field, which puts its label above it.
+    expect(etiqueta.bottom, lessThanOrEqualTo(caja.top));
+  });
+
+  testWidgets('deja espacio entre un campo y la etiqueta del siguiente', (
+    tester,
+  ) async {
+    await mostrarFormulario(tester, estado: 'cupos abiertos');
+
+    final texto = find.byType(TextFormField);
+    final nombre = tester.getRect(texto.at(0));
+    final ubicacion = tester.getRect(texto.at(1));
+    final cantidad = tester.getRect(texto.at(2));
+    final tiempo = tester.getRect(texto.at(3));
+    final deporte = tester.getRect(
+      find.byType(DropdownButtonFormField<String>),
+    );
+
+    double hueco(Rect campo, String siguiente) =>
+        tester.getRect(find.text(siguiente)).top - campo.bottom;
+
+    expect(hueco(nombre, 'Deporte'), greaterThanOrEqualTo(12));
+    expect(hueco(deporte, 'Ubicación'), greaterThanOrEqualTo(12));
+    expect(hueco(ubicacion, 'Cantidad de jugadores'), greaterThanOrEqualTo(12));
+    expect(hueco(cantidad, 'Tiempo en minutos'), greaterThanOrEqualTo(12));
+    expect(hueco(tiempo, 'Estado'), greaterThanOrEqualTo(12));
+  });
+
   testWidgets('muestra el deporte guardado del partido', (tester) async {
     await mostrarFormulario(
       tester,

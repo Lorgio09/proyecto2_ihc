@@ -25,7 +25,7 @@ class _FormularioPartidoState extends State<FormularioPartido> {
   final formularioKey = GlobalKey<FormState>();
   DateTime? fecha;
   String? errorFecha;
-  String deporte = 'futbol';  // Nuevo atributo para el deporte
+  String deporte = 'futbol'; // Nuevo atributo para el deporte
 
   @override
   void initState() {
@@ -54,11 +54,7 @@ class _FormularioPartidoState extends State<FormularioPartido> {
 
   Future<void> seleccionarFecha() async {
     final manana = DateTime.now();
-    final primeraFecha = DateTime(
-      manana.year,
-      manana.month,
-      manana.day + 1,
-    );
+    final primeraFecha = DateTime(manana.year, manana.month, manana.day + 1);
     final fechaSeleccionada = await showDatePicker(
       context: context,
       firstDate: primeraFecha,
@@ -132,7 +128,7 @@ class _FormularioPartidoState extends State<FormularioPartido> {
       'deporte': deporte,
     });
   }
- 
+
   @override
   Widget build(BuildContext context) {
     final editando = widget.partido != null;
@@ -142,9 +138,7 @@ class _FormularioPartidoState extends State<FormularioPartido> {
     return AlertDialog(
       title: Row(
         children: [
-          Expanded(
-            child: Text(editando ? 'Editar partido' : 'Nuevo partido'),
-          ),
+          Expanded(child: Text(editando ? 'Editar partido' : 'Nuevo partido')),
           IconButton(
             tooltip: 'Ayuda',
             icon: const Icon(Icons.help_outline),
@@ -153,9 +147,9 @@ class _FormularioPartidoState extends State<FormularioPartido> {
                 context,
                 'Ayuda del formulario',
                 'Ingresa el nombre, deporte y ubicación del partido.\n\n'
-                'La cantidad de jugadores indica el máximo de participantes.\n\n'
-                'Selecciona la fecha y pulsa Guardar para registrar '
-                'los cambios.',
+                    'La cantidad de jugadores indica el máximo de participantes.\n\n'
+                    'Selecciona la fecha y pulsa Guardar para registrar '
+                    'los cambios.',
               );
             },
           ),
@@ -166,72 +160,101 @@ class _FormularioPartidoState extends State<FormularioPartido> {
           key: formularioKey,
           child: Column(
             children: [
-              Input(
-                controlador: nombreController,
-                etiqueta: 'Nombre',
-                validator: validarTexto,
-              ),
-              DropdownButtonFormField<String>(
-                initialValue: deporte,
-                decoration: const InputDecoration(labelText: 'Deporte'),
-                items: const [
-                  DropdownMenuItem(value: 'futbol', child: Text('Fútbol')),
-                  DropdownMenuItem(value: 'basquet', child: Text('Básquet')),
-                  DropdownMenuItem(value: 'voley', child: Text('Vóley')),
-                ],
-                onChanged: (valor) {
-                  if (valor != null) {
-                    setState(() => deporte = valor);
-                  }
-                },
-              ),
-              Input(
-                controlador: ubicacionController,
-                etiqueta: 'Ubicación',
-                validator: validarTexto,
-              ),
-              Row(children: [
-                TextButton(
-                  onPressed: equipoCompleto ? null : restarjugadores,
-                  child: const Text('-'),
+              _Campo(
+                child: Input(
+                  controlador: nombreController,
+                  etiqueta: 'Nombre',
+                  validator: validarTexto,
                 ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Input(
-                        controlador: cantidadJugadoresController,
-                        etiqueta: 'Cantidad de jugadores',
-                        soloLectura: equipoCompleto,
-                        validator: validarCantidad,
-                      ),
-                      if (equipoCompleto) ...[
-                        Text(
-                          'No se puede modificar porque el equipo ya está completo',
-                          style: TextStyle(
-                            color: Colors.red.shade700,
-                            fontSize: 12,
-                          ),
+              ),
+              // Same pattern as Input: the label above the box, not floating
+              // on its border.
+              _Campo(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Deporte',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 7),
+                    DropdownButtonFormField<String>(
+                      initialValue: deporte,
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'futbol',
+                          child: Text('Fútbol'),
                         ),
+                        DropdownMenuItem(
+                          value: 'basquet',
+                          child: Text('Básquet'),
+                        ),
+                        DropdownMenuItem(value: 'voley', child: Text('Vóley')),
                       ],
-                    ],
-                  ),
+                      onChanged: (valor) {
+                        if (valor != null) {
+                          setState(() => deporte = valor);
+                        }
+                      },
+                    ),
+                  ],
                 ),
-                TextButton(
-                  onPressed: equipoCompleto ? null : sumarjugadores,
-                  child: const Text('+'),
-                ),
-              ],),
-          
-              Input(
-                controlador: tiempoController,
-                etiqueta: 'Tiempo en minutos',
-          
               ),
-              Input(
-                controlador: estadoController,
-                etiqueta: 'Estado',
-                soloLectura: true,
+              _Campo(
+                child: Input(
+                  controlador: ubicacionController,
+                  etiqueta: 'Ubicación',
+                  validator: validarTexto,
+                ),
+              ),
+              _Campo(
+                child: Row(
+                  children: [
+                    TextButton(
+                      onPressed: equipoCompleto ? null : restarjugadores,
+                      child: const Text('-'),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Input(
+                            controlador: cantidadJugadoresController,
+                            etiqueta: 'Cantidad de jugadores',
+                            soloLectura: equipoCompleto,
+                            validator: validarCantidad,
+                          ),
+                          if (equipoCompleto) ...[
+                            Text(
+                              'No se puede modificar porque el equipo ya está completo',
+                              style: TextStyle(
+                                color: Colors.red.shade700,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: equipoCompleto ? null : sumarjugadores,
+                      child: const Text('+'),
+                    ),
+                  ],
+                ),
+              ),
+              _Campo(
+                child: Input(
+                  controlador: tiempoController,
+                  etiqueta: 'Tiempo en minutos',
+                ),
+              ),
+              _Campo(
+                child: Input(
+                  controlador: estadoController,
+                  etiqueta: 'Estado',
+                  soloLectura: true,
+                ),
               ),
               const SizedBox(height: 12),
               Row(
@@ -274,5 +297,17 @@ class _FormularioPartidoState extends State<FormularioPartido> {
         ),
       ],
     );
+  }
+}
+
+/// One field of the form, with the same space below it as all the others.
+class _Campo extends StatelessWidget {
+  const _Campo({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(padding: const EdgeInsets.only(bottom: 16), child: child);
   }
 }

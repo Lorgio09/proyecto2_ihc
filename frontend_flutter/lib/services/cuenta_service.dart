@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
 import '../consts/api_url.dart';
 import 'auth_service.dart';
+import 'descarga.dart';
 
 /// The deletion was stopped by UniSport's rule; each block says why and what
 /// to do.
@@ -70,26 +70,10 @@ class CuentaService {
     await storage.delete();
   }
 
-  /// Saves [contenido] in the device's Downloads folder and returns the path.
-  Future<String> guardarEnDescargas(String nombre, String contenido) async {
-    final carpeta = _carpetaDescargas();
-    await carpeta.create(recursive: true);
-    final archivo = File('${carpeta.path}${Platform.pathSeparator}$nombre');
-    await archivo.writeAsString(contenido);
-    return archivo.path;
-  }
-
-  Directory _carpetaDescargas() {
-    // Android 11+ lets an app create its own files in the shared Downloads
-    // folder without asking for any permission.
-    if (Platform.isAndroid) return Directory('/storage/emulated/0/Download');
-    final inicio =
-        Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'];
-    if (inicio != null) {
-      return Directory('$inicio${Platform.pathSeparator}Downloads');
-    }
-    return Directory.systemTemp;
-  }
+  /// Saves [contenido] in the device's Downloads folder (or as a browser
+  /// download on the web) and returns where it went.
+  Future<String> guardarEnDescargas(String nombre, String contenido) =>
+      guardarArchivo(nombre, contenido);
 
   /// Analytics, same endpoint as the rest of the app. Never breaks anything.
   Future<void> registrarEvento(

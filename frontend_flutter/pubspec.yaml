@@ -38,6 +38,8 @@ dependencies:
   # paquete para hacer peticiones http al backend
   http: ^1.2.2
   flutter_secure_storage: ^11.2.0
+  # descarga de "Mis datos" en la versión web
+  web: ^1.1.1
 
 dev_dependencies:
   flutter_test:

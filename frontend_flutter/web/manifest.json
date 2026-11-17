@@ -1,11 +1,11 @@
 {
-    "name": "frontend_flutter",
-    "short_name": "frontend_flutter",
+    "name": "UniSport",
+    "short_name": "UniSport",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FAF8F6",
+    "theme_color": "#C04A18",
+    "description": "Arma tu partido y completa tu equipo.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

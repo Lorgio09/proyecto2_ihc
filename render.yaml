@@ -1,4 +1,4 @@
-# Render Blueprint: the UniSport API and its PostgreSQL database.
+# Render Blueprint: the UniSport API. Its PostgreSQL database lives on Neon.
 # Render reads this file when the fork is connected (New > Blueprint).
 # The web app (Flutter) is published separately to GitHub Pages; see
 # .github/workflows/web.yml.
@@ -17,10 +17,10 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.6
+      # PostgreSQL on Neon (free, does not expire): its connection string
+      # (direct, not pooled) is pasted by hand in Render, never committed.
       - key: DATABASE_URL
-        fromDatabase:
-          name: unisport-db
-          property: connectionString
+        sync: false
       - key: SECRET_KEY
         generateValue: true
       # Google Analytics 4 (Tarea 9). Filled in by hand in Render, never
@@ -29,10 +29,3 @@ services:
         sync: false
       - key: GA_API_SECRET
         sync: false
-
-databases:
-  - name: unisport-db
-    plan: free
-    region: oregon
-    databaseName: unisport
-    user: unisport

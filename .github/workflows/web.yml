@@ -1,0 +1,68 @@
+# Builds the Flutter web app and publishes it to GitHub Pages.
+# The API address comes from the repository variable API_BASE_URL
+# (Settings > Secrets and variables > Actions > Variables), for example
+# https://unisport-api.onrender.com
+name: App web en GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend_flutter/**"
+      - ".github/workflows/web.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend_flutter
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Revisar que exista la dirección de la API
+        env:
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
+        run: |
+          if [ -z "$API_BASE_URL" ]; then
+            echo "Falta la variable API_BASE_URL en Settings > Secrets and variables > Actions > Variables"
+            exit 1
+          fi
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.1
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: Compilar la app web
+        run: >
+          flutter build web --release
+          --base-href "/${{ github.event.repository.name }}/"
+          --dart-define=API_BASE_URL=${{ vars.API_BASE_URL }}
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend_flutter/build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

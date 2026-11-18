@@ -68,13 +68,14 @@ jobs:
         run: |
           git remote add upstream https://github.com/alvaroSG34/proyecto2_ihc.git
           git fetch --quiet upstream main
+          mkdir -p playwright-report/cobertura
           sed 's#^SF:#SF:frontend_flutter/#' coverage/app.lcov > coverage/app-repo.lcov
           diff-cover coverage/backend.xml --compare-branch=upstream/main \
             --include "backend/app/**" --fail-under=100 \
-            --html-report coverage/diff-cover-backend.html
+            --html-report playwright-report/cobertura/backend.html
           diff-cover coverage/app-repo.lcov --compare-branch=upstream/main \
             --include "frontend_flutter/lib/**" --fail-under=100 \
-            --html-report coverage/diff-cover-app.html
+            --html-report playwright-report/cobertura/app.html
 
       # ---- E2E tests ------------------------------------------------------
       - name: Preparar la base de datos y la API para las E2E
@@ -101,11 +102,12 @@ jobs:
           dbus-run-session -- bash -c '
             echo -n "ci" | gnome-keyring-daemon --unlock --components=secrets > /dev/null
             fallidas=""
+            mkdir -p ../playwright-report/e2e
             for prueba in integration_test/*_test.dart; do
               echo "::group::$prueba"
               (cd ../backend && python seed.py --reset > /dev/null)
               xvfb-run -a flutter test "$prueba" -d linux \
-                --dart-define=API_BASE_URL=http://127.0.0.1:8000 || fallidas="$fallidas $prueba"
+                --dart-define=API_BASE_URL=http://127.0.0.1:8000                 --file-reporter "json:../playwright-report/e2e/$(basename "$prueba" .dart).json"                 || fallidas="$fallidas $prueba"
               echo "::endgroup::"
             done
             if [ -n "$fallidas" ]; then
@@ -123,4 +125,6 @@ jobs:
         if: always()
         with:
           name: reportes
-          path: coverage
+          path: |
+            playwright-report
+            coverage

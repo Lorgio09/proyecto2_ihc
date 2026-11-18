@@ -4,8 +4,9 @@ import 'button_theme.dart';
 import 'input_theme.dart';
 import 'tokens.dart';
 
-// The brand palette lives in tokens.dart only: every screen takes its colors
-// from this scheme, so no Flutter default (purple) shows up anywhere.
+// La paleta de la marca vive solo en tokens.dart: cada pantalla toma sus
+// colores de este esquema, así no aparece en ningún lado un color por defecto
+// de Flutter (morado).
 final _esquema =
     ColorScheme.fromSeed(
       seedColor: UniColores.primario,
@@ -34,7 +35,7 @@ final temaPrincipal = ThemeData(
   ),
   textTheme: TextTheme(
     headlineMedium: UniTexto.titular.copyWith(color: UniColores.texto),
-    // Also the AppBar and dialog titles.
+    // También los títulos de la AppBar y de los diálogos.
     titleLarge: UniTexto.titulo.copyWith(color: UniColores.texto),
     titleMedium: UniTexto.subtitulo.copyWith(color: UniColores.texto),
     bodyLarge: UniTexto.cuerpo.copyWith(color: UniColores.texto),
@@ -50,13 +51,23 @@ final temaPrincipal = ThemeData(
       side: const BorderSide(color: UniColores.borde),
     ),
   ),
+  // Diálogos blancos con el título texto/titulo, como en Figma. Sin esto,
+  // Material 3 los tiñe de rosa a partir del color semilla, que no es un token.
+  dialogTheme: DialogThemeData(
+    backgroundColor: UniColores.superficie,
+    surfaceTintColor: Colors.transparent,
+    titleTextStyle: UniTexto.titulo.copyWith(color: UniColores.texto),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(UniRadio.tarjeta),
+    ),
+  ),
   dividerTheme: const DividerThemeData(color: UniColores.borde),
   floatingActionButtonTheme: const FloatingActionButtonThemeData(
     backgroundColor: UniColores.primario,
     foregroundColor: UniColores.sobreColor,
     elevation: 2,
   ),
-  // Dark notice with white text: the old orange one reached only 2.6:1.
+  // Aviso oscuro con texto blanco: el naranja anterior llegaba solo a 2.6:1.
   snackBarTheme: SnackBarThemeData(
     backgroundColor: UniColores.aviso,
     contentTextStyle: UniTexto.cuerpoChico.copyWith(
@@ -70,4 +81,5 @@ final temaPrincipal = ThemeData(
   ),
   inputDecorationTheme: inputTheme,
   elevatedButtonTheme: elevatedButtonTheme,
+  filledButtonTheme: filledButtonTheme,
 );

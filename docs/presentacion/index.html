@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UniSport · Presentación final</title>
+<style>
+/* UniSport deck: one 1600×900 stage scaled to the screen; slides change
+   with the arrow keys or a click. Works offline: system fonts, no libraries. */
+:root {
+  --fondo: #14161d;
+  --fondo-2: #1c1f29;
+  --superficie: #242836;
+  --linea: #343949;
+  --texto: #eceae7;
+  --suave: #aab3c3;
+  --coral: #f0956c;
+  --coral-fuerte: #c04a18;
+  --verde: #8fd3a5;
+  --chat-yo: #2a5f4a;
+  --chat-otro: #2a2f3d;
+  --fuente: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #0b0c10; overflow: hidden; }
+body { font-family: var(--fuente); color: var(--texto); }
+
+#escenario {
+  position: absolute; left: 50%; top: 50%;
+  width: 1600px; height: 900px;
+  transform-origin: center center;
+  background: var(--fondo);
+  overflow: hidden;
+  border-radius: 6px;
+}
+/* Pitch lines in the background: the subject's own geometry. */
+#escenario::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 159px, rgba(240,149,108,.04) 160px, rgba(240,149,108,.04) 162px, transparent 163px),
+    linear-gradient(90deg, transparent calc(50% - 1px), rgba(240,149,108,.04) calc(50% - 1px), rgba(240,149,108,.04) calc(50% + 1px), transparent calc(50% + 1px));
+}
+
+.diapo {
+  position: absolute; inset: 0;
+  padding: 90px 110px;
+  display: flex; flex-direction: column; justify-content: center;
+  opacity: 0; visibility: hidden;
+  transition: opacity .5s ease, visibility .5s;
+}
+.diapo.activa { opacity: 1; visibility: visible; }
+
+.etiqueta { font-size: 22px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--coral); margin: 0 0 22px; }
+h1, h2 { margin: 0; line-height: 1.04; letter-spacing: -.02em; }
+h2 { font-size: 84px; font-weight: 800; }
+.grande { font-size: 40px; line-height: 1.3; color: var(--suave); max-width: 1100px; }
+.acento { color: var(--coral); }
+
+/* Entrances: each child with .entra appears in order when the slide is active. */
+.entra { opacity: 0; transform: translateY(26px); transition: opacity .6s ease, transform .6s cubic-bezier(.2,.8,.2,1); }
+.activa .entra { opacity: 1; transform: none; }
+.activa .entra.d1 { transition-delay: .15s; } .activa .entra.d2 { transition-delay: .45s; }
+.activa .entra.d3 { transition-delay: .75s; } .activa .entra.d4 { transition-delay: 1.05s; }
+.activa .entra.d5 { transition-delay: 1.35s; } .activa .entra.d6 { transition-delay: 1.65s; }
+
+/* ---------- Logo ---------- */
+.logo { width: 180px; height: 180px; border-radius: 50px; display: grid; place-items: center;
+  background: linear-gradient(135deg, #ef8354, var(--coral-fuerte));
+  box-shadow: 0 30px 80px rgba(192,74,24,.45); }
+.logo svg { width: 62%; height: 62%; }
+.marca { font-size: 120px; font-weight: 800; letter-spacing: -.04em; }
+.marca span { color: var(--coral); }
+
+/* ---------- 1 · Portada ---------- */
+#portada { align-items: center; text-align: center; gap: 26px; }
+#portada .logo { animation: rebote 2.6s ease-in-out infinite; }
+@keyframes rebote { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-16px) rotate(-4deg); } }
+#portada .eslogan { font-size: 44px; color: var(--suave); }
+#portada .equipo { font-size: 24px; color: var(--suave); margin-top: 30px; letter-spacing: .04em; }
+
+/* ---------- 2 · Problema: the group chat ---------- */
+#problema { flex-direction: row; align-items: center; gap: 90px; }
+.telefono-chat { width: 470px; height: 760px; flex: none; background: #0f1116; border-radius: 48px;
+  border: 10px solid #2b2f3b; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 40px 90px rgba(0,0,0,.5); }
+.chat-cabecera { background: #1f2c27; padding: 22px 26px; font-size: 22px; font-weight: 700; display: flex; gap: 14px; align-items: center; }
+.chat-cabecera small { display: block; font-weight: 400; font-size: 16px; color: var(--suave); }
+.avatar { width: 46px; height: 46px; border-radius: 50%; background: #3b6b58; display: grid; place-items: center; font-size: 24px; }
+.mensajes { flex: 1; padding: 22px 18px; display: flex; flex-direction: column; gap: 12px; justify-content: flex-end; overflow: hidden; }
+.msj { max-width: 82%; padding: 10px 16px 12px; border-radius: 18px; font-size: 21px; line-height: 1.3;
+  background: var(--chat-otro); opacity: 0; transform: scale(.85) translateY(14px); transform-origin: left bottom;
+  transition: opacity .3s ease, transform .35s cubic-bezier(.2,1.4,.4,1); }
+.msj b { display: block; font-size: 15px; color: var(--coral); margin-bottom: 2px; }
+.msj.yo { align-self: flex-end; background: var(--chat-yo); transform-origin: right bottom; }
+.msj.visible { opacity: 1; transform: none; }
+.ejemplo { font-size: 15px; color: var(--suave); text-align: center; padding: 10px; border-top: 1px solid #222631; }
+.problema-texto { display: flex; flex-direction: column; gap: 34px; }
+.contador { font-size: 30px; color: var(--suave); }
+.contador strong { color: var(--coral); font-size: 52px; font-variant-numeric: tabular-nums; }
+.remate { font-size: 76px; font-weight: 800; line-height: 1.05; opacity: 0; transform: translateY(20px); transition: all .7s ease; }
+.remate.visible { opacity: 1; transform: none; }
+
+/* ---------- 3 · Usuario ---------- */
+.dos { display: grid; grid-template-columns: 1fr auto 1fr; gap: 40px; align-items: center; margin-top: 56px; }
+.tarjeta { background: var(--superficie); border: 1px solid var(--linea); border-radius: 28px; padding: 44px; }
+.tarjeta .icono { font-size: 64px; }
+.tarjeta h3 { font-size: 44px; margin: 18px 0 10px; }
+.tarjeta p { font-size: 28px; color: var(--suave); margin: 0; line-height: 1.35; }
+.y { font-size: 72px; font-weight: 800; color: var(--coral); }
+.misma { margin-top: 50px; font-size: 36px; text-align: center; }
+
+/* ---------- 4 · Oportunidad ---------- */
+.versus { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: 50px; border-radius: 32px; overflow: hidden; border: 1px solid var(--linea); }
+.versus > div { padding: 54px; }
+.versus .ellos { background: var(--fondo-2); }
+.versus .nosotros { background: linear-gradient(135deg, rgba(240,149,108,.18), rgba(192,74,24,.10)); }
+.versus h3 { font-size: 30px; letter-spacing: .12em; text-transform: uppercase; margin: 0 0 24px; color: var(--suave); }
+.versus .nosotros h3 { color: var(--coral); }
+.versus ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 18px; font-size: 36px; }
+.versus li::before { content: "✓"; color: var(--verde); font-weight: 800; margin-right: 16px; }
+.versus .ellos li.no::before { content: "✕"; color: #e8838b; }
+.versus .ellos li.no { color: var(--suave); }
+
+/* ---------- 5 · Solución: video in a phone + the pains it solves ---------- */
+#solucion { flex-direction: row; align-items: center; gap: 70px; padding: 50px 90px; }
+.telefono { width: 380px; height: 790px; flex: none; border-radius: 52px; border: 12px solid #2b2f3b; background: #000; overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0,0,0,.6), 0 0 0 2px #3a3f4e; position: relative; }
+.telefono video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.barra-video { position: absolute; left: 0; right: 0; bottom: 0; height: 6px; background: rgba(255,255,255,.12); }
+.barra-video span { display: block; height: 100%; width: 0; background: var(--coral); }
+.dolores { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+#solucion .etiqueta { margin-bottom: 4px; }
+.dolores h2 { font-size: 50px; margin-bottom: 6px; }
+.dolor { display: grid; grid-template-columns: 1fr; padding: 14px 26px; border-radius: 22px; border: 1px solid var(--linea);
+  background: var(--fondo-2); opacity: .38; transform: scale(.98); transition: all .45s ease; }
+.dolor .queja { font-size: 22px; color: var(--suave); font-style: italic; }
+.dolor .resuelve { font-size: 28px; font-weight: 700; margin-top: 2px; }
+.dolor.ahora { opacity: 1; transform: scale(1.02); border-color: var(--coral); background: linear-gradient(120deg, rgba(240,149,108,.16), var(--fondo-2) 70%);
+  box-shadow: 0 18px 50px rgba(192,74,24,.25); }
+.dolor.ahora .queja { color: var(--coral); }
+
+/* ---------- 6 · Valor ---------- */
+.tres { display: grid; grid-template-columns: repeat(3, 1fr); gap: 34px; margin-top: 56px; }
+.tres .tarjeta { padding: 40px; }
+.tres h3 { font-size: 36px; margin: 16px 0 18px; }
+.tres ul { margin: 0; padding-left: 26px; display: grid; gap: 12px; font-size: 27px; color: var(--suave); line-height: 1.3; }
+
+/* ---------- 7 · Cierre ---------- */
+#cierre { flex-direction: row; align-items: center; justify-content: space-between; gap: 60px; }
+#cierre .izq { display: flex; flex-direction: column; gap: 26px; }
+#cierre .eslogan { font-size: 64px; font-weight: 800; line-height: 1.08; }
+#cierre .url { font-size: 30px; color: var(--coral); }
+.qr { background: #fff; padding: 28px; border-radius: 28px; width: 420px; height: 420px; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+.qr svg { width: 100%; height: 100%; display: block; }
+.gracias { font-size: 30px; color: var(--suave); }
+
+/* ---------- Controls ---------- */
+#progreso { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--coral); transition: width .5s ease; }
+#numero { position: absolute; right: 34px; bottom: 22px; font-size: 18px; color: var(--suave); font-variant-numeric: tabular-nums; }
+#reloj { position: absolute; left: 34px; bottom: 18px; font-size: 22px; font-weight: 700; color: var(--coral); font-variant-numeric: tabular-nums; display: none; }
+#reloj.visible { display: block; }
+#ayuda { position: absolute; right: 34px; top: 24px; font-size: 16px; color: var(--suave); opacity: .7; transition: opacity 1s; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-duration: .01s !important; transition-delay: 0s !important; }
+}
+</style>
+</head>
+<body>
+<div id="escenario">
+
+  <!-- 1 · Portada -->
+  <section class="diapo activa" id="portada" aria-label="Portada">
+    <div class="logo entra d1" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path fill="#fff" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 3.3l1.35-.95c1.82.56 3.37 1.76 4.38 3.34l-.39 1.34-1.35.46L13 6.7V5.3zm-3.35-.95L11 5.3v1.4L7.01 9.49l-1.35-.46-.39-1.34c1.01-1.57 2.56-2.77 4.38-3.34zM7.08 17.11l-1.14.1C4.73 15.81 4 13.99 4 12c0-.12.01-.23.02-.35l1-.73 1.38.48 1.46 4.34-.78 1.37zm7.42 2.48c-.79.26-1.63.41-2.5.41s-1.71-.15-2.5-.41l-.69-1.49.64-1.1h5.11l.64 1.11-.7 1.48zM14.27 15H9.73l-1.35-4.02L12 8.44l3.63 2.54L14.27 15zm3.79 2.21l-1.14-.1-.79-1.37 1.46-4.34 1.39-.47 1 .73c.01.11.02.22.02.34 0 1.99-.73 3.81-1.94 5.21z"/></svg>
+    </div>
+    <h1 class="marca entra d2">Uni<span>Sport</span></h1>
+    <div class="eslogan entra d3">Arma tu partido, completa tu equipo.</div>
+    <div class="equipo entra d4">Diego Andrés Astete Paz · Lorgio Choque Severiche · IHC 2026-2</div>
+  </section>
+
+  <!-- 2 · Problema -->
+  <section class="diapo" id="problema" aria-label="Problema">
+    <div class="telefono-chat entra d1">
+      <div class="chat-cabecera"><div class="avatar">⚽</div><div>Fútbol de la facu<small>12 participantes</small></div></div>
+      <div class="mensajes" id="mensajes">
+        <div class="msj"><b>Tomás</b>¿Quién juega el jueves? ⚽</div>
+        <div class="msj yo">yo!!</div>
+        <div class="msj"><b>Nico</b>depende la hora</div>
+        <div class="msj"><b>Tomás</b>8 pm en la cancha de la facu</div>
+        <div class="msj"><b>Sofi</b>¿cuántos somos al final?</div>
+        <div class="msj"><b>Nico</b>me bajo, perdón 😬</div>
+        <div class="msj"><b>Tomás</b>¿entonces somos 7??</div>
+        <div class="msj"><b>Sofi</b>¿alguien consigue 3 más?</div>
+        <div class="msj yo">...</div>
+      </div>
+      <div class="ejemplo">Conversación de ejemplo</div>
+    </div>
+    <div class="problema-texto">
+      <p class="etiqueta entra d1">El problema</p>
+      <div class="contador entra d2"><strong id="cuenta">0</strong> mensajes y todavía nadie sabe cuántos son.</div>
+      <div class="remate" id="remate">Ganas de jugar sobran.<br><span class="acento">Lo que falta es orden.</span></div>
+    </div>
+  </section>
+
+  <!-- 3 · Usuario -->
+  <section class="diapo" id="usuario" aria-label="Usuario">
+    <p class="etiqueta entra d1">Para quién</p>
+    <h2 class="entra d1">Estudiantes que juegan cada semana</h2>
+    <div class="dos">
+      <div class="tarjeta entra d2"><div class="icono">📋</div><h3>Organizo un partido</h3><p>Necesito completar el equipo y saber quién viene.</p></div>
+      <div class="y entra d3">+</div>
+      <div class="tarjeta entra d4"><div class="icono">🔎</div><h3>Busco dónde jugar</h3><p>Quiero un partido con cupo y sumarme rápido.</p></div>
+    </div>
+    <p class="misma entra d5">La <span class="acento">misma persona</span> hace las dos cosas. Sin roles fijos.</p>
+  </section>
+
+  <!-- 4 · Oportunidad -->
+  <section class="diapo" id="oportunidad" aria-label="Oportunidad">
+    <p class="etiqueta entra d1">La oportunidad</p>
+    <h2 class="entra d1">Las apps resuelven la cancha.<br><span class="acento">Nadie resuelve a las personas.</span></h2>
+    <div class="versus entra d3">
+      <div class="ellos"><h3>Apps de reservas</h3>
+        <ul><li>Reservar la cancha</li><li class="no">Quién viene</li><li class="no">Quién reemplaza al que se baja</li><li class="no">Cuál fue el resultado</li></ul></div>
+      <div class="nosotros"><h3>UniSport</h3>
+        <ul><li>Quién viene, en tiempo real</li><li>Suplentes que suben solos</li><li>Cambios avisados a todos</li><li>Un resultado que todos aceptan</li></ul></div>
+    </div>
+  </section>
+
+  <!-- 5 · Solución -->
+  <section class="diapo" id="solucion" aria-label="Solución">
+    <div class="telefono entra d1">
+      <video id="video" src="unisport-demo.mp4" muted playsinline preload="auto"></video>
+      <div class="barra-video"><span id="barra-video"></span></div>
+    </div>
+    <div class="dolores">
+      <p class="etiqueta entra d1">La solución</p>
+      <h2 class="entra d1">UniSport resuelve cada problema</h2>
+      <div class="dolor entra d2" data-desde="0" data-hasta="42"><div class="queja">"¿Quién juega?"</div><div class="resuelve">Creas el partido y cualquiera se suma con un toque</div></div>
+      <div class="dolor entra d2" data-desde="42" data-hasta="89"><div class="queja">"Alguien se baja a última hora"</div><div class="resuelve">El suplente sube solo y las bajas tienen reglas claras</div></div>
+      <div class="dolor entra d3" data-desde="89" data-hasta="145"><div class="queja">"Cambió el plan"</div><div class="resuelve">Se reprograma con motivo y cada uno confirma si sigue</div></div>
+      <div class="dolor entra d3" data-desde="145" data-hasta="173"><div class="queja">"¿Y mis datos?"</div><div class="resuelve">Los ves, los descargas y te vas cuando quieras</div></div>
+      <div class="dolor entra d4" data-desde="173" data-hasta="999"><div class="queja">"Nadie está de acuerdo con el marcador"</div><div class="resuelve">Solo vale cuando lo confirma el capitán rival</div></div>
+    </div>
+  </section>
+
+  <!-- 6 · Valor -->
+  <section class="diapo" id="valor" aria-label="Valor">
+    <p class="etiqueta entra d1">El valor</p>
+    <h2 class="entra d1">Partidos que <span class="acento">sí</span> se juegan</h2>
+    <div class="tres">
+      <div class="tarjeta entra d2"><div class="icono">🏃</div><h3>Para el jugador</h3>
+        <ul><li>Encuentra partido en segundos</li><li>Sabe si es titular o suplente</li><li>Se baja sin quedar mal</li></ul></div>
+      <div class="tarjeta entra d3"><div class="icono">📣</div><h3>Para el organizador</h3>
+        <ul><li>Equipo completo sin perseguir a nadie</li><li>Cambios avisados a todos</li><li>Resultado sin discusiones</li></ul></div>
+      <div class="tarjeta entra d4"><div class="icono">🛡️</div><h3>Una app confiable</h3>
+        <ul><li>Fácil de usar, también con lector de pantalla</li><li>Sin trucos ni presiones</li><li>Tus datos son tuyos</li></ul></div>
+    </div>
+  </section>
+
+  <!-- 7 · Cierre -->
+  <section class="diapo" id="cierre" aria-label="Cierre">
+    <div class="izq">
+      <div class="logo entra d1" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path fill="#fff" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 3.3l1.35-.95c1.82.56 3.37 1.76 4.38 3.34l-.39 1.34-1.35.46L13 6.7V5.3zm-3.35-.95L11 5.3v1.4L7.01 9.49l-1.35-.46-.39-1.34c1.01-1.57 2.56-2.77 4.38-3.34zM7.08 17.11l-1.14.1C4.73 15.81 4 13.99 4 12c0-.12.01-.23.02-.35l1-.73 1.38.48 1.46 4.34-.78 1.37zm7.42 2.48c-.79.26-1.63.41-2.5.41s-1.71-.15-2.5-.41l-.69-1.49.64-1.1h5.11l.64 1.11-.7 1.48zM14.27 15H9.73l-1.35-4.02L12 8.44l3.63 2.54L14.27 15zm3.79 2.21l-1.14-.1-.79-1.37 1.46-4.34 1.39-.47 1 .73c.01.11.02.22.02.34 0 1.99-.73 3.81-1.94 5.21z"/></svg>
+      </div>
+      <div class="eslogan entra d2">Arma tu partido,<br><span class="acento">completa tu equipo.</span></div>
+      <div class="url entra d3">lorgio09.github.io/proyecto2_ihc</div>
+      <div class="gracias entra d4">Pruébenla con las cuentas de prueba que les enviamos. ¡Gracias!</div>
+    </div>
+    <div class="qr entra d3" role="img" aria-label="Código QR a la app">
+      <svg viewBox="0 0 29 29" shape-rendering="crispEdges"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM8 0h1v1h-1zM10 0h1v1h-1zM11 0h1v1h-1zM12 0h1v1h-1zM13 0h1v1h-1zM14 0h1v1h-1zM15 0h1v1h-1zM16 0h1v1h-1zM18 0h1v1h-1zM19 0h1v1h-1zM20 0h1v1h-1zM22 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM25 0h1v1h-1zM26 0h1v1h-1zM27 0h1v1h-1zM28 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h1v1h-1zM10 1h1v1h-1zM12 1h1v1h-1zM13 1h1v1h-1zM22 1h1v1h-1zM28 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM9 2h1v1h-1zM11 2h1v1h-1zM13 2h1v1h-1zM14 2h1v1h-1zM15 2h1v1h-1zM16 2h1v1h-1zM19 2h1v1h-1zM20 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM25 2h1v1h-1zM26 2h1v1h-1zM28 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM11 3h1v1h-1zM12 3h1v1h-1zM13 3h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM16 3h1v1h-1zM17 3h1v1h-1zM18 3h1v1h-1zM20 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM25 3h1v1h-1zM26 3h1v1h-1zM28 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM10 4h1v1h-1zM11 4h1v1h-1zM13 4h1v1h-1zM14 4h1v1h-1zM15 4h1v1h-1zM19 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM25 4h1v1h-1zM26 4h1v1h-1zM28 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM10 5h1v1h-1zM11 5h1v1h-1zM13 5h1v1h-1zM17 5h1v1h-1zM18 5h1v1h-1zM19 5h1v1h-1zM22 5h1v1h-1zM28 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM25 6h1v1h-1zM26 6h1v1h-1zM27 6h1v1h-1zM28 6h1v1h-1zM8 7h1v1h-1zM9 7h1v1h-1zM10 7h1v1h-1zM12 7h1v1h-1zM15 7h1v1h-1zM16 7h1v1h-1zM17 7h1v1h-1zM20 7h1v1h-1zM0 8h1v1h-1zM2 8h1v1h-1zM3 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM11 8h1v1h-1zM14 8h1v1h-1zM15 8h1v1h-1zM16 8h1v1h-1zM17 8h1v1h-1zM18 8h1v1h-1zM22 8h1v1h-1zM25 8h1v1h-1zM27 8h1v1h-1zM28 8h1v1h-1zM0 9h1v1h-1zM1 9h1v1h-1zM2 9h1v1h-1zM3 9h1v1h-1zM4 9h1v1h-1zM5 9h1v1h-1zM7 9h1v1h-1zM11 9h1v1h-1zM13 9h1v1h-1zM16 9h1v1h-1zM17 9h1v1h-1zM18 9h1v1h-1zM19 9h1v1h-1zM20 9h1v1h-1zM21 9h1v1h-1zM22 9h1v1h-1zM23 9h1v1h-1zM24 9h1v1h-1zM28 9h1v1h-1zM1 10h1v1h-1zM2 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM9 10h1v1h-1zM11 10h1v1h-1zM14 10h1v1h-1zM17 10h1v1h-1zM20 10h1v1h-1zM22 10h1v1h-1zM24 10h1v1h-1zM26 10h1v1h-1zM27 10h1v1h-1zM4 11h1v1h-1zM7 11h1v1h-1zM8 11h1v1h-1zM9 11h1v1h-1zM10 11h1v1h-1zM11 11h1v1h-1zM13 11h1v1h-1zM18 11h1v1h-1zM19 11h1v1h-1zM20 11h1v1h-1zM21 11h1v1h-1zM22 11h1v1h-1zM23 11h1v1h-1zM28 11h1v1h-1zM0 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM7 12h1v1h-1zM9 12h1v1h-1zM13 12h1v1h-1zM14 12h1v1h-1zM15 12h1v1h-1zM16 12h1v1h-1zM17 12h1v1h-1zM20 12h1v1h-1zM25 12h1v1h-1zM26 12h1v1h-1zM0 13h1v1h-1zM1 13h1v1h-1zM2 13h1v1h-1zM3 13h1v1h-1zM4 13h1v1h-1zM8 13h1v1h-1zM9 13h1v1h-1zM14 13h1v1h-1zM15 13h1v1h-1zM16 13h1v1h-1zM19 13h1v1h-1zM22 13h1v1h-1zM26 13h1v1h-1zM27 13h1v1h-1zM28 13h1v1h-1zM1 14h1v1h-1zM2 14h1v1h-1zM4 14h1v1h-1zM6 14h1v1h-1zM8 14h1v1h-1zM9 14h1v1h-1zM10 14h1v1h-1zM11 14h1v1h-1zM17 14h1v1h-1zM18 14h1v1h-1zM19 14h1v1h-1zM20 14h1v1h-1zM21 14h1v1h-1zM24 14h1v1h-1zM26 14h1v1h-1zM27 14h1v1h-1zM28 14h1v1h-1zM1 15h1v1h-1zM3 15h1v1h-1zM5 15h1v1h-1zM8 15h1v1h-1zM9 15h1v1h-1zM11 15h1v1h-1zM12 15h1v1h-1zM14 15h1v1h-1zM22 15h1v1h-1zM24 15h1v1h-1zM27 15h1v1h-1zM0 16h1v1h-1zM1 16h1v1h-1zM3 16h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM11 16h1v1h-1zM13 16h1v1h-1zM14 16h1v1h-1zM19 16h1v1h-1zM20 16h1v1h-1zM24 16h1v1h-1zM25 16h1v1h-1zM27 16h1v1h-1zM1 17h1v1h-1zM2 17h1v1h-1zM4 17h1v1h-1zM7 17h1v1h-1zM11 17h1v1h-1zM15 17h1v1h-1zM17 17h1v1h-1zM20 17h1v1h-1zM21 17h1v1h-1zM23 17h1v1h-1zM25 17h1v1h-1zM26 17h1v1h-1zM27 17h1v1h-1zM0 18h1v1h-1zM3 18h1v1h-1zM4 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM10 18h1v1h-1zM11 18h1v1h-1zM13 18h1v1h-1zM14 18h1v1h-1zM15 18h1v1h-1zM16 18h1v1h-1zM17 18h1v1h-1zM20 18h1v1h-1zM21 18h1v1h-1zM23 18h1v1h-1zM26 18h1v1h-1zM2 19h1v1h-1zM4 19h1v1h-1zM5 19h1v1h-1zM7 19h1v1h-1zM9 19h1v1h-1zM10 19h1v1h-1zM12 19h1v1h-1zM16 19h1v1h-1zM17 19h1v1h-1zM18 19h1v1h-1zM19 19h1v1h-1zM24 19h1v1h-1zM26 19h1v1h-1zM1 20h1v1h-1zM3 20h1v1h-1zM4 20h1v1h-1zM5 20h1v1h-1zM6 20h1v1h-1zM8 20h1v1h-1zM12 20h1v1h-1zM13 20h1v1h-1zM16 20h1v1h-1zM17 20h1v1h-1zM18 20h1v1h-1zM19 20h1v1h-1zM20 20h1v1h-1zM21 20h1v1h-1zM22 20h1v1h-1zM23 20h1v1h-1zM24 20h1v1h-1zM25 20h1v1h-1zM26 20h1v1h-1zM8 21h1v1h-1zM9 21h1v1h-1zM10 21h1v1h-1zM13 21h1v1h-1zM16 21h1v1h-1zM20 21h1v1h-1zM24 21h1v1h-1zM25 21h1v1h-1zM26 21h1v1h-1zM27 21h1v1h-1zM28 21h1v1h-1zM0 22h1v1h-1zM1 22h1v1h-1zM2 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM5 22h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM13 22h1v1h-1zM16 22h1v1h-1zM17 22h1v1h-1zM19 22h1v1h-1zM20 22h1v1h-1zM22 22h1v1h-1zM24 22h1v1h-1zM25 22h1v1h-1zM27 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM8 23h1v1h-1zM10 23h1v1h-1zM12 23h1v1h-1zM16 23h1v1h-1zM20 23h1v1h-1zM24 23h1v1h-1zM25 23h1v1h-1zM27 23h1v1h-1zM28 23h1v1h-1zM0 24h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM9 24h1v1h-1zM10 24h1v1h-1zM12 24h1v1h-1zM14 24h1v1h-1zM16 24h1v1h-1zM17 24h1v1h-1zM20 24h1v1h-1zM21 24h1v1h-1zM22 24h1v1h-1zM23 24h1v1h-1zM24 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM28 24h1v1h-1zM0 25h1v1h-1zM2 25h1v1h-1zM3 25h1v1h-1zM4 25h1v1h-1zM6 25h1v1h-1zM8 25h1v1h-1zM10 25h1v1h-1zM11 25h1v1h-1zM12 25h1v1h-1zM14 25h1v1h-1zM15 25h1v1h-1zM16 25h1v1h-1zM17 25h1v1h-1zM18 25h1v1h-1zM23 25h1v1h-1zM24 25h1v1h-1zM25 25h1v1h-1zM28 25h1v1h-1zM0 26h1v1h-1zM2 26h1v1h-1zM3 26h1v1h-1zM4 26h1v1h-1zM6 26h1v1h-1zM8 26h1v1h-1zM9 26h1v1h-1zM12 26h1v1h-1zM13 26h1v1h-1zM14 26h1v1h-1zM17 26h1v1h-1zM20 26h1v1h-1zM21 26h1v1h-1zM23 26h1v1h-1zM26 26h1v1h-1zM28 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM9 27h1v1h-1zM10 27h1v1h-1zM16 27h1v1h-1zM18 27h1v1h-1zM20 27h1v1h-1zM21 27h1v1h-1zM22 27h1v1h-1zM24 27h1v1h-1zM25 27h1v1h-1zM27 27h1v1h-1zM0 28h1v1h-1zM1 28h1v1h-1zM2 28h1v1h-1zM3 28h1v1h-1zM4 28h1v1h-1zM5 28h1v1h-1zM6 28h1v1h-1zM8 28h1v1h-1zM9 28h1v1h-1zM10 28h1v1h-1zM14 28h1v1h-1zM15 28h1v1h-1zM18 28h1v1h-1zM20 28h1v1h-1zM21 28h1v1h-1zM24 28h1v1h-1zM27 28h1v1h-1z" fill="#14161d"/></svg>
+    </div>
+  </section>
+
+  <div id="progreso"></div>
+  <div id="reloj">00:00</div>
+  <div id="numero"></div>
+  <div id="ayuda">→ avanzar · ← volver · F pantalla completa · T cronómetro</div>
+</div>
+
+<script>
+(() => {
+  const escenario = document.getElementById('escenario');
+  const diapos = [...document.querySelectorAll('.diapo')];
+  const progreso = document.getElementById('progreso');
+  const numero = document.getElementById('numero');
+  const video = document.getElementById('video');
+  const barraVideo = document.getElementById('barra-video');
+  let actual = 0;
+  let temporizadores = [];
+
+  function ajustar() {
+    const escala = Math.min(innerWidth / 1600, innerHeight / 900);
+    escenario.style.transform = `translate(-50%, -50%) scale(${escala})`;
+  }
+  addEventListener('resize', ajustar);
+  ajustar();
+
+  function limpiar() { temporizadores.forEach(clearTimeout); temporizadores = []; }
+  const luego = (ms, fn) => temporizadores.push(setTimeout(fn, ms));
+
+  // Slide 2: the chat fills up message by message, then the punchline.
+  function animarChat() {
+    const mensajes = [...document.querySelectorAll('#mensajes .msj')];
+    const cuenta = document.getElementById('cuenta');
+    const remate = document.getElementById('remate');
+    mensajes.forEach(m => m.classList.remove('visible'));
+    remate.classList.remove('visible');
+    cuenta.textContent = '0';
+    mensajes.forEach((m, i) => luego(700 + i * 650, () => {
+      m.classList.add('visible');
+      cuenta.textContent = String((i + 1) * 4 + 7); // the counter runs ahead: it feels like more
+    }));
+    luego(700 + mensajes.length * 650 + 500, () => remate.classList.add('visible'));
+  }
+
+  // Slide 5: the pain being solved lights up while the video shows it.
+  const dolores = [...document.querySelectorAll('.dolor')];
+  video.addEventListener('timeupdate', () => {
+    const t = video.currentTime;
+    dolores.forEach(d => d.classList.toggle('ahora', t >= +d.dataset.desde && t < +d.dataset.hasta));
+    barraVideo.style.width = (video.duration ? t / video.duration * 100 : 0) + '%';
+  });
+
+  function mostrar(n) {
+    actual = Math.max(0, Math.min(diapos.length - 1, n));
+    limpiar();
+    diapos.forEach((d, i) => d.classList.toggle('activa', i === actual));
+    progreso.style.width = ((actual + 1) / diapos.length * 100) + '%';
+    numero.textContent = `${actual + 1} / ${diapos.length}`;
+    const id = diapos[actual].id;
+    if (id === 'problema') animarChat();
+    if (id === 'solucion') { video.currentTime = 0; video.play().catch(() => {}); }
+    else { video.pause(); }
+  }
+
+  addEventListener('keydown', e => {
+    if (['ArrowRight', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); mostrar(actual + 1); }
+    if (['ArrowLeft', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); mostrar(actual - 1); }
+    if (e.key === 'Home') mostrar(0);
+    if (e.key === 'End') mostrar(diapos.length - 1);
+    if (e.key === 'f' || e.key === 'F') {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
+      else document.exitFullscreen?.();
+    }
+    if (e.key === 't' || e.key === 'T') alternarReloj();
+  });
+  // Click: right side forward, left side back. Clicking the video pauses or resumes it.
+  escenario.addEventListener('click', e => {
+    if (e.target === video) { video.paused ? video.play() : video.pause(); return; }
+    const caja = escenario.getBoundingClientRect();
+    mostrar(e.clientX > caja.left + caja.width / 3 ? actual + 1 : actual - 1);
+  });
+
+  // Rehearsal stopwatch (T).
+  const reloj = document.getElementById('reloj');
+  let inicio = null, intervalo = null;
+  function alternarReloj() {
+    if (intervalo) { clearInterval(intervalo); intervalo = null; reloj.classList.remove('visible'); return; }
+    inicio = Date.now(); reloj.classList.add('visible');
+    intervalo = setInterval(() => {
+      const s = Math.floor((Date.now() - inicio) / 1000);
+      reloj.textContent = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+      reloj.style.color = s > 600 ? '#e8838b' : '';
+    }, 500);
+  }
+
+  setTimeout(() => { document.getElementById('ayuda').style.opacity = '0'; }, 6000);
+  // #3 opens the third slide: useful to resume after an interruption.
+  mostrar((parseInt(location.hash.slice(1), 10) || 1) - 1);
+})();
+</script>
+</body>
+</html>

@@ -79,16 +79,23 @@ jobs:
         run: |
           # The session is kept with flutter_secure_storage, which needs an
           # unlocked keyring on Linux. Each file starts from fresh seed data.
+          # Every file runs even if an earlier one fails; the step fails at the
+          # end and lists which ones did.
           dbus-run-session -- bash -c '
             echo -n "ci" | gnome-keyring-daemon --unlock --components=secrets > /dev/null
-            set -e
+            fallidas=""
             for prueba in integration_test/*_test.dart; do
               echo "::group::$prueba"
               (cd ../backend && python seed.py --reset > /dev/null)
               xvfb-run -a flutter test "$prueba" -d linux \
-                --dart-define=API_BASE_URL=http://127.0.0.1:8000
+                --dart-define=API_BASE_URL=http://127.0.0.1:8000 || fallidas="$fallidas $prueba"
               echo "::endgroup::"
             done
+            if [ -n "$fallidas" ]; then
+              echo "::error::E2E que fallaron:$fallidas"
+              exit 1
+            fi
+            echo "Todas las E2E pasaron."
           '
 
       - name: Log de la API (si algo falló)

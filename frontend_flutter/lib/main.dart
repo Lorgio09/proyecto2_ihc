@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'accesibilidad.dart';
 import 'models/usuario.dart';
 import 'services/auth_service.dart';
 import 'theme/app_theme.dart';
@@ -8,6 +9,7 @@ import 'views/autenticacion/login_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  activarSemanticaEnWeb();
   runApp(const MyApp());
 }
 
@@ -20,7 +22,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Inicio',
+      title: 'UniSport',
       theme: temaPrincipal,
       home: SessionGate(authService: authService),
     );

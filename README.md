@@ -21,6 +21,7 @@ Proyecto 2 de Interacción Hombre-Computador (UAGRM, 2026-2), sobre el fork de [
 | Informe | _pendiente_ |
 | Diapositivas | _pendiente_ |
 | Evidencias por tarea | [`docs/evidencias/`](docs/evidencias) (Tareas 6 y 7) y [`evidencias/`](evidencias) (Tareas 8, 9, 10 y Clases 20, 22, 23) |
+| Accesibilidad (Lighthouse interpretado, correcciones y contraste AA) | [`evidencias/accesibilidad.md`](evidencias/accesibilidad.md) |
 | Tokens del sistema de diseño en el código | [`frontend_flutter/lib/theme/tokens.dart`](frontend_flutter/lib/theme/tokens.dart) · tabla componente ↔ archivo en [`evidencias/tokens-en-el-codigo.md`](evidencias/tokens-en-el-codigo.md) |
 
 ### Cuentas de prueba
@@ -48,9 +49,9 @@ Corren solas en **GitHub Actions** en cada push ([`.github/workflows/pruebas.yml
 
 | | Backend | App (Flutter) |
 |---|---|---|
-| **Líneas agregadas en el fork** (`diff-cover`) | **100 %** (684 de 684) | **100 %** (1.336 de 1.336) |
+| **Líneas agregadas en el fork** (`diff-cover`) | **100 %** (684 de 684) | **100 %** (1.351 de 1.351) |
 | Todo el código (incluye el del proyecto original) | 92 % (1.048 de 1.144) | 80 % (1.880 de 2.345) |
-| Pruebas | 100 | 124 unitarias y de pantalla + 24 E2E |
+| Pruebas | 100 | 128 unitarias y de pantalla + 24 E2E |
 
 **Qué queda sin probar** (todo es código del proyecto original, que no tocamos en el fork): la pantalla de cambiar contraseña (`cambiar_contraseña.dart`, 0 %), el servicio de autenticación (`auth_service.dart`, 8 %) y el modelo `usuario.dart` (5 %), la pantalla de historial (37 %), recuperar contraseña (53 %) y parte del login y el registro. En el backend, las rutas de autenticación del proyecto original. Las E2E sí recorren el login, el registro, la recuperación y el cambio de contraseña con la API real, pero esas pruebas no suman coverage. `lib/services/descarga_web.dart` solo existe en la versión web y no entra en la medición de `flutter test`.
 

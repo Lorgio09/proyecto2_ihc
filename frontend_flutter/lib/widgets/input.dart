@@ -41,39 +41,49 @@ class _InputState extends State<Input> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(widget.etiqueta, style: Theme.of(context).textTheme.bodyMedium),
+        // The visible label is read as the field's own name (below), so a
+        // screen reader announces "Email" instead of the example text, once.
+        ExcludeSemantics(
+          child: Text(
+            widget.etiqueta,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ),
         const SizedBox(height: 7),
         ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 52),
-          child: TextFormField(
-            controller: widget.controlador,
-            readOnly: widget.soloLectura,
-            style: TextStyle(
-              color: widget.soloLectura ? UniColores.texto : null,
-            ),
-            obscureText: _oculto,
-            enableSuggestions: !widget.ocultarTexto,
-            autocorrect: !widget.ocultarTexto,
-            validator: widget.validator,
-            decoration: InputDecoration(
-              hintText: widget.placeholder,
-              filled: true,
-              fillColor: widget.soloLectura
-                  ? UniColores.deshabilitado
-                  : UniColores.superficie,
-              suffixIcon: widget.ocultarTexto
-                  ? IconButton(
-                      tooltip: _oculto
-                          ? 'Mostrar contraseña'
-                          : 'Ocultar contraseña',
-                      icon: Icon(
-                        _oculto
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                      ),
-                      onPressed: () => setState(() => _oculto = !_oculto),
-                    )
-                  : null,
+          child: Semantics(
+            label: widget.etiqueta,
+            child: TextFormField(
+              controller: widget.controlador,
+              readOnly: widget.soloLectura,
+              style: TextStyle(
+                color: widget.soloLectura ? UniColores.texto : null,
+              ),
+              obscureText: _oculto,
+              enableSuggestions: !widget.ocultarTexto,
+              autocorrect: !widget.ocultarTexto,
+              validator: widget.validator,
+              decoration: InputDecoration(
+                hintText: widget.placeholder,
+                filled: true,
+                fillColor: widget.soloLectura
+                    ? UniColores.deshabilitado
+                    : UniColores.superficie,
+                suffixIcon: widget.ocultarTexto
+                    ? IconButton(
+                        tooltip: _oculto
+                            ? 'Mostrar contraseña'
+                            : 'Ocultar contraseña',
+                        icon: Icon(
+                          _oculto
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                        ),
+                        onPressed: () => setState(() => _oculto = !_oculto),
+                      )
+                    : null,
+              ),
             ),
           ),
         ),

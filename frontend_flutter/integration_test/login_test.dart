@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 
 import 'package:frontend_flutter/main.dart';
 import 'package:frontend_flutter/services/auth_service.dart';
+
+import 'pantalla.dart';
 
 // Requires the backend running with seed data (backend/seed.py).
 const _email = 'jugador@unisport.test';
 const _password = 'Seed1234';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  iniciarComoTelefono();
 
   setUp(() async {
     // Start every test without a stored session.
@@ -31,8 +32,9 @@ void main() {
     expect(find.text(_email), findsOneWidget);
   });
 
-  testWidgets('Jugador ingresa una contraseña incorrecta y ve el error',
-      (tester) async {
+  testWidgets('Jugador ingresa una contraseña incorrecta y ve el error', (
+    tester,
+  ) async {
     await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
 

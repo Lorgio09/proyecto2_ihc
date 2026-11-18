@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 
 import 'package:frontend_flutter/main.dart';
 import 'package:frontend_flutter/services/auth_service.dart';
+
+import 'pantalla.dart';
 
 // Requires the backend running with seed data (backend/seed.py --reset).
 // Accounts created here use the e2e-*@unisport.test pattern, which the
@@ -55,7 +56,7 @@ Future<void> _iniciarSesion(
 }
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  iniciarComoTelefono();
 
   setUp(() async {
     // Start every test without a stored session.
@@ -80,8 +81,9 @@ void main() {
     expect(find.text(email), findsOneWidget);
   });
 
-  testWidgets('Visitante envía el registro vacío y ve el aviso',
-      (tester) async {
+  testWidgets('Visitante envía el registro vacío y ve el aviso', (
+    tester,
+  ) async {
     await _abrirLogin(tester);
     await tester.tap(find.byKey(const Key('enlace-registro')));
     await tester.pumpAndSettle();
@@ -94,8 +96,9 @@ void main() {
     await tester.pumpAndSettle(const Duration(seconds: 5));
   });
 
-  testWidgets('Visitante se registra con un email ya usado y ve el error',
-      (tester) async {
+  testWidgets('Visitante se registra con un email ya usado y ve el error', (
+    tester,
+  ) async {
     await _abrirLogin(tester);
     await tester.tap(find.byKey(const Key('enlace-registro')));
     await tester.pumpAndSettle();
@@ -112,8 +115,9 @@ void main() {
     await tester.pumpAndSettle(const Duration(seconds: 5));
   });
 
-  testWidgets('Usuario recupera su contraseña y entra con la nueva',
-      (tester) async {
+  testWidgets('Usuario recupera su contraseña y entra con la nueva', (
+    tester,
+  ) async {
     final email = await _crearCuenta();
     const nueva = 'Nueva1234';
 
@@ -143,8 +147,9 @@ void main() {
     expect(find.text('¡Bienvenido, Cuenta E2E!'), findsOneWidget);
   });
 
-  testWidgets('Usuario escribe un código de recuperación incorrecto',
-      (tester) async {
+  testWidgets('Usuario escribe un código de recuperación incorrecto', (
+    tester,
+  ) async {
     final email = await _crearCuenta();
 
     await _abrirLogin(tester);
@@ -166,8 +171,9 @@ void main() {
     await tester.pumpAndSettle(const Duration(seconds: 5));
   });
 
-  testWidgets('Usuario cambia su contraseña con sesión iniciada',
-      (tester) async {
+  testWidgets('Usuario cambia su contraseña con sesión iniciada', (
+    tester,
+  ) async {
     final email = await _crearCuenta();
     const nueva = 'Cambiada1234';
 

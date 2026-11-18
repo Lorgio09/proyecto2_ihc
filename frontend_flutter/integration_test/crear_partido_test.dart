@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 
 import 'package:frontend_flutter/main.dart';
 import 'package:frontend_flutter/services/auth_service.dart';
 
 import 'helpers_analitica.dart';
+import 'pantalla.dart';
 
 // Requires the backend running with seed data (backend/seed.py).
 const _email = 'organizador@unisport.test';
@@ -38,7 +38,7 @@ Future<void> _abrirFormularioNuevoPartido(WidgetTester tester) async {
 }
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  iniciarComoTelefono();
 
   setUp(() async {
     // Start every test without a stored session.

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 
 import 'package:frontend_flutter/main.dart';
 import 'package:frontend_flutter/services/auth_service.dart';
+
+import 'pantalla.dart';
 
 // Requires the backend running with seed data (backend/seed.py --reset).
 const _email = 'organizador@unisport.test';
@@ -78,7 +79,7 @@ Finder _texto(Finder tarjeta, String texto) =>
     find.descendant(of: tarjeta, matching: find.text(texto));
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  iniciarComoTelefono();
 
   setUp(() async {
     // Start every test without a stored session.

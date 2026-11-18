@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 
 import 'package:frontend_flutter/main.dart';
 import 'package:frontend_flutter/services/auth_service.dart';
+
+import 'pantalla.dart';
 
 // Requires the backend running with seed data (backend/seed.py --reset).
 // "Duelo de dos" is seeded with room for two players.
@@ -83,7 +84,7 @@ Future<void> _unirse(WidgetTester tester, String aviso) async {
 }
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  iniciarComoTelefono();
 
   setUp(() async {
     // Start every test without a stored session.
@@ -91,105 +92,108 @@ void main() {
   });
 
   testWidgets(
-      'Con el cupo lleno el tercero queda de suplente y sube cuando un titular sale',
-      (tester) async {
-    await tester.pumpWidget(const MyApp());
-    await tester.pumpAndSettle();
+    'Con el cupo lleno el tercero queda de suplente y sube cuando un titular sale',
+    (tester) async {
+      await tester.pumpWidget(const MyApp());
+      await tester.pumpAndSettle();
 
-    // Two players take the two holder spots.
-    await _entrar(tester, _titular1);
-    await _abrirExplorar(tester);
-    await _unirse(tester, 'Te uniste al partido');
-    var tarjeta = await _tarjeta(tester);
-    expect(_texto(tarjeta, 'Cupos: 1/2'), findsOneWidget);
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-    await _cerrarSesion(tester);
+      // Two players take the two holder spots.
+      await _entrar(tester, _titular1);
+      await _abrirExplorar(tester);
+      await _unirse(tester, 'Te uniste al partido');
+      var tarjeta = await _tarjeta(tester);
+      expect(_texto(tarjeta, 'Cupos: 1/2'), findsOneWidget);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      await _cerrarSesion(tester);
 
-    await _entrar(tester, _titular2);
-    await _abrirExplorar(tester);
-    await _unirse(tester, 'Te uniste al partido');
-    tarjeta = await _tarjeta(tester);
-    expect(_texto(tarjeta, 'Cupos: 2/2'), findsOneWidget);
-    expect(_texto(tarjeta, 'Equipo completo'), findsOneWidget);
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-    await _cerrarSesion(tester);
+      await _entrar(tester, _titular2);
+      await _abrirExplorar(tester);
+      await _unirse(tester, 'Te uniste al partido');
+      tarjeta = await _tarjeta(tester);
+      expect(_texto(tarjeta, 'Cupos: 2/2'), findsOneWidget);
+      expect(_texto(tarjeta, 'Equipo completo'), findsOneWidget);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      await _cerrarSesion(tester);
 
-    // The third player finds the team full and joins as a substitute.
-    await _entrar(tester, _suplente);
-    await _abrirExplorar(tester);
-    tarjeta = await _tarjeta(tester);
-    expect(_texto(tarjeta, 'Unirse como suplente'), findsOneWidget);
-    await _unirse(tester, 'Te uniste como suplente');
-    tarjeta = await _tarjeta(tester);
-    expect(_texto(tarjeta, 'Eres suplente (posición 1)'), findsOneWidget);
-    expect(_texto(tarjeta, 'Suplentes: 1'), findsOneWidget);
-    expect(_texto(tarjeta, 'Cupos: 2/2'), findsOneWidget);
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-    await _cerrarSesion(tester);
+      // The third player finds the team full and joins as a substitute.
+      await _entrar(tester, _suplente);
+      await _abrirExplorar(tester);
+      tarjeta = await _tarjeta(tester);
+      expect(_texto(tarjeta, 'Unirse como suplente'), findsOneWidget);
+      await _unirse(tester, 'Te uniste como suplente');
+      tarjeta = await _tarjeta(tester);
+      expect(_texto(tarjeta, 'Eres suplente (posición 1)'), findsOneWidget);
+      expect(_texto(tarjeta, 'Suplentes: 1'), findsOneWidget);
+      expect(_texto(tarjeta, 'Cupos: 2/2'), findsOneWidget);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      await _cerrarSesion(tester);
 
-    // The organizer sees holders and substitutes apart.
-    await _entrar(tester, _organizador);
-    await tester.tap(find.byKey(const Key('boton-mis-partidos')));
-    await tester.pumpAndSettle(const Duration(seconds: 5));
-    await _esperar(tester, find.byType(Card));
-    tarjeta = find.widgetWithText(Card, _partido);
-    await tester.scrollUntilVisible(
-      tarjeta,
-      300,
-      scrollable: find.descendant(
-        of: find.byType(ListView),
-        matching: find.byType(Scrollable),
-      ),
-    );
-    await tester.ensureVisible(find.descendant(
-      of: tarjeta,
-      matching: find.text('Ver participantes'),
-    ));
-    await tester.pumpAndSettle();
-    await tester.tap(
-      find.descendant(of: tarjeta, matching: find.text('Ver participantes')),
-    );
-    await tester.pumpAndSettle();
-    expect(_texto(tarjeta, 'Segundo Jugador, Jugador Demo'), findsOneWidget);
-    expect(_texto(tarjeta, 'Suplentes: Tercer Jugador'), findsOneWidget);
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-    await _cerrarSesion(tester);
+      // The organizer sees holders and substitutes apart.
+      await _entrar(tester, _organizador);
+      await tester.tap(find.byKey(const Key('boton-mis-partidos')));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await _esperar(tester, find.byType(Card));
+      tarjeta = find.widgetWithText(Card, _partido);
+      await tester.scrollUntilVisible(
+        tarjeta,
+        300,
+        scrollable: find.descendant(
+          of: find.byType(ListView),
+          matching: find.byType(Scrollable),
+        ),
+      );
+      await tester.ensureVisible(
+        find.descendant(of: tarjeta, matching: find.text('Ver participantes')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(of: tarjeta, matching: find.text('Ver participantes')),
+      );
+      await tester.pumpAndSettle();
+      expect(_texto(tarjeta, 'Segundo Jugador, Jugador Demo'), findsOneWidget);
+      expect(_texto(tarjeta, 'Suplentes: Tercer Jugador'), findsOneWidget);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      await _cerrarSesion(tester);
 
-    // A holder leaves: the substitute takes the spot.
-    await _entrar(tester, _titular1);
-    await _abrirExplorar(tester);
-    tarjeta = await _tarjeta(tester);
-    await tester.tap(_boton(tarjeta, 'boton-salir-partido'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('confirmar-salir-partido')));
-    await _esperar(tester, find.text('Saliste del partido'));
-    await _limpiarAvisos(tester);
-    tarjeta = await _tarjeta(tester);
-    expect(_texto(tarjeta, 'Cupos: 2/2'), findsOneWidget);
-    expect(_texto(tarjeta, 'Suplentes: 1'), findsNothing);
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-    await _cerrarSesion(tester);
+      // A holder leaves: the substitute takes the spot.
+      await _entrar(tester, _titular1);
+      await _abrirExplorar(tester);
+      tarjeta = await _tarjeta(tester);
+      await tester.tap(_boton(tarjeta, 'boton-salir-partido'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('confirmar-salir-partido')));
+      await _esperar(tester, find.text('Saliste del partido'));
+      await _limpiarAvisos(tester);
+      tarjeta = await _tarjeta(tester);
+      expect(_texto(tarjeta, 'Cupos: 2/2'), findsOneWidget);
+      expect(_texto(tarjeta, 'Suplentes: 1'), findsNothing);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      await _cerrarSesion(tester);
 
-    // The former substitute is now a holder, and the history says so.
-    await _entrar(tester, _suplente);
-    await _abrirExplorar(tester);
-    tarjeta = await _tarjeta(tester);
-    expect(_texto(tarjeta, 'Cupos: 2/2'), findsOneWidget);
-    expect(find.descendant(
-      of: tarjeta,
-      matching: find.textContaining('Eres suplente'),
-    ), findsNothing);
-    expect(_boton(tarjeta, 'boton-salir-partido'), findsOneWidget);
-    await tester.pageBack();
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('boton-mi-historial')));
-    await tester.pumpAndSettle(const Duration(seconds: 5));
-    expect(find.text('Te uniste como suplente'), findsOneWidget);
-    expect(find.text('Pasaste a titular'), findsOneWidget);
-  });
+      // The former substitute is now a holder, and the history says so.
+      await _entrar(tester, _suplente);
+      await _abrirExplorar(tester);
+      tarjeta = await _tarjeta(tester);
+      expect(_texto(tarjeta, 'Cupos: 2/2'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: tarjeta,
+          matching: find.textContaining('Eres suplente'),
+        ),
+        findsNothing,
+      );
+      expect(_boton(tarjeta, 'boton-salir-partido'), findsOneWidget);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('boton-mi-historial')));
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+      expect(find.text('Te uniste como suplente'), findsOneWidget);
+      expect(find.text('Pasaste a titular'), findsOneWidget);
+    },
+  );
 }

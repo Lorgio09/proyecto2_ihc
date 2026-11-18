@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 
 import 'package:frontend_flutter/main.dart';
 import 'package:frontend_flutter/services/auth_service.dart';
 
 import 'helpers_resultado.dart';
+import 'pantalla.dart';
 
 // Requires the backend running with seed data (backend/seed.py --reset).
 // "Amistoso del sábado" is next week, with three players and no teams yet.
 const _partido = 'Amistoso del sábado';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  iniciarComoTelefono();
 
   setUp(() async {
     await AuthService().logout();

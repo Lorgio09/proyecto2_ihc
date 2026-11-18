@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 
 import 'package:frontend_flutter/main.dart';
 import 'package:frontend_flutter/services/auth_service.dart';
 
 import 'helpers_analitica.dart';
 import 'helpers_resultado.dart';
+import 'pantalla.dart';
 
 // Requires the backend running with seed data (backend/seed.py --reset).
 // mis_partidos_test deletes "Voley de tarde"; this one is only edited there.
 const _partido = 'Fulbito del viernes';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  iniciarComoTelefono();
 
   setUp(() async {
     await AuthService().logout();
   });
 
-  testWidgets('El organizador reprograma el lugar con un motivo', (tester) async {
+  testWidgets('El organizador reprograma el lugar con un motivo', (
+    tester,
+  ) async {
     await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
     await entrar(tester, organizador);

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 
 import 'package:frontend_flutter/main.dart';
 import 'package:frontend_flutter/services/auth_service.dart';
 
 import 'helpers_analitica.dart';
 import 'helpers_resultado.dart';
+import 'pantalla.dart';
 
 // Requires the backend running with seed data (backend/seed.py --reset).
 // "Clásico de la facultad" was played 3 hours ago; its teams are accepted and
@@ -14,7 +14,7 @@ import 'helpers_resultado.dart';
 const _partido = 'Clásico de la facultad';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  iniciarComoTelefono();
 
   setUp(() async {
     await AuthService().logout();

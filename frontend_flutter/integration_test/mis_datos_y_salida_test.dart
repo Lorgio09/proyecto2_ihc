@@ -9,7 +9,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 
 import 'package:frontend_flutter/main.dart';
 import 'package:frontend_flutter/services/auth_service.dart';
@@ -17,6 +16,7 @@ import 'package:frontend_flutter/services/partido.dart';
 
 import 'helpers_analitica.dart';
 import 'helpers_resultado.dart';
+import 'pantalla.dart';
 
 /// Where the app saves the download on each platform (see descarga_io.dart):
 /// the shared Downloads folder on Android, ~/Downloads on Linux (CI).
@@ -58,7 +58,7 @@ Future<String> _cuentaConPartido() async {
 }
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  iniciarComoTelefono();
 
   setUp(() async {
     await AuthService().logout();

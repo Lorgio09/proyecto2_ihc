@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 
 import 'package:frontend_flutter/main.dart';
 import 'package:frontend_flutter/services/auth_service.dart';
 
 import 'helpers_analitica.dart';
+import 'pantalla.dart';
 
 // Requires the backend running with seed data (backend/seed.py --reset).
 const _password = 'Seed1234';
@@ -58,22 +58,25 @@ Finder _en(Finder tarjeta, String clave) =>
     find.descendant(of: tarjeta, matching: find.byKey(Key(clave)));
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  iniciarComoTelefono();
 
   setUp(() async {
     // Start every test without a stored session.
     await AuthService().logout();
   });
 
-  testWidgets('Jugador se une, lo ve en su historial y luego sale',
-      (tester) async {
+  testWidgets('Jugador se une, lo ve en su historial y luego sale', (
+    tester,
+  ) async {
     await _iniciarSesion(tester, 'jugador@unisport.test');
     final antes = await conteoEventos();
     await _abrirExplorar(tester);
 
     var tarjeta = await _tarjeta(tester);
-    expect(find.descendant(of: tarjeta, matching: find.text('Cupos: 0/8')),
-        findsOneWidget);
+    expect(
+      find.descendant(of: tarjeta, matching: find.text('Cupos: 0/8')),
+      findsOneWidget,
+    );
     // The card can be on screen while its button is still below the edge.
     await tester.ensureVisible(_en(tarjeta, 'boton-unirse-partido'));
     await tester.pumpAndSettle();
@@ -83,8 +86,10 @@ void main() {
     expect(find.text('Te uniste al partido'), findsOneWidget);
     await tester.pumpAndSettle(const Duration(seconds: 5));
     tarjeta = await _tarjeta(tester);
-    expect(find.descendant(of: tarjeta, matching: find.text('Cupos: 1/8')),
-        findsOneWidget);
+    expect(
+      find.descendant(of: tarjeta, matching: find.text('Cupos: 1/8')),
+      findsOneWidget,
+    );
     expect(_en(tarjeta, 'boton-salir-partido'), findsOneWidget);
     expect(_en(tarjeta, 'boton-unirse-partido'), findsNothing);
 
@@ -111,8 +116,10 @@ void main() {
     expect(find.text('Saliste del partido'), findsOneWidget);
     await tester.pumpAndSettle(const Duration(seconds: 5));
     tarjeta = await _tarjeta(tester);
-    expect(find.descendant(of: tarjeta, matching: find.text('Cupos: 0/8')),
-        findsOneWidget);
+    expect(
+      find.descendant(of: tarjeta, matching: find.text('Cupos: 0/8')),
+      findsOneWidget,
+    );
     expect(_en(tarjeta, 'boton-unirse-partido'), findsOneWidget);
     // Both funnels recorded their start and their success.
     await expectEventos(antes, {
@@ -144,8 +151,9 @@ void main() {
     await expectEventos(antes, {'busqueda_sin_resultados': 1});
   });
 
-  testWidgets('Organizador no ve sus propios partidos en Explorar',
-      (tester) async {
+  testWidgets('Organizador no ve sus propios partidos en Explorar', (
+    tester,
+  ) async {
     await _iniciarSesion(tester, 'organizador@unisport.test');
     await _abrirExplorar(tester);
     await _esperar(tester, find.text('Buscar por nombre'));

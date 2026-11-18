@@ -1,0 +1,17 @@
+{"protocolVersion":"0.1.1","runnerVersion":null,"pid":10604,"type":"start","time":0}
+{"suite":{"id":0,"platform":"vm","path":"/home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/mis_partidos_test.dart"},"type":"suite","time":0}
+{"test":{"id":1,"name":"loading /home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/mis_partidos_test.dart","suiteID":0,"groupIDs":[],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":1}
+{"count":1,"time":5,"type":"allSuites"}
+{"testID":1,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":20944}
+{"group":{"id":2,"suiteID":0,"parentID":null,"name":"","metadata":{"skip":false,"skipReason":null},"testCount":4,"line":null,"column":null,"url":null},"type":"group","time":20947}
+{"test":{"id":3,"name":"Organizador edita la ubicación de su partido","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":174,"column":5,"url":"package:flutter_test/src/widget_tester.dart","root_line":89,"root_column":3,"root_url":"file:///home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/mis_partidos_test.dart"},"type":"testStart","time":20947}
+{"testID":3,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":39781}
+{"test":{"id":4,"name":"Organizador completa su equipo y luego lo reabre","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":174,"column":5,"url":"package:flutter_test/src/widget_tester.dart","root_line":112,"root_column":3,"root_url":"file:///home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/mis_partidos_test.dart"},"type":"testStart","time":39782}
+{"testID":4,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":63929}
+{"test":{"id":5,"name":"Organizador cancela eliminar y el partido se queda","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":174,"column":5,"url":"package:flutter_test/src/widget_tester.dart","root_line":157,"root_column":3,"root_url":"file:///home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/mis_partidos_test.dart"},"type":"testStart","time":63930}
+{"testID":5,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":81440}
+{"test":{"id":6,"name":"Organizador elimina un partido y desaparece de la lista","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":174,"column":5,"url":"package:flutter_test/src/widget_tester.dart","root_line":173,"root_column":3,"root_url":"file:///home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/mis_partidos_test.dart"},"type":"testStart","time":81441}
+{"testID":6,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":99254}
+{"test":{"id":7,"name":"(tearDownAll)","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":50,"column":5,"url":"package:integration_test/integration_test.dart"},"type":"testStart","time":99255}
+{"testID":7,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":99260}
+{"success":true,"type":"done","time":99277}

@@ -15,6 +15,7 @@ Proyecto 2 de Interacción Hombre-Computador (UAGRM, 2026-2), sobre el fork de [
 | **App en la nube** | https://lorgio09.github.io/proyecto2_ihc/ |
 | API (documentación) | https://unisport-api.onrender.com/docs |
 | Panel de analítica | https://unisport-api.onrender.com/analitica |
+| Reporte de pruebas (E2E y cobertura) | [`playwright-report/index.html`](playwright-report/index.html) |
 | Pruebas en GitHub Actions (última ejecución) | https://github.com/Lorgio09/proyecto2_ihc/actions/workflows/pruebas.yml?query=branch%3Amain |
 | Sistema de diseño en Figma | _pendiente_ |
 | Video de la app (3:28, sin audio: se narra en vivo) | [`docs/presentacion/unisport-demo.mp4`](docs/presentacion/unisport-demo.mp4) |
@@ -49,7 +50,7 @@ Corren solas en **GitHub Actions** en cada push ([`.github/workflows/pruebas.yml
 
 | | Backend | App (Flutter) |
 |---|---|---|
-| **Líneas agregadas en el fork** (`diff-cover`) | **100 %** (684 de 684) | **100 %** (1.351 de 1.351) |
+| **Líneas agregadas en el fork** (`diff-cover`) | **100 %** (684 de 684) | **100 %** (1.353 de 1.353) |
 | Todo el código (incluye el del proyecto original) | 92 % (1.048 de 1.144) | 80 % (1.880 de 2.345) |
 | Pruebas | 100 | 128 unitarias y de pantalla + 24 E2E |
 

@@ -1,0 +1,21 @@
+{"protocolVersion":"0.1.1","runnerVersion":null,"pid":7550,"type":"start","time":0}
+{"suite":{"id":0,"platform":"vm","path":"/home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/cuenta_test.dart"},"type":"suite","time":0}
+{"test":{"id":1,"name":"loading /home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/cuenta_test.dart","suiteID":0,"groupIDs":[],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":1}
+{"count":1,"time":5,"type":"allSuites"}
+{"testID":1,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":20887}
+{"group":{"id":2,"suiteID":0,"parentID":null,"name":"","metadata":{"skip":false,"skipReason":null},"testCount":6,"line":null,"column":null,"url":null},"type":"group","time":20889}
+{"test":{"id":3,"name":"Visitante se registra y llega a su bienvenida","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":174,"column":5,"url":"package:flutter_test/src/widget_tester.dart","root_line":66,"root_column":3,"root_url":"file:///home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/cuenta_test.dart"},"type":"testStart","time":20889}
+{"testID":3,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":33163}
+{"test":{"id":4,"name":"Visitante envía el registro vacío y ve el aviso","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":174,"column":5,"url":"package:flutter_test/src/widget_tester.dart","root_line":84,"root_column":3,"root_url":"file:///home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/cuenta_test.dart"},"type":"testStart","time":33164}
+{"testID":4,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":39200}
+{"test":{"id":5,"name":"Visitante se registra con un email ya usado y ve el error","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":174,"column":5,"url":"package:flutter_test/src/widget_tester.dart","root_line":99,"root_column":3,"root_url":"file:///home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/cuenta_test.dart"},"type":"testStart","time":39201}
+{"testID":5,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":45260}
+{"test":{"id":6,"name":"Usuario recupera su contraseña y entra con la nueva","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":174,"column":5,"url":"package:flutter_test/src/widget_tester.dart","root_line":118,"root_column":3,"root_url":"file:///home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/cuenta_test.dart"},"type":"testStart","time":45260}
+{"testID":6,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":74043}
+{"test":{"id":7,"name":"Usuario escribe un código de recuperación incorrecto","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":174,"column":5,"url":"package:flutter_test/src/widget_tester.dart","root_line":150,"root_column":3,"root_url":"file:///home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/cuenta_test.dart"},"type":"testStart","time":74044}
+{"testID":7,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":86125}
+{"test":{"id":8,"name":"Usuario cambia su contraseña con sesión iniciada","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":174,"column":5,"url":"package:flutter_test/src/widget_tester.dart","root_line":174,"root_column":3,"root_url":"file:///home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/cuenta_test.dart"},"type":"testStart","time":86125}
+{"testID":8,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":124628}
+{"test":{"id":9,"name":"(tearDownAll)","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":50,"column":5,"url":"package:integration_test/integration_test.dart"},"type":"testStart","time":124629}
+{"testID":9,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":124635}
+{"success":true,"type":"done","time":124655}

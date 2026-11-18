@@ -1,0 +1,15 @@
+{"protocolVersion":"0.1.1","runnerVersion":null,"pid":9020,"type":"start","time":0}
+{"suite":{"id":0,"platform":"vm","path":"/home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/explorar_unirse_salir_test.dart"},"type":"suite","time":0}
+{"test":{"id":1,"name":"loading /home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/explorar_unirse_salir_test.dart","suiteID":0,"groupIDs":[],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":1}
+{"count":1,"time":5,"type":"allSuites"}
+{"testID":1,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":20772}
+{"group":{"id":2,"suiteID":0,"parentID":null,"name":"","metadata":{"skip":false,"skipReason":null},"testCount":3,"line":null,"column":null,"url":null},"type":"group","time":20774}
+{"test":{"id":3,"name":"Jugador se une, lo ve en su historial y luego sale","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":174,"column":5,"url":"package:flutter_test/src/widget_tester.dart","root_line":68,"root_column":3,"root_url":"file:///home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/explorar_unirse_salir_test.dart"},"type":"testStart","time":20775}
+{"testID":3,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":76509}
+{"test":{"id":4,"name":"Una búsqueda sin resultados queda registrada","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":174,"column":5,"url":"package:flutter_test/src/widget_tester.dart","root_line":133,"root_column":3,"root_url":"file:///home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/explorar_unirse_salir_test.dart"},"type":"testStart","time":76510}
+{"testID":4,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":92440}
+{"test":{"id":5,"name":"Organizador no ve sus propios partidos en Explorar","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":174,"column":5,"url":"package:flutter_test/src/widget_tester.dart","root_line":166,"root_column":3,"root_url":"file:///home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/explorar_unirse_salir_test.dart"},"type":"testStart","time":92440}
+{"testID":5,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":112876}
+{"test":{"id":6,"name":"(tearDownAll)","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":50,"column":5,"url":"package:integration_test/integration_test.dart"},"type":"testStart","time":112877}
+{"testID":6,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":112884}
+{"success":true,"type":"done","time":112903}

@@ -1,0 +1,13 @@
+{"protocolVersion":"0.1.1","runnerVersion":null,"pid":10123,"type":"start","time":0}
+{"suite":{"id":0,"platform":"vm","path":"/home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/mis_datos_y_salida_test.dart"},"type":"suite","time":0}
+{"test":{"id":1,"name":"loading /home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/mis_datos_y_salida_test.dart","suiteID":0,"groupIDs":[],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":1}
+{"count":1,"time":5,"type":"allSuites"}
+{"testID":1,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":21003}
+{"group":{"id":2,"suiteID":0,"parentID":null,"name":"","metadata":{"skip":false,"skipReason":null},"testCount":2,"line":null,"column":null,"url":null},"type":"group","time":21005}
+{"test":{"id":3,"name":"El organizador intenta eliminar su cuenta y la regla lo frena","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":174,"column":5,"url":"package:flutter_test/src/widget_tester.dart","root_line":67,"root_column":3,"root_url":"file:///home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/mis_datos_y_salida_test.dart"},"type":"testStart","time":21006}
+{"testID":3,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":42531}
+{"test":{"id":4,"name":"Descarga sus datos, elimina la cuenta y ya no puede iniciar sesión","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":174,"column":5,"url":"package:flutter_test/src/widget_tester.dart","root_line":96,"root_column":3,"root_url":"file:///home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/mis_datos_y_salida_test.dart"},"type":"testStart","time":42532}
+{"testID":4,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":65901}
+{"test":{"id":5,"name":"(tearDownAll)","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":50,"column":5,"url":"package:integration_test/integration_test.dart"},"type":"testStart","time":65902}
+{"testID":5,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":65907}
+{"success":true,"type":"done","time":65924}

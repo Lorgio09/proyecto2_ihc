@@ -1,0 +1,13 @@
+{"protocolVersion":"0.1.1","runnerVersion":null,"pid":7052,"type":"start","time":0}
+{"suite":{"id":0,"platform":"vm","path":"/home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/crear_partido_test.dart"},"type":"suite","time":0}
+{"test":{"id":1,"name":"loading /home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/crear_partido_test.dart","suiteID":0,"groupIDs":[],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":1}
+{"count":1,"time":5,"type":"allSuites"}
+{"testID":1,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":21100}
+{"group":{"id":2,"suiteID":0,"parentID":null,"name":"","metadata":{"skip":false,"skipReason":null},"testCount":2,"line":null,"column":null,"url":null},"type":"group","time":21102}
+{"test":{"id":3,"name":"Organizador crea un partido y lo ve en Mis partidos","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":174,"column":5,"url":"package:flutter_test/src/widget_tester.dart","root_line":48,"root_column":3,"root_url":"file:///home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/crear_partido_test.dart"},"type":"testStart","time":21103}
+{"testID":3,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":49520}
+{"test":{"id":4,"name":"Organizador intenta guardar sin fecha y ve el error","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":174,"column":5,"url":"package:flutter_test/src/widget_tester.dart","root_line":97,"root_column":3,"root_url":"file:///home/runner/work/proyecto2_ihc/proyecto2_ihc/frontend_flutter/integration_test/crear_partido_test.dart"},"type":"testStart","time":49521}
+{"testID":4,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":65970}
+{"test":{"id":5,"name":"(tearDownAll)","suiteID":0,"groupIDs":[2],"metadata":{"skip":false,"skipReason":null},"line":50,"column":5,"url":"package:integration_test/integration_test.dart"},"type":"testStart","time":65971}
+{"testID":5,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":65977}
+{"success":true,"type":"done","time":65995}

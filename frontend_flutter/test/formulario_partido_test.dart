@@ -41,8 +41,8 @@ void main() {
     final etiqueta = tester.getRect(find.text('Deporte'));
     final caja = tester.getRect(find.byType(DropdownButtonFormField<String>));
 
-    // Deporte used the floating label that sits on the border of the box,
-    // unlike every other field, which puts its label above it.
+    // Deporte usaba la etiqueta flotante que se apoya en el borde de la caja,
+    // a diferencia de los demás campos, que ponen su etiqueta arriba.
     expect(etiqueta.bottom, lessThanOrEqualTo(caja.top));
   });
 

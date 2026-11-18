@@ -22,7 +22,7 @@ class EventoApp(BaseModel):
 def registrar_evento(
     datos: EventoApp,
     base_datos: Session = Depends(get_db),
-    _usuario: Usuario = Depends(current_user),  # only signed-in users; not stored
+    _usuario: Usuario = Depends(current_user),  # solo usuarios con sesión iniciada; no se guarda
 ):
     if datos.evento not in EVENTOS_DESDE_LA_APP:
         raise HTTPException(

@@ -59,7 +59,7 @@ class _Servicio extends CuentaService {
 }
 
 Future<void> _abrir(WidgetTester tester, _Servicio servicio) async {
-  // A phone-like screen tall enough for both sections.
+  // Una pantalla tipo teléfono, lo bastante alta para ambas secciones.
   tester.view.physicalSize = const Size(420, 1000);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -103,7 +103,7 @@ void main() {
     await tester.tap(find.byKey(const Key('boton-descargar-datos')));
     await tester.pumpAndSettle();
 
-    // One file per download, named with the date and time.
+    // Un archivo por descarga, nombrado con la fecha y la hora.
     expect(servicio.guardados, hasLength(1));
     final nombre = servicio.guardados.keys.single;
     expect(nombre, matches(RegExp(r'^unisport-mis-datos-\d{8}-\d{6}\.json$')));
@@ -143,7 +143,7 @@ void main() {
     );
     expect(cancelar, confirmar);
 
-    // Cancel keeps everything as it was.
+    // Cancelar deja todo como estaba.
     await tester.tap(find.byKey(const Key('cancelar-eliminar-cuenta')));
     await tester.pumpAndSettle();
     expect(servicio.eliminada, isFalse);

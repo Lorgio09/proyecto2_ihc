@@ -1,4 +1,5 @@
-// Shared steps for the result validation E2E tests (seed accounts).
+// Pasos compartidos de las pruebas E2E de validación del resultado (cuentas de
+// seed).
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -8,14 +9,15 @@ const jugadorEquipoA = 'jugador@unisport.test';
 const capitan = 'jugador2@unisport.test';
 const tercerJugador = 'jugador3@unisport.test';
 
-/// Pumps until [finder] shows up; a snackbar outlives pumpAndSettle.
+/// Avanza frames hasta que aparece [finder]; un snackbar sigue visible tras
+/// pumpAndSettle.
 Future<void> esperar(WidgetTester tester, Finder finder) async {
   for (var i = 0; i < 50 && finder.evaluate().isEmpty; i++) {
     await tester.pump(const Duration(milliseconds: 200));
   }
 }
 
-/// A snackbar can cover the next tap target.
+/// Un snackbar puede tapar el siguiente botón a tocar.
 Future<void> limpiarAvisos(WidgetTester tester) async {
   final scaffolds = find.byType(Scaffold).evaluate();
   if (scaffolds.isEmpty) return;
@@ -27,7 +29,7 @@ Finder _listaVisible() => find
     .descendant(of: find.byType(ListView), matching: find.byType(Scrollable))
     .first;
 
-/// Scrolls the visible list until [finder] is on screen.
+/// Desplaza la lista visible hasta que [finder] queda en pantalla.
 Future<void> mostrar(WidgetTester tester, Finder finder) async {
   await esperar(tester, find.byType(ListView));
   await tester.scrollUntilVisible(finder, 200, scrollable: _listaVisible());
@@ -55,7 +57,8 @@ Future<void> cerrarSesion(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-/// From the result screen (or any screen pushed on top of Home) back to Home.
+/// Desde la pantalla de resultado (o cualquiera abierta encima de Inicio) de
+/// vuelta a Inicio.
 Future<void> salirAlInicio(WidgetTester tester) async {
   await limpiarAvisos(tester);
   while (find.byTooltip('Cerrar sesión').evaluate().isEmpty) {
@@ -74,7 +77,7 @@ Future<void> _esperarResultado(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-/// Organizer: Mis partidos > Organizo > the match's "Resultado del partido".
+/// Organizador: Mis partidos > Organizo > "Resultado del partido" del partido.
 Future<void> abrirResultadoComoOrganizador(
   WidgetTester tester,
   String partido,
@@ -82,7 +85,7 @@ Future<void> abrirResultadoComoOrganizador(
   await _abrirMisPartidos(tester);
   final tarjeta = find.widgetWithText(Card, partido);
   await mostrar(tester, tarjeta);
-  // "Resultado del partido" lives in the card's "⋮" menu.
+  // "Resultado del partido" está en el menú "⋮" de la tarjeta.
   final menu = find.descendant(
     of: tarjeta,
     matching: find.byTooltip('Más acciones'),
@@ -95,7 +98,7 @@ Future<void> abrirResultadoComoOrganizador(
   await _esperarResultado(tester);
 }
 
-/// Player: Mis partidos > Me uní > the match's "Resultado".
+/// Jugador: Mis partidos > Me uní > "Resultado" del partido.
 Future<void> abrirResultadoComoJugador(
   WidgetTester tester,
   String partido,
@@ -138,7 +141,8 @@ Future<void> disputar(WidgetTester tester, String motivo) async {
   );
 }
 
-/// Scrolls to the score history at the end of the result screen.
+/// Desplaza hasta el historial de marcadores, al final de la pantalla de
+/// resultado.
 Future<void> verHistorial(WidgetTester tester) async {
   await mostrar(tester, find.byKey(const Key('seccion-historial')));
 }

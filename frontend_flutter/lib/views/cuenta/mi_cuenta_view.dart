@@ -8,14 +8,15 @@ import '../../widgets/confirmacion.dart';
 import '../../widgets/mensaje.dart';
 import '../autenticacion/login_view.dart';
 
-/// "Mi cuenta": everything UniSport keeps about the person, the way to take
-/// it with them and the way to leave.
+/// "Mi cuenta": todo lo que UniSport guarda sobre la persona, la forma de
+/// llevárselo y la forma de irse.
 class MiCuentaView extends StatefulWidget {
   const MiCuentaView({super.key, this.cuentaService, this.alSalir});
 
   final CuentaService? cuentaService;
 
-  /// Where to go once the account is gone; the login screen by default.
+  /// A dónde ir cuando la cuenta ya no existe; por defecto, la pantalla de
+  /// inicio de sesión.
   final void Function(BuildContext context)? alSalir;
 
   @override
@@ -29,8 +30,8 @@ class _MiCuentaViewState extends State<MiCuentaView> {
   bool descargando = false;
   bool eliminando = false;
 
-  /// A new name per download, with date and time: Android does not let the
-  /// app overwrite a file in Downloads created by an earlier install.
+  /// Un nombre nuevo por descarga, con fecha y hora: Android no deja que la app
+  /// sobrescriba un archivo en Descargas creado por una instalación anterior.
   static String nombreArchivo(DateTime ahora) {
     String dos(int valor) => valor.toString().padLeft(2, '0');
     return 'unisport-mis-datos-${ahora.year}${dos(ahora.month)}${dos(ahora.day)}'
@@ -41,7 +42,7 @@ class _MiCuentaViewState extends State<MiCuentaView> {
   void initState() {
     super.initState();
     servicio = widget.cuentaService ?? CuentaService();
-    // Start of the "download my data" funnel.
+    // Inicio del embudo "descargar mis datos".
     servicio.registrarEvento('mis_datos_vistos');
     cargar();
   }
@@ -77,8 +78,9 @@ class _MiCuentaViewState extends State<MiCuentaView> {
     }
   }
 
-  /// Leaving is as short as signing up: one button, one honest confirmation.
-  /// When UniSport's rule stops it, say why and what to do instead.
+  /// Irse es tan corto como registrarse: un botón, una confirmación honesta.
+  /// Cuando la regla de UniSport lo impide, se dice por qué y qué hacer en su
+  /// lugar.
   Future<void> eliminar() async {
     servicio.registrarEvento('eliminacion_iniciada');
     setState(() => eliminando = true);
@@ -104,8 +106,8 @@ class _MiCuentaViewState extends State<MiCuentaView> {
         const SnackBar(content: Text('Tu cuenta fue eliminada')),
       );
     } on CuentaBloqueada catch (bloqueo) {
-      // Something changed between the check and the confirmation; the
-      // backend already recorded this block.
+      // Algo cambió entre la revisión y la confirmación; el
+      // backend ya registró este bloqueo.
       if (mounted) await _mostrarBloqueo(bloqueo.bloqueos, registrar: false);
     } catch (_) {
       if (mounted) {
@@ -344,7 +346,7 @@ class _MiCuentaViewState extends State<MiCuentaView> {
               ),
             ),
             const Divider(height: 24),
-            // Transparency: the analytics exist, and they are not about you.
+            // Transparencia: la analítica existe, y no trata sobre ti.
             Text(
               'Para mejorar la app, UniSport cuenta acciones como "se unió '
               'a un partido" sin tu nombre, tu correo ni ningún dato que te '

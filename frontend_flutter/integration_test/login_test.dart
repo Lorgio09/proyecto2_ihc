@@ -6,7 +6,7 @@ import 'package:frontend_flutter/services/auth_service.dart';
 
 import 'pantalla.dart';
 
-// Requires the backend running with seed data (backend/seed.py).
+// Requiere el backend corriendo con datos de seed (backend/seed.py).
 const _email = 'jugador@unisport.test';
 const _password = 'Seed1234';
 
@@ -14,7 +14,7 @@ void main() {
   iniciarComoTelefono();
 
   setUp(() async {
-    // Start every test without a stored session.
+    // Cada prueba empieza sin sesión guardada.
     await AuthService().logout();
   });
 

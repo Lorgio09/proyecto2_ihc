@@ -8,8 +8,8 @@ import 'helpers_analitica.dart';
 import 'helpers_resultado.dart';
 import 'pantalla.dart';
 
-// Requires the backend running with seed data (backend/seed.py --reset).
-// mis_partidos_test deletes "Voley de tarde"; this one is only edited there.
+// Requiere el backend corriendo con datos de seed (backend/seed.py --reset).
+// mis_partidos_test elimina "Voley de tarde"; este test solo lo edita allí.
 const _partido = 'Fulbito del viernes';
 
 void main() {
@@ -31,7 +31,7 @@ void main() {
     await tester.pumpAndSettle(const Duration(seconds: 5));
     final tarjeta = find.widgetWithText(Card, _partido);
     await mostrar(tester, tarjeta);
-    // "Reprogramar" lives in the card's "⋮" menu.
+    // "Reprogramar" está en el menú "⋮" de la tarjeta.
     final menu = find.descendant(
       of: tarjeta,
       matching: find.byTooltip('Más acciones'),

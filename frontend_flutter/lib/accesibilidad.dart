@@ -1,11 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/semantics.dart';
 
-/// Flutter web draws the app on a canvas and builds the accessibility tree
-/// only after someone turns it on. Turned on from the start, screen readers
-/// (and audits like Lighthouse) see the real buttons, fields and texts.
+/// Flutter web dibuja la app en un canvas y arma el árbol de accesibilidad solo
+/// cuando alguien lo activa. Si se activa desde el inicio, los lectores de
+/// pantalla (y auditorías como Lighthouse) ven los botones, campos y textos
+/// reales.
 ///
-/// Returns the handle that keeps it on, or null when not running on the web.
+/// Devuelve el objeto que lo mantiene activo, o null si no corre en la web.
 SemanticsHandle? activarSemanticaEnWeb({bool esWeb = kIsWeb}) {
   if (!esWeb) return null;
   return SemanticsBinding.instance.ensureSemantics();

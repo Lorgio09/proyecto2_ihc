@@ -57,7 +57,7 @@ def usuarios(db):
 
 @pytest.fixture
 def partido(db, usuarios):
-    """Future match with ana, beto and carla as holders."""
+    """Partido futuro con ana, beto y carla como titulares."""
     organizador, ana, beto, carla = usuarios
     partido = crear_partido(
         DatosPartido(
@@ -75,14 +75,14 @@ def partido(db, usuarios):
 
 
 def jugar(db, partido):
-    """Move the match to the past, as if it had already been played."""
+    """Mueve el partido al pasado, como si ya se hubiera jugado."""
     partido.fecha = datetime.now(timezone.utc) - timedelta(hours=2)
     db.commit()
 
 
 @pytest.fixture
 def partido_jugado(db, usuarios, partido):
-    """Played match: ana in team A, beto (captain) and carla in team B, accepted."""
+    """Partido jugado: ana en el equipo A, beto (capitán) y carla en el equipo B, ya aceptados."""
     organizador, ana, beto, carla = usuarios
     proponer_equipos(partido, [beto.id, carla.id], beto.id, db)
     aceptar_equipos(partido.id, beto, db)
@@ -94,7 +94,7 @@ def codigo(error_info):
     return error_info.value.codigo
 
 
-# --- S1: teams proposed by the organizer, accepted by the rival captain ---
+# --- S1: equipos propuestos por el organizador y aceptados por el capitán rival ---
 
 
 def test_proponer_equipos_deja_al_capitan_pendiente_de_aceptar(db, usuarios, partido):
@@ -152,7 +152,7 @@ def test_cambiar_los_equipos_exige_nueva_aceptacion(db, usuarios, partido):
     assert datos_validacion(partido, organizador)["equipos_aceptados"] is False
 
 
-# --- S2-S4: result -> dispute -> correction -> confirmation ---
+# --- S2-S4: resultado -> disputa -> corrección -> confirmación ---
 
 
 def test_recorrido_resultado_disputa_correccion_confirmacion(db, usuarios, partido_jugado):
@@ -178,7 +178,7 @@ def test_recorrido_resultado_disputa_correccion_confirmacion(db, usuarios, parti
     assert datos["estado_validacion"] == "resultado_confirmado"
     assert datos["resultado_definitivo"] == {"goles_a": 2, "goles_b": 2}
 
-    # The whole history is kept, newest first.
+    # Se guarda todo el historial, del más reciente al más antiguo.
     historial = [
         (r["version"], r["goles_a"], r["goles_b"], r["estado"], r["motivo_disputa"])
         for r in datos["resultados"]
@@ -254,7 +254,7 @@ def test_no_se_cambian_los_equipos_con_un_resultado_registrado(db, usuarios, par
     assert codigo(error) in ("PARTIDO_YA_JUGADO", "EQUIPOS_BLOQUEADOS")
 
 
-# --- Leaving cannot break the validation ---
+# --- Salirse no puede romper la validación ---
 
 
 def test_nadie_sale_de_un_partido_ya_jugado(db, usuarios, partido_jugado):
@@ -293,7 +293,7 @@ def test_sin_equipos_aceptados_se_sigue_pudiendo_salir(db, usuarios, partido):
     assert nombres == ["beto"]
 
 
-# --- Played matches stay reachable for their participants ---
+# --- Los partidos jugados siguen accesibles para sus participantes ---
 
 
 def test_mis_partidos_unidos_incluye_los_ya_jugados(db, usuarios, partido_jugado):
@@ -303,7 +303,7 @@ def test_mis_partidos_unidos_incluye_los_ya_jugados(db, usuarios, partido_jugado
     assert listar_partidos_participando(organizador, db) == []
 
 
-# --- HTTP contract: permission errors are 403, state errors 409 ---
+# --- Contrato HTTP: los errores de permiso son 403 y los de estado, 409 ---
 
 
 def test_api_rechaza_con_403_a_quien_no_es_capitan(db, usuarios, partido_jugado):
@@ -325,12 +325,12 @@ def test_api_rechaza_con_403_a_quien_no_es_capitan(db, usuarios, partido_jugado)
         assert respuesta.status_code == 200
         assert respuesta.json()["estado_validacion"] == "resultado_pendiente"
 
-        # The organizer cannot validate the score they registered.
+        # El organizador no puede validar el marcador que él mismo registró.
         respuesta = cliente.post(f"{url}/resultados/confirmar")
         assert respuesta.status_code == 403
         assert respuesta.json()["detail"]["codigo"] == "SOLO_CAPITAN"
 
-        # A teammate of the captain cannot register a score.
+        # Un compañero de equipo del capitán no puede registrar un marcador.
         actor["usuario"] = carla
         respuesta = cliente.post(f"{url}/resultados", json={"goles_a": 0, "goles_b": 0})
         assert respuesta.status_code == 403

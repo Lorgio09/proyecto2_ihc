@@ -1,23 +1,23 @@
-"""Idempotent seed data for local development and E2E tests.
+"""Datos semilla (seed) idempotentes para el desarrollo local y las pruebas E2E.
 
-Usage (from backend/, with the virtualenv active):
+Uso (desde backend/, con el entorno virtual activado):
 
-    python seed.py           # add whatever is missing
-    python seed.py --reset   # first delete the seed users' matches (and, by
-                             # cascade, their participants and history)
+    python seed.py           # agrega lo que falte
+    python seed.py --reset   # primero borra los partidos de los usuarios semilla
+                             # (y, en cascada, sus participantes e historial)
 
-Result validation (Tarea 8) uses two more matches with players already in:
-    "Clásico de la facultad"  played 3 hours ago; teams accepted, the rival
-                              captain is jugador2.
-    "Amistoso del sábado"     next week; no teams proposed yet.
+La validación del resultado (Tarea 8) usa dos partidos más con jugadores ya inscritos:
+    "Clásico de la facultad"  jugado hace 3 horas; equipos aceptados, el capitán
+                              rival es jugador2.
+    "Amistoso del sábado"     la próxima semana; todavía sin equipos propuestos.
 
-Late withdrawal (Tarea 9) uses two more:
-    "Baja con tiempo"          in 2 days, 1 spot: jugador holds it and
-                               jugador2 waits as substitute.
-    "Baja de último momento"   starts in 90 minutes; jugador3 is in, so leaving
-                               now counts as a late withdrawal.
+La baja tardía (Tarea 9) usa otros dos:
+    "Baja con tiempo"          en 2 días, 1 lugar: jugador lo ocupa y
+                               jugador2 espera como suplente.
+    "Baja de último momento"   empieza en 90 minutos; jugador3 está inscrito, así que
+                               salirse ahora cuenta como baja tardía.
 
-Test accounts (password for all: Seed1234):
+Cuentas de prueba (contraseña de todas: Seed1234):
     organizador@unisport.test
     jugador@unisport.test
     jugador2@unisport.test
@@ -48,23 +48,23 @@ PARTIDOS = [
     ("Basket 3x3", "basquet", 6, "Coliseo Universitario", "45", 3),
     ("Voley de tarde", "voley", 12, "Parque Urbano", "90", 4),
     ("Futsal nocturno", "futbol", 8, "Polideportivo Norte", "60", 5),
-    # Two spots only, so the third player to join becomes a substitute.
+    # Solo dos lugares, así que el tercer jugador en unirse queda como suplente.
     ("Duelo de dos", "futbol", 2, "Cancha Chica", "30", 6),
 ]
 
 
 def reset(db) -> None:
-    """Remove the matches the seed users own, e.g. those left by E2E runs."""
+    """Borra los partidos de los usuarios semilla, por ejemplo los que dejaron las pruebas E2E."""
     emails = [email for _, email, _ in USUARIOS]
     ids = db.scalars(select(Usuario.id).where(Usuario.email.in_(emails))).all()
     for partido in db.scalars(select(Partido).where(Partido.usuario_id.in_(ids))):
         db.delete(partido)
-    # A pending recovery token makes the next recovery ambiguous: the reset
-    # endpoint finds its user by token alone, and the token is always 123456.
+    # Un token de recuperación pendiente vuelve ambigua la siguiente recuperación: el
+    # endpoint de restablecimiento busca al usuario solo por el token, que siempre es 123456.
     for usuario in db.scalars(select(Usuario).where(Usuario.id.in_(ids))):
         usuario.token_recuperacion = None
         usuario.token_expiracion = None
-    # Accounts created by the E2E tests (registration, password recovery).
+    # Cuentas creadas por las pruebas E2E (registro, recuperación de contraseña).
     for usuario in db.scalars(
         select(Usuario).where(Usuario.email.like("e2e-%@unisport.test"))
     ):
@@ -100,10 +100,10 @@ PARTIDOS_VALIDACION = [
 
 
 def crear_partidos_de_validacion(db, usuarios, organizador, ahora) -> None:
-    """Matches for the result validation flow, created with their players.
+    """Partidos para el flujo de validación del resultado, creados con sus jugadores.
 
-    The played one cannot be built through the API (a match needs a future
-    date to be created or joined), so the seed writes it directly.
+    El partido ya jugado no se puede armar con la API (un partido necesita una fecha
+    futura para crearse o para unirse), así que el seed lo escribe directamente.
     """
     for nombre, horas, equipos, capitan, aceptados in PARTIDOS_VALIDACION:
         existe = db.scalar(
@@ -158,7 +158,7 @@ PARTIDOS_BAJA = [
 
 
 def crear_partidos_de_baja(db, usuarios, organizador, ahora) -> None:
-    """Matches for the late withdrawal flow, created with their players."""
+    """Partidos para el flujo de baja tardía, creados con sus jugadores."""
     for nombre, minutos, cupos, jugadores in PARTIDOS_BAJA:
         existe = db.scalar(
             select(Partido).where(

@@ -139,7 +139,7 @@ void main() {
       findsOneWidget,
     );
 
-    // An empty reason is not sent.
+    // Un motivo vacío no se envía.
     await tester.tap(find.byKey(const Key('boton-disputar-resultado')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('enviar-disputa')));
@@ -185,7 +185,7 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Versión 1: 3 - 2 · Disputado'), findsOneWidget);
-    // The organizer cannot validate their own score.
+    // El organizador no puede validar su propio marcador.
     expect(find.byKey(const Key('boton-confirmar-resultado')), findsNothing);
   });
 
@@ -237,7 +237,7 @@ void main() {
       );
       await _mostrar(tester, servicio);
 
-      // Without a rival team there is no captain to choose.
+      // Sin un equipo rival no hay capitán que elegir.
       expect(
         find.text('Primero marca al menos un jugador del equipo rival'),
         findsOneWidget,

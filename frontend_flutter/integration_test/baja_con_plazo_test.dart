@@ -8,10 +8,10 @@ import 'helpers_analitica.dart';
 import 'helpers_resultado.dart';
 import 'pantalla.dart';
 
-// Requires the backend running with seed data (backend/seed.py --reset).
-// "Baja con tiempo" is in 2 days: jugador holds its only spot and jugador2
-// waits as substitute. "Baja de último momento" starts in 90 minutes, so
-// leaving it is a late withdrawal.
+// Requiere el backend corriendo con datos de seed (backend/seed.py --reset).
+// "Baja con tiempo" es en 2 días: jugador ocupa su único cupo y jugador2
+// espera como suplente. "Baja de último momento" empieza en 90 minutos, así que
+// salir de él es una baja tardía.
 const _aTiempo = 'Baja con tiempo';
 const _tardio = 'Baja de último momento';
 
@@ -20,7 +20,7 @@ Future<void> _abrirMisPartidos(WidgetTester tester) async {
   await tester.pumpAndSettle(const Duration(seconds: 5));
 }
 
-/// Player: Mis partidos > Me uní > "Salir del partido" on [partido].
+/// Jugador: Mis partidos > Me uní > "Salir del partido" en [partido].
 Future<String> _salirDesdeMeUni(WidgetTester tester, String partido) async {
   await _abrirMisPartidos(tester);
   await tester.tap(find.text('Me uní'));
@@ -36,7 +36,7 @@ Future<String> _salirDesdeMeUni(WidgetTester tester, String partido) async {
   await tester.tap(boton);
   await tester.pumpAndSettle();
 
-  // What the confirmation tells the player before leaving.
+  // Lo que la confirmación le dice al jugador antes de salir.
   final aviso = find
       .descendant(of: find.byType(AlertDialog), matching: find.byType(Text))
       .evaluate()
@@ -47,7 +47,8 @@ Future<String> _salirDesdeMeUni(WidgetTester tester, String partido) async {
   return aviso;
 }
 
-/// Organizer: Mis partidos > Organizo > the card of [partido], participants open.
+/// Organizador: Mis partidos > Organizo > la tarjeta de [partido], con
+/// participantes abiertos.
 Future<Finder> _tarjetaDelOrganizador(
   WidgetTester tester,
   String partido,
@@ -85,7 +86,7 @@ void main() {
       await tester.pumpAndSettle();
       final antes = await conteoEventos();
 
-      // 1. With 2 days to go, Jugador Demo leaves: a normal confirmation.
+      // 1. Faltando 2 días, Jugador Demo sale: una confirmación normal.
       await entrar(tester, jugadorEquipoA);
       final avisoATiempo = await _salirDesdeMeUni(tester, _aTiempo);
       expect(avisoATiempo, contains('Puedes volver a unirte'));
@@ -93,14 +94,14 @@ void main() {
       await salirAlInicio(tester);
       await cerrarSesion(tester);
 
-      // 2. 90 minutes before kick-off, Tercer Jugador is warned and leaves.
+      // 2. 90 minutos antes del inicio, Tercer Jugador recibe el aviso y sale.
       await entrar(tester, tercerJugador);
       final avisoTardio = await _salirDesdeMeUni(tester, _tardio);
       expect(avisoTardio, contains('baja tardía'));
       await salirAlInicio(tester);
       await cerrarSesion(tester);
 
-      // 3. The organizer sees the substitute promoted on the first match...
+      // 3. El organizador ve al suplente ascendido en el primer partido...
       await entrar(tester, organizador);
       var tarjeta = await _tarjetaDelOrganizador(tester, _aTiempo);
       expect(_en(tarjeta, 'Cupos: 1/1'), findsOneWidget);
@@ -113,12 +114,12 @@ void main() {
         findsNothing,
       );
 
-      // ...and the late withdrawal on the second one.
+      // ...y la baja tardía en el segundo.
       await salirAlInicio(tester);
       tarjeta = await _tarjetaDelOrganizador(tester, _tardio);
       expect(_en(tarjeta, 'Bajas tardías: Tercer Jugador'), findsOneWidget);
 
-      // Two withdrawals started and two recorded.
+      // Dos bajas iniciadas y dos registradas.
       await expectEventos(antes, {'baja_iniciada': 2, 'baja_registrada': 2});
     },
   );

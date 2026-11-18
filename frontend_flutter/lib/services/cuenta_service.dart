@@ -6,19 +6,19 @@ import '../consts/api_url.dart';
 import 'auth_service.dart';
 import 'descarga.dart';
 
-/// The deletion was stopped by UniSport's rule; each block says why and what
-/// to do.
+/// La regla de UniSport detuvo la eliminación; cada bloqueo dice por qué y qué
+/// hacer.
 class CuentaBloqueada implements Exception {
   CuentaBloqueada(this.bloqueos);
 
   final List<Map<String, dynamic>> bloqueos;
 }
 
-/// "Mi cuenta": the person's own data (see and download it) and the way to
-/// delete the account.
+/// "Mi cuenta": los datos propios de la persona (verlos y descargarlos) y la
+/// forma de eliminar la cuenta.
 class CuentaService {
-  /// The client and the token storage can be swapped in tests; the app uses
-  /// the defaults.
+  /// El cliente y el almacenamiento del token se pueden reemplazar en las
+  /// pruebas; la app usa los valores por defecto.
   CuentaService({http.Client? client, TokenStorage? storage})
     : client = client ?? http.Client(),
       storage = storage ?? SecureTokenStorage();
@@ -47,7 +47,7 @@ class CuentaService {
     return jsonDecode(utf8.decode(respuesta.bodyBytes)) as Map<String, dynamic>;
   }
 
-  /// What deleting the account would do, or what stops it.
+  /// Qué haría eliminar la cuenta, o qué lo impide.
   Future<Map<String, dynamic>> antesDeEliminar() async {
     final respuesta = await client.get(
       url('/eliminacion'),
@@ -59,7 +59,7 @@ class CuentaService {
     return jsonDecode(utf8.decode(respuesta.bodyBytes)) as Map<String, dynamic>;
   }
 
-  /// Deletes the account and forgets the session stored on the phone.
+  /// Elimina la cuenta y olvida la sesión guardada en el teléfono.
   Future<void> eliminarCuenta() async {
     final respuesta = await client.delete(url(''), headers: await headers());
     if (respuesta.statusCode == 409) {
@@ -76,12 +76,12 @@ class CuentaService {
     await storage.delete();
   }
 
-  /// Saves [contenido] in the device's Downloads folder (or as a browser
-  /// download on the web) and returns where it went.
+  /// Guarda [contenido] en la carpeta Descargas del dispositivo (o como
+  /// descarga del navegador en la web) y devuelve dónde quedó.
   Future<String> guardarEnDescargas(String nombre, String contenido) =>
       guardarArchivo(nombre, contenido);
 
-  /// Analytics, same endpoint as the rest of the app. Never breaks anything.
+  /// Analítica, mismo endpoint que el resto de la app. Nunca rompe nada.
   Future<void> registrarEvento(
     String evento, {
     Map<String, Object> props = const {},

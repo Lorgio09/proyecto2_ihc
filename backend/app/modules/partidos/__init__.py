@@ -1,4 +1,4 @@
-"""modulo de partidos"""
+"""Módulo de partidos."""
 
 #from app.modules.partidos.router import router
 

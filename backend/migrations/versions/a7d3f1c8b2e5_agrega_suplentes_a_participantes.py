@@ -11,7 +11,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-# revision identifiers, used by Alembic.
+# Identificadores de la revisión, usados por Alembic.
 revision: str = "a7d3f1c8b2e5"
 down_revision: Union[str, Sequence[str], None] = "e3eb9ee986f4"
 branch_labels: Union[str, Sequence[str], None] = None
@@ -19,7 +19,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # Existing participants are all holders and share the migration time.
+    # Los participantes que ya existían quedan todos como titulares y con la hora de la migración.
     op.add_column(
         "partido_participantes",
         sa.Column(

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
 
-/// UniSport's logo, name and slogan, drawn in code so it needs no image file.
-/// [compacta] shows a smaller logo without the slogan, for inner screens.
+/// Logo, nombre y eslogan de UniSport, dibujados en código para no necesitar un
+/// archivo de imagen. [compacta] muestra un logo más pequeño y sin eslogan,
+/// para pantallas internas.
 class MarcaUniSport extends StatelessWidget {
   const MarcaUniSport({super.key, this.compacta = false});
 
@@ -37,7 +38,7 @@ class MarcaUniSport extends StatelessWidget {
                   BoxShadow(
                     color: UniColores.primario.withValues(
                       alpha: 0.3,
-                    ), // logo shadow
+                    ), // sombra del logo
                     blurRadius: 16,
                     offset: const Offset(0, 6),
                   ),

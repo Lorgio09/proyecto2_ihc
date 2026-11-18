@@ -1,7 +1,7 @@
 """Clase 22 · Patrones oscuros: datos expuestos sin necesidad.
 
-Seeing a match only needs the players' names. Their email addresses must not
-travel in any response about matches, not even if the app does not show them.
+Para ver un partido solo hacen falta los nombres de los jugadores. Sus emails no deben
+viajar en ninguna respuesta sobre partidos, aunque la app no los muestre.
 """
 from datetime import datetime, timedelta, timezone
 
@@ -38,7 +38,7 @@ def db():
 
 @pytest.fixture
 def escenario(db):
-    """An organizer's match with one player in; a stranger looks at it."""
+    """Un partido de un organizador con un jugador inscrito; un desconocido lo mira."""
     organizador, jugador, desconocido = [
         Usuario(nombre=nombre, email=f"{nombre}@correo.com", password_hash="x")
         for nombre in ("organizador", "jugador", "desconocido")
@@ -71,10 +71,10 @@ def test_explorar_no_expone_el_email_de_nadie(escenario):
     detalle = http.get(f"/api/partidos/explorar/{partido.id}")
 
     assert lista.status_code == detalle.status_code == 200
-    # The names are still there: that is what the screen needs.
+    # Los nombres siguen ahí: es lo que necesita la pantalla.
     assert lista.json()[0]["organizador"]["nombre"] == "organizador"
     assert lista.json()[0]["participantes"][0]["nombre"] == "jugador"
-    # No email of the organizer or the players reaches a stranger.
+    # Ningún email del organizador ni de los jugadores le llega a un desconocido.
     assert "@" not in lista.text
     assert "@" not in detalle.text
 

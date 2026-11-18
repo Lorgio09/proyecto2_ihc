@@ -8,8 +8,8 @@ load_dotenv()
 
 
 def _url_base_datos(url: str) -> str:
-    """Cloud hosts (Render, Neon, Heroku) give postgres:// or postgresql://;
-    SQLAlchemy needs the psycopg 3 driver spelled out."""
+    """Los servicios en la nube (Render, Neon, Heroku) entregan postgres:// o postgresql://;
+    SQLAlchemy necesita que se indique explícitamente el driver psycopg 3."""
     for prefijo in ("postgres://", "postgresql://"):
         if url.startswith(prefijo):
             return "postgresql+psycopg://" + url[len(prefijo):]

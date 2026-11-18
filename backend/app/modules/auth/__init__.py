@@ -1,4 +1,4 @@
-"""modulo autenticacion"""
+"""Módulo de autenticación."""
 
 from app.modules.auth.router import router
 

@@ -6,11 +6,12 @@ import '../../services/partido.dart';
 import '../../widgets/ayuda.dart';
 import '../../widgets/mensaje.dart';
 
-/// Result validation of one match: teams, rival captain, score and history.
+/// Validación del resultado de un partido: equipos, capitán rival, marcador e
+/// historial.
 ///
-/// What each person can do depends on their role, which the API reports:
-/// the organizer proposes teams and registers the score; the rival captain
-/// accepts the teams and confirms or disputes the score.
+/// Lo que puede hacer cada persona depende de su rol, que informa la API:
+/// el organizador propone equipos y registra el marcador; el capitán rival
+/// acepta los equipos y confirma o disputa el marcador.
 class ResultadoPartidoView extends StatefulWidget {
   const ResultadoPartidoView({
     super.key,
@@ -31,11 +32,11 @@ class _ResultadoPartidoViewState extends State<ResultadoPartidoView> {
   String? mensajeError;
   bool enviando = false;
 
-  // Team proposal form (organizer).
+  // Formulario de propuesta de equipos (organizador).
   final equipoB = <int>{};
   int? capitanId;
 
-  // Score form (organizer).
+  // Formulario del marcador (organizador).
   final golesAController = TextEditingController();
   final golesBController = TextEditingController();
 
@@ -473,7 +474,8 @@ class _ResultadoPartidoViewState extends State<ResultadoPartidoView> {
   }
 }
 
-/// Owns its text controller so it outlives the dialog's closing animation.
+/// Tiene su propio controlador de texto para que sobreviva a la animación de
+/// cierre del diálogo.
 class _DialogoDisputa extends StatefulWidget {
   const _DialogoDisputa();
 

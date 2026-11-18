@@ -1,10 +1,10 @@
-"""Interaction analytics: one function, track(), records what happened.
+"""Analítica de interacción: una sola función, track(), registra lo que pasó.
 
-Only the action is recorded, never the person: no user id, email or free text.
-Each event is saved in the `eventos` table and, when GA_MEASUREMENT_ID and
-GA_API_SECRET are set, also sent to Google Analytics 4.
+Solo se registra la acción, nunca la persona: ni id de usuario, ni email, ni texto libre.
+Cada evento se guarda en la tabla `eventos` y, cuando GA_MEASUREMENT_ID y
+GA_API_SECRET están configurados, también se envía a Google Analytics 4.
 
-The event plan (event, flow, file:line and question) lives in
+El plan de eventos (evento, flujo, archivo:línea y pregunta) está en
 evidencias/tarea-9.md.
 """
 import json
@@ -37,7 +37,7 @@ MIS_DATOS_DESCARGADOS = "mis_datos_descargados"
 ELIMINACION_INICIADA = "eliminacion_iniciada"
 CUENTA_ELIMINADA = "cuenta_eliminada"
 
-# One funnel per main flow: start -> (intermediate steps) -> success.
+# Un embudo por cada flujo principal: inicio -> (pasos intermedios) -> éxito.
 EMBUDOS = {
     "crear_partido": [PARTIDO_CREACION_INICIADA, PARTIDO_CREADO],
     "unirse": [UNION_INICIADA, PARTIDO_UNIDO],
@@ -48,35 +48,35 @@ EMBUDOS = {
     "eliminar_cuenta": [ELIMINACION_INICIADA, CUENTA_ELIMINADA],
 }
 
-# Fixed list of reasons a task can fail: the API error codes plus the checks
-# the app makes before calling it. Anything else is stored as OTRO.
+# Lista fija de motivos por los que una tarea puede fallar: los códigos de error
+# de la API más las validaciones que hace la app antes de llamarla. Cualquier otro se guarda como OTRO.
 MOTIVOS = {
-    # Validation
+    # Validación
     "CAMPOS_INCOMPLETOS", "FECHA_OBLIGATORIA", "FECHA_NO_FUTURA", "FECHA_PASADA",
     "FECHA_NO_DISPONIBLE", "MOTIVO_OBLIGATORIO", "SIN_CAMBIOS", "MARCADOR_INVALIDO",
     "EQUIPOS_INVALIDOS", "CAPACIDAD_INSUFICIENTE",
-    # State of the match
+    # Estado del partido
     "EQUIPO_COMPLETO", "EQUIPO_ABIERTO", "YA_INSCRITO", "NO_INSCRITO",
     "PARTIDO_YA_JUGADO", "PARTIDO_NO_TERMINADO", "REPROGRAMACION_PENDIENTE",
     "SIN_RECONFIRMACION", "EQUIPOS_ACEPTADOS", "EQUIPOS_BLOQUEADOS",
     "EQUIPOS_NO_PROPUESTOS", "EQUIPOS_SIN_ACEPTAR", "EQUIPOS_YA_ACEPTADOS",
     "RESULTADO_PENDIENTE", "RESULTADO_CONFIRMADO", "SIN_RESULTADO_PENDIENTE",
-    # Permission denied
+    # Permiso denegado
     "SOLO_ORGANIZADOR", "SOLO_CAPITAN", "ORGANIZADOR_NO_PUEDE_UNIRSE",
     "ORGANIZADOR_NO_PUEDE_SALIR", "CAPITAN_NO_PUEDE_SALIR",
-    # Account deletion stopped by UniSport's rule
+    # Eliminación de cuenta bloqueada por la regla de UniSport
     "ORGANIZA_PARTIDOS_CON_JUGADORES", "CAPITAN_CON_RESULTADO_PENDIENTE",
 }
 
-# Only start events and the app's own validation failures come from the app;
-# every success is recorded by the backend once it was saved.
+# Desde la app solo llegan los eventos de inicio y sus propios fallos de validación;
+# cada éxito lo registra el backend una vez que quedó guardado.
 EVENTOS_DESDE_LA_APP = {
     UNION_INICIADA,
     PARTIDO_CREACION_INICIADA,
     REPROGRAMACION_INICIADA,
     BAJA_INICIADA,
     TAREA_FALLIDA,
-    # The file is written on the phone, so both steps happen in the app.
+    # El archivo se escribe en el teléfono, así que ambos pasos ocurren en la app.
     MIS_DATOS_VISTOS,
     MIS_DATOS_DESCARGADOS,
     ELIMINACION_INICIADA,
@@ -89,11 +89,11 @@ log = logging.getLogger(__name__)
 
 
 def enviar_a_ga(evento: str, props: dict) -> None:
-    """Send the event to GA4 without blocking the request; failures are logged."""
+    """Envía el evento a GA4 sin bloquear la petición; los fallos se registran en el log."""
     if not settings.ga_measurement_id or not settings.ga_api_secret:
         return
 
-    # GA parameters must be text or numbers.
+    # Los parámetros de GA deben ser texto o números.
     params = {
         clave: str(valor).lower() if isinstance(valor, bool) else valor
         for clave, valor in props.items()
@@ -113,7 +113,7 @@ def enviar_a_ga(evento: str, props: dict) -> None:
                 url, data=cuerpo, headers={"Content-Type": "application/json"}
             )
             urllib.request.urlopen(peticion, timeout=5).close()
-        except Exception as error:  # GA must never break the app
+        except Exception as error:  # GA nunca debe romper la app
             log.warning("No se pudo enviar %s a Google Analytics: %s", evento, error)
 
     threading.Thread(target=enviar, daemon=True).start()
@@ -144,7 +144,7 @@ def track(base_datos: Session, evento: str, props: dict | None = None) -> Evento
 
 
 def registrar(base_datos: Session, evento: str, props: dict | None = None) -> None:
-    """track() for request handlers: an analytics failure never breaks them."""
+    """track() para los manejadores de peticiones: un fallo de analítica nunca los rompe."""
     try:
         track(base_datos, evento, props)
     except Exception as error:
@@ -152,8 +152,8 @@ def registrar(base_datos: Session, evento: str, props: dict | None = None) -> No
 
 
 def registrar_fallo(base_datos: Session, flujo: str, motivo: str) -> None:
-    """Record a task that failed. Discards the request's unsaved changes first
-    and never raises: analytics must not hide the real error."""
+    """Registra una tarea que falló. Primero descarta los cambios no guardados de la
+    petición y nunca lanza excepciones: la analítica no debe ocultar el error real."""
     try:
         base_datos.rollback()
         track(base_datos, TAREA_FALLIDA, {"flujo": flujo, "motivo": motivo})
@@ -174,8 +174,8 @@ def resumen(base_datos: Session) -> dict:
         anterior = None
         for evento in pasos:
             cantidad = conteos.get(evento, 0)
-            # A success can arrive without its start (the app sends starts in
-            # the background), so a step never shows a negative drop.
+            # Un éxito puede llegar sin su inicio (la app envía los inicios en
+            # segundo plano), así que un paso nunca muestra una caída negativa.
             caida = (
                 max(round((anterior - cantidad) * 100 / anterior), 0)
                 if anterior

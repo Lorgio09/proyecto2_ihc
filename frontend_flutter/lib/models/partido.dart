@@ -1,5 +1,5 @@
-/// A person inside a match. Only the name: the screens never show the email,
-/// so the API does not send it (data minimization).
+/// Una persona dentro de un partido. Solo el nombre: las pantallas nunca
+/// muestran el email, así que la API no lo envía (minimización de datos).
 class UsuarioPartido {
   final int id;
   final String nombre;
@@ -26,13 +26,15 @@ class Partido {
   final List<UsuarioPartido> participantes;
   final int cantidadParticipantes;
   final int cuposDisponibles;
-  // Wait for a holder to leave, in order of arrival.
+  // Esperan a que un titular salga, en orden de llegada.
   final List<UsuarioPartido> suplentes;
   final int cantidadSuplentes;
-  // After a reschedule: why it changed and which holders still have to answer.
+  // Tras una reprogramación: por qué cambió y qué titulares aún deben
+  // responder.
   final String? motivoReprogramacion;
   final List<UsuarioPartido> pendientesConfirmar;
-  // Players who left less than 2 hours before kick-off (visible to the organizer).
+  // Jugadores que salieron menos de 2 horas antes del inicio (visible para el
+  // organizador).
   final List<UsuarioPartido> bajasTardias;
 
   final String deporte; // Nuevo atributo para el deporte
@@ -59,7 +61,8 @@ class Partido {
 
   bool get tieneRespuestasPendientes => pendientesConfirmar.isNotEmpty;
 
-  /// Leaving from now on counts as a late withdrawal (same 2 h rule as the API).
+  /// Salir a partir de ahora cuenta como baja tardía (la misma regla de 2 h que
+  /// la API).
   bool get salidaSeriaTardia =>
       fecha != null &&
       fecha!.difference(DateTime.now()) < const Duration(hours: 2);
@@ -132,7 +135,8 @@ class Partido {
     if (value is! String) {
       throw const FormatException('La fecha del partido debe ser un texto');
     }
-    // The API stores UTC; show and edit the date in the user's local time.
+    // La API guarda en UTC; la fecha se muestra y edita en la hora local del
+    // usuario.
     return DateTime.parse(value).toLocal();
   }
 }

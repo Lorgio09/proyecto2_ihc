@@ -13,8 +13,9 @@ import 'package:frontend_flutter/views/autenticacion/register_view.dart';
 import 'package:frontend_flutter/views/home_view/home_view.dart';
 import 'package:frontend_flutter/views/partido_view/list_partidoview.dart';
 
-// Reference screenshots live in test/goldens. After an intentional visual
-// change, regenerate them with: flutter test --update-goldens test/visual_test.dart
+// Las capturas de referencia están en test/goldens. Tras un cambio visual
+// intencional, regenéralas con: flutter test --update-goldens
+// test/visual_test.dart
 
 class _ServicioFalso extends PartidoService {
   @override
@@ -31,9 +32,10 @@ class _ServicioFalso extends PartidoService {
       ];
 }
 
-/// Flutter's test environment draws every glyph as a solid block unless real
-/// fonts are loaded, so the screenshots would show boxes instead of text.
-/// The fonts come from the SDK itself, so nothing extra lives in the repo.
+/// El entorno de pruebas de Flutter dibuja cada carácter como un bloque sólido
+/// salvo que se carguen fuentes reales, así que las capturas mostrarían cajas
+/// en vez de texto. Las fuentes vienen del propio SDK, así que no se guarda
+/// nada extra en el repo.
 Future<void> _cargarFuentes() async {
   final raiz = Platform.environment['FLUTTER_ROOT'];
   if (raiz == null) return;
@@ -59,14 +61,16 @@ Future<void> _mostrar(WidgetTester tester, Widget pantalla) async {
   await tester.pumpWidget(
     MaterialApp(
       debugShowCheckedModeBanner: false,
-      // The app's real theme, so the screenshots show its real colors.
+      // El tema real de la app, para que las capturas muestren sus colores
+      // reales.
       theme: temaPrincipal.copyWith(
         textTheme: temaPrincipal.textTheme.apply(fontFamily: 'Roboto'),
       ),
       home: pantalla,
     ),
   );
-  // Images decode asynchronously; wait for them so the logo is in the shot.
+  // Las imágenes se decodifican de forma asíncrona; se espera a que carguen
+  // para que el logo salga en la captura.
   await tester.runAsync(() async {
     for (final elemento in find.byType(Image).evaluate()) {
       await precacheImage((elemento.widget as Image).image, elemento);
@@ -75,10 +79,11 @@ Future<void> _mostrar(WidgetTester tester, Widget pantalla) async {
   await tester.pumpAndSettle();
 }
 
-/// Linux and Windows anti-alias glyph edges slightly differently (about 0.5 %
-/// to 1.5 % of the pixels), so the same screen never matches byte for byte
-/// across machines. Up to 2 % is tolerated; a real change to a screen (a new
-/// button, a moved block) differs far more and still fails.
+/// Linux y Windows suavizan los bordes de los caracteres de forma un poco
+/// distinta (cerca de 0.5 % a 1.5 % de los píxeles), así que la misma pantalla
+/// nunca coincide byte a byte entre máquinas. Se tolera hasta un 2 %; un cambio
+/// real en una pantalla (un botón nuevo, un bloque movido) difiere mucho más y
+/// sigue fallando.
 class _ComparadorConTolerancia extends LocalFileComparator {
   _ComparadorConTolerancia(super.testFile);
 

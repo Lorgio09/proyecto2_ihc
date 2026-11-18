@@ -43,7 +43,7 @@ void main() {
     );
     await tester.pump();
 
-    // The search is sent while the first load is still pending.
+    // La búsqueda se envía mientras la primera carga sigue pendiente.
     await tester.enterText(
       find.widgetWithText(TextField, 'Buscar por nombre'),
       'zzz',
@@ -52,7 +52,8 @@ void main() {
     await tester.pump();
     expect(service.respuestas, hasLength(2));
 
-    // The search answers first (no results); the first load answers late.
+    // La búsqueda responde primero (sin resultados); la primera carga responde
+    // tarde.
     service.respuestas[1].complete(const []);
     await tester.pump();
     service.respuestas[0].complete(const [

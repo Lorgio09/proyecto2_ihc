@@ -2,8 +2,8 @@ import 'dart:js_interop';
 
 import 'package:web/web.dart' as web;
 
-/// Web: hands [contenido] to the browser as a download named [nombre]. The
-/// browser saves it in its downloads folder, without asking for permissions.
+/// Web: entrega [contenido] al navegador como una descarga llamada [nombre]. El
+/// navegador la guarda en su carpeta de descargas, sin pedir permisos.
 Future<String> guardarArchivo(String nombre, String contenido) async {
   final archivo = web.Blob(
     [contenido.toJS].toJS,

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-/// An honest confirmation (Tarea 10): it says what will happen, the button
-/// names the action instead of "Sí"/"No", and both buttons have the same size
-/// and weight so neither choice is pushed. No guilt, no extra steps.
+/// Una confirmación honesta (Tarea 10): dice qué va a pasar, el botón
+/// nombra la acción en vez de "Sí"/"No", y ambos botones tienen el mismo tamaño
+/// y peso para que ninguna opción se imponga. Sin culpa, sin pasos extra.
 ///
-/// Returns true only when the person confirms.
+/// Devuelve true solo cuando la persona confirma.
 Future<bool> confirmarAccion(
   BuildContext context, {
   required String titulo,
@@ -43,8 +43,8 @@ Future<bool> confirmarAccion(
           ),
         ),
         actions: [
-          // IntrinsicHeight + stretch keep both buttons equal even when one
-          // label wraps on a narrow phone.
+          // IntrinsicHeight + stretch mantienen iguales ambos botones aunque
+          // una etiqueta pase a dos líneas en un teléfono angosto.
           IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,

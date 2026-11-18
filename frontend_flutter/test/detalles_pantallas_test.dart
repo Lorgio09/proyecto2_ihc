@@ -1,5 +1,6 @@
-// Smaller behaviours of the screens: navigation from the home screen, the
-// checks of the match form, loading states and a few card details.
+// Comportamientos menores de las pantallas: la navegación desde el inicio, las
+// validaciones del formulario de partido, los estados de carga y algunos
+// detalles de tarjeta.
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -123,14 +124,15 @@ void main() {
       ('boton-mi-historial', 'Mi historial'),
     ]) {
       testWidgets('abre $titulo', (tester) async {
-        // The real screens read the session from secure storage.
+        // Las pantallas reales leen la sesión desde el almacenamiento seguro.
         FlutterSecureStorage.setMockInitialValues({});
         _telefono(tester);
         await tester.pumpWidget(
           MaterialApp(home: HomeView(user: _yo, authService: AuthService())),
         );
         await tester.tap(find.byKey(Key(clave)));
-        // The screen keeps loading (no network in tests): wait a fixed time.
+        // La pantalla sigue cargando (no hay red en las pruebas): se espera un
+        // tiempo fijo.
         await tester.pump(const Duration(seconds: 1));
         await tester.pump(const Duration(seconds: 1));
 
@@ -189,7 +191,7 @@ void main() {
         ),
       );
 
-      // Changing the sport keeps the choice.
+      // Cambiar el deporte conserva la elección.
       await tester.tap(find.text('Fútbol'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Vóley').last);

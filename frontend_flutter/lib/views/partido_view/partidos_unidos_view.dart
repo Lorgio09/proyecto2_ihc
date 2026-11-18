@@ -8,8 +8,8 @@ import 'resultado_partido_view.dart';
 import '../../widgets/tarjeta_partido.dart';
 import 'confirmar_salida.dart';
 
-/// "Me uní" tab: matches the user joined (as player or substitute),
-/// with the leave action available right where the user looks for it.
+/// Pestaña "Me uní": partidos a los que el usuario se unió (como jugador o
+/// suplente), con la acción de salir justo donde el usuario la busca.
 class PartidosUnidosView extends StatefulWidget {
   const PartidosUnidosView({
     super.key,
@@ -67,7 +67,7 @@ class _PartidosUnidosViewState extends State<PartidosUnidosView> {
   }
 
   Future<void> salir(Partido partido) async {
-    // Start of the "leave a match" funnel; baja_registrada comes from the API.
+    // Inicio del embudo "salir de un partido"; baja_registrada viene de la API.
     widget.partidoService.registrarEvento('baja_iniciada', {});
     final confirmar = await confirmarSalida(
       context,
@@ -152,8 +152,8 @@ class _PartidosUnidosViewState extends State<PartidosUnidosView> {
                   icon: const Icon(Icons.scoreboard_outlined),
                   label: const Text('Resultado'),
                 ),
-                // The API rejects leaving a played match, so the button
-                // would only fail.
+                // La API rechaza salir de un partido ya jugado, así que el
+                // botón solo fallaría.
                 if (!yaSeJugo(partido))
                   OutlinedButton.icon(
                     key: Key('boton-salir-partido-${partido.id}'),

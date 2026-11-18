@@ -103,13 +103,13 @@ def test_partido_unido_se_registra_solo_si_unirse_funciona(db, cliente, duelo):
     http, actor = cliente
 
     assert http.post(f"/api/partidos/{duelo.id}/unirse").status_code == 200
-    # Same person again: the join fails, so no second success event...
+    # La misma persona otra vez: la inscripción falla, así que no hay un segundo evento de éxito...
     assert http.post(f"/api/partidos/{duelo.id}/unirse").status_code == 409
 
     guardados = eventos(db)
     assert [item.evento for item in guardados] == ["partido_unido", "tarea_fallida"]
     assert guardados[0].props == {"deporte": "basquet", "como_suplente": False}
-    # ...but the failure is recorded with its reason from the fixed list.
+    # ...pero el fallo se registra con su motivo tomado de la lista fija.
     assert guardados[1].props == {"flujo": "unirse", "motivo": "YA_INSCRITO"}
     assert all(sin_datos_personales(item) for item in guardados)
 
@@ -152,7 +152,7 @@ def test_baja_registra_si_fue_tardia(db, cliente, usuarios):
     )
     http.post(f"/api/partidos/{pronto.id}/unirse")
     assert http.delete(f"/api/partidos/{pronto.id}/salir").status_code == 200
-    # The organizer cannot leave: a permission failure.
+    # El organizador no puede salirse: es un fallo de permiso.
     actor["usuario"] = usuarios[0]
     assert http.delete(f"/api/partidos/{pronto.id}/salir").status_code == 409
 
@@ -174,14 +174,14 @@ def test_reprogramar_registra_exito(db, cliente, usuarios, duelo):
     )
     assert respuesta.status_code == 200
     assert nombres_eventos(db) == ["partido_reprogramado"]
-    # The reason the organizer typed is never stored.
+    # El motivo que escribió el organizador nunca se guarda.
     assert "Lluvia" not in str(eventos(db)[0].props)
 
 
 def test_busqueda_sin_resultados_guarda_solo_los_filtros_usados(db, cliente, duelo):
     http, _ = cliente
     assert http.get("/api/partidos/explorar", params={"busqueda": "zzz"}).json() == []
-    assert http.get("/api/partidos/explorar").json() != []  # no filter: nothing
+    assert http.get("/api/partidos/explorar").json() != []  # sin filtro: no se registra nada
 
     guardados = eventos(db)
     assert [item.evento for item in guardados] == ["busqueda_sin_resultados"]
@@ -201,7 +201,7 @@ def test_la_app_no_puede_registrar_exitos_ni_propiedades_ajenas(db, cliente):
             "props": {"deporte": "voley", "email": "ana@test.com"},
         },
     )
-    # A failure reason outside the fixed list is stored as OTRO.
+    # Un motivo de fallo fuera de la lista fija se guarda como OTRO.
     http.post(
         "/api/analitica/eventos",
         json={
@@ -233,7 +233,7 @@ def test_panel_muestra_un_embudo_por_flujo_y_la_mayor_caida(db, cliente, duelo):
     assert [paso["cantidad"] for paso in unirse["pasos"]] == [4, 1]
     assert unirse["pasos"][1]["caida"] == 75
     assert unirse["termina"] == 25
-    # Creating lost 100 % (2 started, none created): the biggest drop.
+    # Crear perdió el 100 % (2 iniciados, ninguno creado): la mayor caída.
     assert resumen["mayor_caida"] == {
         "flujo": "crear_partido", "evento": "partido_creado", "caida": 100
     }

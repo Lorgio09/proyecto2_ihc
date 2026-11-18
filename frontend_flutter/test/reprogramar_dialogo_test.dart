@@ -12,7 +12,7 @@ Partido _partido(DateTime? fecha) => Partido.fromJson({
   'estado': 'cupos abiertos',
 });
 
-/// Opens the dialog over a button and keeps what it returns.
+/// Abre el diálogo sobre un botón y guarda lo que devuelve.
 class _Abridor {
   DatosReprogramacion? resultado;
   bool cerrado = false;
@@ -119,8 +119,8 @@ void main() {
   testWidgets('una fecha que ya pasó no se acepta', (tester) async {
     final abridor = _Abridor();
     final ayer = DateTime.now().subtract(const Duration(days: 1));
-    // Yesterday at 00:00: the calendar starts today, so the new date is
-    // today at 00:00, which already passed.
+    // Ayer a las 00:00: el calendario empieza hoy, así que la nueva fecha es
+    // hoy a las 00:00, que ya pasó.
     await abridor.abrir(tester, _partido(DateTime(ayer.year, ayer.month, ayer.day)));
 
     await tester.tap(find.byKey(const Key('boton-elegir-nueva-fecha')));

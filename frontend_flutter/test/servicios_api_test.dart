@@ -1,5 +1,6 @@
-// The services that talk to the API, with the HTTP answers simulated: what
-// each call sends, how the answer is read and how an error reaches the screen.
+// Los servicios que hablan con la API, con las respuestas HTTP simuladas: qué
+// envía cada llamada, cómo se lee la respuesta y cómo llega un error a la
+// pantalla.
 import 'dart:convert';
 import 'dart:io';
 
@@ -400,7 +401,7 @@ void main() {
       carpetaDescargas(android: false, entorno: {'USERPROFILE': r'C:\Ana'}).path,
       'C:\\Ana${Platform.pathSeparator}Downloads',
     );
-    // With no home folder at all, the system's temporary folder.
+    // Sin ninguna carpeta personal, la carpeta temporal del sistema.
     expect(
       carpetaDescargas(android: false, entorno: {}).path,
       Directory.systemTemp.path,

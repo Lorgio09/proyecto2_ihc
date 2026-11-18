@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
-/// Android and desktop: writes [contenido] in the Downloads folder and
-/// returns the file's path.
+/// Android y escritorio: escribe [contenido] en la carpeta Descargas y
+/// devuelve la ruta del archivo.
 Future<String> guardarArchivo(String nombre, String contenido) async {
   final carpeta = carpetaDescargas();
   await carpeta.create(recursive: true);
@@ -12,12 +12,12 @@ Future<String> guardarArchivo(String nombre, String contenido) async {
   return archivo.path;
 }
 
-/// Where downloads go. [android] and [entorno] default to the real device;
-/// tests pass them to check every case.
+/// Dónde van las descargas. [android] y [entorno] usan por defecto el
+/// dispositivo real; las pruebas los pasan para revisar cada caso.
 @visibleForTesting
 Directory carpetaDescargas({bool? android, Map<String, String>? entorno}) {
-  // Android 11+ lets an app create its own files in the shared Downloads
-  // folder without asking for any permission.
+  // Android 11+ deja que una app cree sus propios archivos en la carpeta
+  // compartida Descargas sin pedir ningún permiso.
   if (android ?? Platform.isAndroid) {
     return Directory('/storage/emulated/0/Download');
   }

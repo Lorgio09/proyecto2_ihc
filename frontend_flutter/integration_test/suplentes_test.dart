@@ -6,8 +6,8 @@ import 'package:frontend_flutter/services/auth_service.dart';
 
 import 'pantalla.dart';
 
-// Requires the backend running with seed data (backend/seed.py --reset).
-// "Duelo de dos" is seeded with room for two players.
+// Requiere el backend corriendo con datos de seed (backend/seed.py --reset).
+// "Duelo de dos" se crea en el seed con lugar para dos jugadores.
 const _password = 'Seed1234';
 const _partido = 'Duelo de dos';
 const _titular1 = 'jugador2@unisport.test';
@@ -15,14 +15,16 @@ const _titular2 = 'jugador@unisport.test';
 const _suplente = 'jugador3@unisport.test';
 const _organizador = 'organizador@unisport.test';
 
-/// A snackbar is dismissed on its own, so pumpAndSettle would wait past it.
+/// Un snackbar se cierra solo, así que pumpAndSettle esperaría hasta después de
+/// que desaparezca.
 Future<void> _esperar(WidgetTester tester, Finder finder) async {
   for (var i = 0; i < 50 && finder.evaluate().isEmpty; i++) {
     await tester.pump(const Duration(milliseconds: 200));
   }
 }
 
-/// A snackbar outlives pumpAndSettle and can cover the next tap target.
+/// Un snackbar sigue visible tras pumpAndSettle y puede tapar el siguiente
+/// botón a tocar.
 Future<void> _limpiarAvisos(WidgetTester tester) async {
   final scaffold = find.byType(Scaffold).evaluate().last;
   ScaffoldMessenger.of(scaffold).clearSnackBars();
@@ -48,15 +50,15 @@ Future<void> _abrirExplorar(WidgetTester tester) async {
   await tester.pumpAndSettle(const Duration(seconds: 5));
 }
 
-/// The match's card, scrolled fully into view.
+/// La tarjeta del partido, desplazada hasta verse completa.
 Future<Finder> _tarjeta(WidgetTester tester) async {
   await _esperar(tester, find.byType(Card));
   final tarjeta = find.widgetWithText(Card, _partido);
   await tester.scrollUntilVisible(
     tarjeta,
     300,
-    // The filters panel scrolls with the list and its text fields are
-    // scrollables too: the list's own one is the first.
+    // El panel de filtros se desplaza con la lista y sus campos de texto
+    // también son desplazables: el de la propia lista es el primero.
     scrollable: find
         .descendant(
           of: find.byType(ListView),
@@ -87,7 +89,7 @@ void main() {
   iniciarComoTelefono();
 
   setUp(() async {
-    // Start every test without a stored session.
+    // Cada prueba empieza sin sesión guardada.
     await AuthService().logout();
   });
 
@@ -97,7 +99,7 @@ void main() {
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
 
-      // Two players take the two holder spots.
+      // Dos jugadores ocupan los dos cupos de titular.
       await _entrar(tester, _titular1);
       await _abrirExplorar(tester);
       await _unirse(tester, 'Te uniste al partido');
@@ -117,7 +119,7 @@ void main() {
       await tester.pumpAndSettle();
       await _cerrarSesion(tester);
 
-      // The third player finds the team full and joins as a substitute.
+      // El tercer jugador encuentra el equipo completo y se une como suplente.
       await _entrar(tester, _suplente);
       await _abrirExplorar(tester);
       tarjeta = await _tarjeta(tester);
@@ -131,7 +133,7 @@ void main() {
       await tester.pumpAndSettle();
       await _cerrarSesion(tester);
 
-      // The organizer sees holders and substitutes apart.
+      // El organizador ve a titulares y suplentes por separado.
       await _entrar(tester, _organizador);
       await tester.tap(find.byKey(const Key('boton-mis-partidos')));
       await tester.pumpAndSettle(const Duration(seconds: 5));
@@ -159,7 +161,7 @@ void main() {
       await tester.pumpAndSettle();
       await _cerrarSesion(tester);
 
-      // A holder leaves: the substitute takes the spot.
+      // Un titular sale: el suplente toma el cupo.
       await _entrar(tester, _titular1);
       await _abrirExplorar(tester);
       tarjeta = await _tarjeta(tester);
@@ -175,7 +177,7 @@ void main() {
       await tester.pumpAndSettle();
       await _cerrarSesion(tester);
 
-      // The former substitute is now a holder, and the history says so.
+      // El antiguo suplente ahora es titular, y el historial lo indica.
       await _entrar(tester, _suplente);
       await _abrirExplorar(tester);
       tarjeta = await _tarjeta(tester);

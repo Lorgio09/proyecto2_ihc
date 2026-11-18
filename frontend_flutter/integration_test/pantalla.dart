@@ -1,14 +1,15 @@
-// The E2E tests are written for a phone. On a desktop (Linux in GitHub
-// Actions) the window is wide and short, so dialogs and lists lay out
-// differently. There the app is drawn with the size of the Pixel 5 used on
-// the emulator, so every test sees the same screen in both places.
+// Las pruebas E2E están escritas para un teléfono. En escritorio (Linux en
+// GitHub Actions) la ventana es ancha y baja, así que los diálogos y las listas
+// se acomodan distinto. Ahí la app se dibuja con el tamaño del Pixel 5 que se
+// usa en el emulador, para que cada prueba vea la misma pantalla en ambos
+// lugares.
 import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
-/// Call once at the top of each test file's main(), instead of
+/// Llamar una vez al inicio del main() de cada archivo de prueba, en lugar de
 /// IntegrationTestWidgetsFlutterBinding.ensureInitialized().
 void iniciarComoTelefono() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +17,7 @@ void iniciarComoTelefono() {
 
   setUp(() {
     final vista = binding.platformDispatcher.views.first;
-    // Pixel 5: 1080 x 2340 px at 2.625 px per point (411 x 891 points).
+    // Pixel 5: 1080 x 2340 px a 2.625 px por punto (411 x 891 puntos).
     vista.physicalSize = const Size(1080, 2340);
     vista.devicePixelRatio = 2.625;
   });

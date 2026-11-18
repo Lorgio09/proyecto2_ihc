@@ -1,4 +1,4 @@
-// Explorar: a player whose match was rescheduled, and the filters.
+// Explorar: un jugador cuyo partido fue reprogramado, y los filtros.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend_flutter/models/partido.dart';
@@ -145,7 +145,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(servicio.busquedas.last['deporte'], 'voley');
 
-    // The chip is at the end of a row that scrolls sideways.
+    // El chip está al final de una fila que se desplaza de lado.
     await tester.ensureVisible(find.text('Con cupos'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Con cupos'));

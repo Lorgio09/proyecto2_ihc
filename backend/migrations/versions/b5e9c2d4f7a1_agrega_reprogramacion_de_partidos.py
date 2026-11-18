@@ -11,7 +11,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-# revision identifiers, used by Alembic.
+# Identificadores de la revisión, usados por Alembic.
 revision: str = "b5e9c2d4f7a1"
 down_revision: Union[str, Sequence[str], None] = "a7d3f1c8b2e5"
 branch_labels: Union[str, Sequence[str], None] = None
@@ -23,7 +23,7 @@ def upgrade() -> None:
         "partidos",
         sa.Column("motivo_reprogramacion", sa.String(length=255), nullable=True),
     )
-    # Existing participants have nothing to reconfirm.
+    # Los participantes que ya existían no tienen nada que reconfirmar.
     op.add_column(
         "partido_participantes",
         sa.Column(

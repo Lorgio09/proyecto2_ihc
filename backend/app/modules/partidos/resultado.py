@@ -1,10 +1,10 @@
-"""Result validation between people.
+"""Validación del resultado entre personas.
 
-The organizer proposes two teams and a rival captain (team B), who accepts
-them before the match. After the match the organizer registers the score and
-the captain confirms it or disputes it with a reason. A correction is a new
-score version that needs a new validation. Every version is kept; only the
-confirmed one is definitive.
+El organizador propone dos equipos y un capitán rival (equipo B), que los acepta
+antes del partido. Después del partido el organizador registra el marcador y
+el capitán lo confirma o lo disputa indicando un motivo. Una corrección es una nueva
+versión del marcador que necesita una nueva validación. Se guardan todas las
+versiones; solo la confirmada es definitiva.
 """
 
 from datetime import datetime, timezone
@@ -79,7 +79,7 @@ def proponer_equipos(
     capitan_id: int,
     base_datos: Session,
 ) -> Partido:
-    """Holders listed in equipo_b_ids form team B; the rest form team A."""
+    """Los titulares listados en equipo_b_ids forman el equipo B; el resto, el equipo A."""
     if partido.resultados:
         raise ErrorPartido(
             "EQUIPOS_BLOQUEADOS",
@@ -105,7 +105,7 @@ def proponer_equipos(
     for item in titulares:
         item.equipo = "B" if item.usuario_id in equipo_b else "A"
     partido.capitan_rival_id = capitan_id
-    # A new proposal, even a change, needs the captain's acceptance again.
+    # Una nueva propuesta, aunque sea un cambio, necesita otra vez la aceptación del capitán.
     partido.equipos_aceptados = False
     base_datos.commit()
     base_datos.refresh(partido)
@@ -138,7 +138,7 @@ def registrar_resultado(
     goles_b: int,
     base_datos: Session,
 ) -> Partido:
-    """Register the score, or a correction after a dispute."""
+    """Registra el marcador, o una corrección después de una disputa."""
     base_datos.refresh(partido, ["resultados"])
     if goles_a < 0 or goles_b < 0:
         raise ErrorPartido("MARCADOR_INVALIDO", "El marcador no puede ser negativo")
@@ -267,7 +267,7 @@ def datos_validacion(partido: Partido, usuario: Usuario) -> dict:
 
 
 def listar_partidos_participando(usuario: Usuario, base_datos: Session) -> list[Partido]:
-    """Matches the user joined, played ones included (Explorar hides those)."""
+    """Partidos a los que el usuario se unió, incluidos los ya jugados (Explorar los oculta)."""
     return list(
         base_datos.scalars(
             select(Partido)

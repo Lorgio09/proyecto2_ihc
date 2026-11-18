@@ -82,8 +82,8 @@ class Partido(Base):
         String(255), nullable=True
     )
 
-    # Result validation: the organizer proposes teams and a rival captain,
-    # who accepts them before the match and later validates the score.
+    # Validación del resultado: el organizador propone los equipos y un capitán
+    # rival, que los acepta antes del partido y después valida el marcador.
     capitan_rival_id: Mapped[int | None] = mapped_column(
         ForeignKey("usuarios.id", ondelete="SET NULL"),
         nullable=True,
@@ -125,8 +125,8 @@ class PartidoParticipante(Base):
         index=True,
     )
 
-    # Holders fill the match up to its capacity; whoever joins after that waits
-    # as a substitute, ordered by unido_en.
+    # Los titulares llenan el partido hasta su capacidad; quien se une después
+    # espera como suplente, en el orden de unido_en.
     es_suplente: Mapped[bool] = mapped_column(
         Boolean,
         nullable=False,
@@ -139,7 +139,7 @@ class PartidoParticipante(Base):
         default=lambda: datetime.now(timezone.utc),
         server_default=func.now(),
     )
-    # After a reschedule, holders keep their spot while they reconfirm.
+    # Tras una reprogramación, los titulares conservan su lugar mientras reconfirman.
     pendiente_confirmar: Mapped[bool] = mapped_column(
         Boolean,
         nullable=False,
@@ -147,7 +147,7 @@ class PartidoParticipante(Base):
         server_default=false(),
     )
 
-    # "A" or "B" once the organizer proposes the teams.
+    # "A" o "B" una vez que el organizador propone los equipos.
     equipo: Mapped[str | None] = mapped_column(String(1), nullable=True)
 
     partido: Mapped[Partido] = relationship(back_populates="participantes")
@@ -184,7 +184,7 @@ class HistorialParticipacion(Base):
 
 
 class ResultadoPartido(Base):
-    """One score version. A correction adds a new version; none is deleted."""
+    """Una versión del marcador. Una corrección agrega una versión nueva; ninguna se borra."""
 
     __tablename__ = "partido_resultados"
 
@@ -213,8 +213,8 @@ class ResultadoPartido(Base):
 
 
 class Evento(Base):
-    """An interaction event for analytics: what happened, when and the minimal
-    properties a question needs. Never who did it (no user id, no email)."""
+    """Un evento de interacción para la analítica: qué pasó, cuándo y las propiedades
+    mínimas que necesita una pregunta. Nunca quién lo hizo (sin id de usuario ni email)."""
 
     __tablename__ = "eventos"
 

@@ -51,8 +51,8 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
     super.dispose();
   }
 
-  // Only the latest request may update the screen: an older answer that
-  // arrives late would overwrite the results of the current search.
+  // Solo la petición más reciente puede actualizar la pantalla: una respuesta
+  // vieja que llega tarde pisaría los resultados de la búsqueda actual.
   int _ultimaCarga = 0;
 
   Future<void> cargarPartidos() async {
@@ -152,8 +152,9 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
 
   String? motivoBloqueo(Partido partido) {
     if (estaUnido(partido)) return null;
-    // Closed by the organizer while spots remain. A team that is full only
-    // because every spot is taken still accepts substitutes.
+    // Cerrado por el organizador aunque quedan cupos. Un equipo que está
+    // completo solo porque se ocuparon todos los cupos sigue aceptando
+    // suplentes.
     if (partido.estado == 'equipo completo' && partido.cuposDisponibles > 0) {
       return 'El equipo ya está completo';
     }
@@ -169,7 +170,7 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
       ) ||
       posicionSuplente(partido) != null;
 
-  /// 1-based place in the substitutes queue, or null when not a substitute.
+  /// Lugar en la fila de suplentes (empieza en 1), o null si no es suplente.
   int? posicionSuplente(Partido partido) {
     final indice = partido.suplentes.indexWhere(
       (suplente) => suplente.id == widget.usuario.id,
@@ -178,8 +179,8 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
   }
 
   Future<void> unirse(Partido partido) async {
-    // Start event of the join flow; the success one (partido_unido) is
-    // recorded by the backend once joining is saved.
+    // Evento de inicio del flujo para unirse; el de éxito (partido_unido) lo
+    // registra el backend cuando la unión queda guardada.
     partidoService.registrarEvento('union_iniciada', {
       'deporte': partido.deporte,
     });
@@ -215,7 +216,7 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
   }
 
   Future<void> salir(Partido partido) async {
-    // Start of the "leave a match" funnel; baja_registrada comes from the API.
+    // Inicio del embudo "salir de un partido"; baja_registrada viene de la API.
     partidoService.registrarEvento('baja_iniciada', {});
     final confirmar = await confirmarSalida(
       context,
@@ -293,9 +294,9 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
     );
   }
 
-  /// Compact filters: search, place and sport in one row, quick date chips
-  /// and the active filters. It used to take half of the screen (feedback of
-  /// Clase 19).
+  /// Filtros compactos: búsqueda, lugar y deporte en una fila, chips rápidos de
+  /// fecha y los filtros activos. Antes ocupaban media pantalla
+  /// (retroalimentación de la Clase 19).
   Widget panelFiltros() {
     final hayFiltros =
         busquedaController.text.isNotEmpty ||
@@ -432,8 +433,8 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
           ),
         ],
       ),
-      // The filters scroll with the list: with active filters the panel grows
-      // and, fixed on top, it overflowed small screens.
+      // Los filtros se desplazan con la lista: con filtros activos el panel
+      // crece y, fijo arriba, se desbordaba en pantallas pequeñas.
       body: RefreshIndicator(
         onRefresh: cargarPartidos,
         child: ListView.builder(
@@ -469,8 +470,8 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
               height: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
             );
-            // Joining and leaving get the same size: leaving must be as easy
-            // to find as joining (Clase 22, symmetry).
+            // Unirse y salir tienen el mismo tamaño: salir debe ser tan fácil
+            // de encontrar como unirse (Clase 22, simetría).
             final tamano = ButtonStyle(
               minimumSize: WidgetStateProperty.all(const Size.fromHeight(48)),
             );

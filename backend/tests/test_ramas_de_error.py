@@ -1,6 +1,6 @@
-"""Error and edge branches of the code added in the fork: what the API answers
-when something is missing or not allowed, and the cases the happy paths of the
-other test files never reach."""
+"""Ramas de error y casos límite del código agregado en el fork: lo que responde la API
+cuando algo no existe o no está permitido, y los casos que los caminos felices de los
+otros archivos de prueba nunca alcanzan."""
 import logging
 from datetime import datetime, timedelta, timezone
 
@@ -98,7 +98,7 @@ def nuevo_partido(db, organizador, cupos=6, dias=1, nombre="Clásico"):
 
 @pytest.fixture
 def partido(db, usuarios):
-    """Future match with ana, beto and carla as holders."""
+    """Partido futuro con ana, beto y carla como titulares."""
     organizador, ana, beto, carla = usuarios
     partido = nuevo_partido(db, organizador)
     for jugador in (ana, beto, carla):
@@ -115,7 +115,7 @@ def codigo(respuesta):
     return respuesta.json()["detail"]["codigo"]
 
 
-# --- API: answers for missing matches and failed actions ---------------------
+# --- API: respuestas para partidos inexistentes y acciones fallidas ----------
 
 
 def test_rutas_de_un_partido_que_no_existe_responden_404(cliente):
@@ -149,7 +149,7 @@ def test_recorrido_de_validacion_por_la_api_con_sus_errores(db, cliente, usuario
     organizador, ana, beto, carla = usuarios
     url = f"/api/partidos/{partido.id}"
 
-    # Teams: an invalid captain is a data error (422).
+    # Equipos: un capitán inválido es un error de datos (422).
     respuesta = http.put(f"{url}/equipos", json={"equipo_b": [beto.id], "capitan_rival_id": ana.id})
     assert respuesta.status_code == 422
     assert codigo(respuesta) == "EQUIPOS_INVALIDOS"
@@ -157,7 +157,7 @@ def test_recorrido_de_validacion_por_la_api_con_sus_errores(db, cliente, usuario
     assert respuesta.status_code == 200
     assert respuesta.json()["estado_validacion"] == "equipos_propuestos"
 
-    # Only the captain accepts (403), once (409).
+    # Solo el capitán acepta (403), y una sola vez (409).
     actor["usuario"] = ana
     assert codigo(http.post(f"{url}/equipos/aceptar")) == "SOLO_CAPITAN"
     actor["usuario"] = beto
@@ -166,13 +166,13 @@ def test_recorrido_de_validacion_por_la_api_con_sus_errores(db, cliente, usuario
     assert respuesta.status_code == 409
     assert codigo(respuesta) == "EQUIPOS_YA_ACEPTADOS"
 
-    # The score waits for the end of the match (409).
+    # El marcador espera a que termine el partido (409).
     actor["usuario"] = organizador
     respuesta = http.post(f"{url}/resultados", json={"goles_a": 1, "goles_b": 0})
     assert respuesta.status_code == 409
     assert codigo(respuesta) == "PARTIDO_NO_TERMINADO"
 
-    # Nothing to dispute yet (409); after the score, the captain confirms it.
+    # Todavía no hay nada que disputar (409); tras el marcador, el capitán lo confirma.
     jugar(db, partido)
     actor["usuario"] = beto
     respuesta = http.post(f"{url}/resultados/disputar", json={"motivo": "Gol anulado"})
@@ -190,7 +190,7 @@ def test_recorrido_de_validacion_por_la_api_con_sus_errores(db, cliente, usuario
     assert nombres.count("tarea_fallida") >= 5
 
 
-# --- Service rules that the happy paths never reach --------------------------
+# --- Reglas del servicio que los caminos felices nunca alcanzan ---------------
 
 
 def test_reconfirmar_un_partido_inexistente_o_sin_estar_inscrito(db, usuarios, partido):
@@ -210,7 +210,7 @@ def test_un_partido_sin_fecha_no_tiene_baja_tardia_ni_se_considera_jugado(db, us
     sin_fecha = Partido(usuario_id=usuarios[0].id, nombre="Sin fecha", ubicacion="X")
     assert es_baja_tardia(sin_fecha) is False
     assert partido_jugado(sin_fecha) is False
-    # Not saved yet: no session, so no late withdrawals to look up.
+    # Todavía no se guardó: no hay sesión, así que no hay bajas tardías que buscar.
     assert bajas_tardias(sin_fecha) == []
     assert estado_validacion(sin_fecha) == "sin_equipos"
 
@@ -240,14 +240,14 @@ def test_reglas_de_validacion_en_el_servicio(db, usuarios, partido):
     assert error.value.codigo == "MARCADOR_INVALIDO"
 
 
-# --- Deleting the account: the less common cases -----------------------------
+# --- Eliminación de la cuenta: los casos menos comunes -----------------------
 
 
 def test_eliminar_cuenta_en_partidos_sin_fecha_sin_resultado_y_como_capitan(db, usuarios):
     organizador, ana, beto, carla = usuarios
-    # A match with no date counts as one still to be played.
+    # Un partido sin fecha cuenta como uno que todavía falta jugar.
     sin_fecha = Partido(usuario_id=organizador.id, nombre="Sin fecha", ubicacion="X", cantidad_jugadores=4)
-    # A played match without a confirmed result: nothing is kept.
+    # Un partido jugado sin resultado confirmado: no se conserva nada.
     viejo = Partido(
         usuario_id=organizador.id, nombre="Viejo", ubicacion="X", cantidad_jugadores=4,
         fecha=datetime.now(timezone.utc) - timedelta(days=3),
@@ -258,7 +258,7 @@ def test_eliminar_cuenta_en_partidos_sin_fecha_sin_resultado_y_como_capitan(db, 
         PartidoParticipante(partido_id=sin_fecha.id, usuario_id=ana.id),
         PartidoParticipante(partido_id=viejo.id, usuario_id=ana.id),
     ])
-    # Rival captain of a future match: the captaincy is cleared.
+    # Capitán rival de un partido futuro: se le quita la capitanía.
     futuro = nuevo_partido(db, organizador, nombre="Futuro")
     unirse_partido(futuro.id, ana, db)
     futuro.capitan_rival_id = ana.id
@@ -312,11 +312,11 @@ def test_dos_cuentas_eliminadas_del_mismo_resultado_quedan_como_un_solo_anonimo(
     assert jugadores == [anonimo.id]
 
 
-# --- Analytics: Google Analytics and failures that must not break a request --
+# --- Analítica: Google Analytics y fallos que no deben romper una petición ---
 
 
 class _Hilo:
-    """Runs the GA call right away instead of in the background."""
+    """Ejecuta la llamada a GA de inmediato en lugar de en segundo plano."""
 
     def __init__(self, target, daemon):
         self.target = target
@@ -348,7 +348,7 @@ def test_enviar_a_ga_manda_el_evento_y_nunca_rompe_la_app(monkeypatch, caplog):
     enviar_a_ga_real("partido_unido", {"como_suplente": True, "deporte": "futbol"})
     url, cuerpo = enviados[0]
     assert "measurement_id=G-PRUEBA" in url
-    # GA only takes text and numbers: booleans go as "true"/"false".
+    # GA solo acepta texto y números: los booleanos se envían como "true"/"false".
     assert b'"como_suplente": "true"' in cuerpo
     assert enviados[1] == "cerrada"
 
@@ -391,7 +391,7 @@ def test_si_la_analitica_falla_la_peticion_sigue(caplog):
     assert "No se pudo registrar el fallo de unirse" in caplog.text
 
 
-# --- Configuration -----------------------------------------------------------
+# --- Configuración -----------------------------------------------------------
 
 
 def test_la_url_de_la_nube_usa_el_driver_de_psycopg():

@@ -6,18 +6,20 @@ import 'package:frontend_flutter/services/auth_service.dart';
 
 import 'pantalla.dart';
 
-// Requires the backend running with seed data (backend/seed.py --reset).
+// Requiere el backend corriendo con datos de seed (backend/seed.py --reset).
 const _email = 'organizador@unisport.test';
 const _password = 'Seed1234';
 
-/// A snackbar is dismissed on its own, so pumpAndSettle would wait past it.
+/// Un snackbar se cierra solo, así que pumpAndSettle esperaría hasta después de
+/// que desaparezca.
 Future<void> _esperar(WidgetTester tester, Finder finder) async {
   for (var i = 0; i < 50 && finder.evaluate().isEmpty; i++) {
     await tester.pump(const Duration(milliseconds: 200));
   }
 }
 
-/// A snackbar outlives pumpAndSettle and can cover the next tap target.
+/// Un snackbar sigue visible después de pumpAndSettle y puede tapar el
+/// siguiente botón a tocar.
 Future<void> _limpiarAvisos(WidgetTester tester) async {
   final scaffold = find.byType(Scaffold).evaluate().last;
   ScaffoldMessenger.of(scaffold).clearSnackBars();
@@ -37,7 +39,7 @@ Future<void> _abrirMisPartidos(WidgetTester tester) async {
   await tester.pumpAndSettle(const Duration(seconds: 5));
 }
 
-/// The card of the seeded match [nombre], scrolled into view.
+/// La tarjeta del partido de seed [nombre], desplazada hasta quedar visible.
 Future<Finder> _tarjeta(WidgetTester tester, String nombre) async {
   await _esperar(tester, find.byType(Card));
   final tarjeta = find.widgetWithText(Card, nombre);
@@ -52,8 +54,8 @@ Future<Finder> _tarjeta(WidgetTester tester, String nombre) async {
   return tarjeta;
 }
 
-/// Taps a button inside a card, scrolling it fully into view first: the card
-/// can be only partly visible and its actions sit at the bottom.
+/// Toca un botón dentro de una tarjeta, desplazándola antes hasta verla
+/// completa: la tarjeta puede verse solo en parte y sus acciones están abajo.
 Future<void> _tocar(WidgetTester tester, Finder boton) async {
   await tester.ensureVisible(boton);
   await tester.pumpAndSettle();
@@ -61,7 +63,7 @@ Future<void> _tocar(WidgetTester tester, Finder boton) async {
   await tester.pumpAndSettle();
 }
 
-/// Secondary actions live in the card's "⋮" menu.
+/// Las acciones secundarias están en el menú "⋮" de la tarjeta.
 Future<void> _opcionDelMenu(
   WidgetTester tester,
   Finder tarjeta,
@@ -82,7 +84,7 @@ void main() {
   iniciarComoTelefono();
 
   setUp(() async {
-    // Start every test without a stored session.
+    // Cada prueba empieza sin sesión guardada.
     await AuthService().logout();
   });
 

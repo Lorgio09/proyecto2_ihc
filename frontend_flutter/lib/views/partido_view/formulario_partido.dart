@@ -10,7 +10,8 @@ class FormularioPartido extends StatefulWidget {
   const FormularioPartido({super.key, this.partido, this.alFallar});
 
   final Partido? partido;
-  // Analytics: called with a reason from the fixed list when saving is blocked.
+  // Analítica: se llama con un motivo de la lista fija cuando se bloquea el
+  // guardado.
   final void Function(String motivo)? alFallar;
 
   @override
@@ -168,8 +169,8 @@ class _FormularioPartidoState extends State<FormularioPartido> {
                   validator: validarTexto,
                 ),
               ),
-              // Same pattern as Input: the label above the box, not floating
-              // on its border.
+              // Mismo patrón que Input: la etiqueta arriba de la caja, no
+              // flotando sobre su borde.
               _Campo(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -300,7 +301,7 @@ class _FormularioPartidoState extends State<FormularioPartido> {
   }
 }
 
-/// One field of the form, with the same space below it as all the others.
+/// Un campo del formulario, con el mismo espacio debajo que todos los demás.
 class _Campo extends StatelessWidget {
   const _Campo({required this.child});
 

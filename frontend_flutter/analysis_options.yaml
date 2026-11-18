@@ -1,12 +1,12 @@
-# This file configures the analyzer, which statically analyzes Dart code to
-# check for errors, warnings, and lints.
+# Este archivo configura el analizador, que revisa el código Dart de forma
+# estática para encontrar errores, advertencias y lints.
 #
-# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
-# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
-# invoked from the command line by running `flutter analyze`.
+# Los problemas que encuentra el analizador se muestran en los IDE compatibles
+# con Dart (https://dart.dev/tools#ides-and-editors). El analizador también se
+# puede ejecutar desde la línea de comandos con `flutter analyze`.
 
-# The following line activates a set of recommended lints for Flutter apps,
-# packages, and plugins designed to encourage good coding practices.
+# La siguiente línea activa un conjunto de lints recomendados para apps,
+# paquetes y plugins de Flutter, pensados para fomentar buenas prácticas.
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
@@ -20,19 +20,19 @@ analyzer:
     - windows/**
 
 linter:
-  # The lint rules applied to this project can be customized in the
-  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
-  # included above or to enable additional rules. A list of all available lints
-  # and their documentation is published at https://dart.dev/lints.
+  # Las reglas de lint de este proyecto se pueden ajustar en la sección de
+  # abajo, para desactivar reglas de `package:flutter_lints/flutter.yaml`
+  # (incluido arriba) o para activar reglas adicionales. La lista de todos los
+  # lints disponibles y su documentación está en https://dart.dev/lints.
   #
-  # Instead of disabling a lint rule for the entire project in the
-  # section below, it can also be suppressed for a single line of code
-  # or a specific dart file by using the `// ignore: name_of_lint` and
-  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
-  # producing the lint.
+  # En lugar de desactivar una regla para todo el proyecto en la sección de
+  # abajo, también se puede silenciar en una sola línea de código o en un
+  # archivo Dart concreto con la sintaxis `// ignore: name_of_lint` y
+  # `// ignore_for_file: name_of_lint` en la línea o el archivo que produce
+  # el lint.
   rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    # avoid_print: false  # Quitar el comentario para desactivar `avoid_print`
+    # prefer_single_quotes: true  # Quitar el comentario para activar `prefer_single_quotes`
 
-# Additional information about this file can be found at
+# Más información sobre este archivo en
 # https://dart.dev/guides/language/analysis-options

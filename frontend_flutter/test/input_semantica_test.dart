@@ -22,8 +22,8 @@ void main() {
     final campo = tester.getSemantics(find.byType(EditableText));
     expect(campo.label, contains('Email'));
     expect(campo.flagsCollection.isTextField, isTrue);
-    // The visible label is not read a second time as loose text: only the
-    // field carries "Email".
+    // La etiqueta visible no se lee una segunda vez como texto suelto: solo el
+    // campo lleva "Email".
     expect(find.bySemanticsLabel(RegExp('Email')), findsOneWidget);
     semantica.dispose();
   });
@@ -48,7 +48,7 @@ void main() {
     final campo = tester.getSemantics(find.byType(EditableText));
     expect(campo.label, contains('Contraseña'));
     expect(campo.flagsCollection.isObscured, isTrue);
-    // The eye is still its own button, described by its tooltip.
+    // El ojo sigue siendo su propio botón, descrito por su tooltip.
     final ojo = tester.getSemantics(find.byType(IconButton));
     expect(ojo.tooltip, 'Mostrar contraseña');
     expect(ojo.flagsCollection.isButton, isTrue);

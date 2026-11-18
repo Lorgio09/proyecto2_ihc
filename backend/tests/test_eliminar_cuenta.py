@@ -1,6 +1,6 @@
-"""Tarea 10 · Eliminar la cuenta with UniSport's rule: a holder's spot in a
-future match goes to the first substitute, and confirmed results stay but
-anonymously. When the rule stops the deletion, the answer says why and what to do.
+"""Tarea 10 · Eliminar la cuenta según la regla de UniSport: el lugar de un titular en un
+partido futuro pasa al primer suplente, y los resultados confirmados se conservan pero
+de forma anónima. Cuando la regla impide la eliminación, la respuesta dice por qué y qué hacer.
 """
 from datetime import datetime, timedelta, timezone
 
@@ -102,8 +102,8 @@ def test_titular_que_se_va_deja_su_lugar_al_primer_suplente(db):
         org, db,
     )
     unirse_partido(partido.id, ana, db)                      # titular
-    unirse_partido(partido.id, beto, db)  # full: first substitute
-    unirse_partido(partido.id, caro, db)  # second substitute
+    unirse_partido(partido.id, beto, db)  # lleno: primer suplente
+    unirse_partido(partido.id, caro, db)  # segundo suplente
     ana_id = ana.id
 
     previa = _cliente(db, ana).get("/api/cuenta/eliminacion").json()
@@ -147,13 +147,13 @@ def test_resultado_confirmado_se_conserva_de_forma_anonima(db):
     db.expire_all()
     anonimo = db.scalar(select(Usuario).where(Usuario.email == ANONIMO_EMAIL))
     assert anonimo.nombre == ANONIMO_NOMBRE
-    # The matches and their scores stay; the person is replaced.
+    # Los partidos y sus marcadores se conservan; la persona se reemplaza.
     assert db.get(Partido, propio.id).usuario_id == anonimo.id
     assert db.get(Partido, ajeno.id).capitan_rival_id == anonimo.id
     assert [r.estado for r in db.get(Partido, propio.id).resultados] == ["confirmado"]
     jugadores = [p.usuario_id for p in db.get(Partido, ajeno.id).participantes]
     assert jugadores == [anonimo.id]
-    # Without a confirmed result there is nothing to keep.
+    # Sin un resultado confirmado no hay nada que conservar.
     assert db.get(Partido, sin_resultado_id) is None
 
 
@@ -189,7 +189,7 @@ def test_bloquea_si_organiza_un_partido_futuro_con_jugadores(db):
     assert respuesta.status_code == 409
     detalle = respuesta.json()["detail"]
     assert detalle["codigo"] == "ORGANIZA_PARTIDOS_CON_JUGADORES"
-    # Says why (who is affected) and what to do.
+    # Dice por qué (a quién afecta) y qué hacer.
     assert "Fulbito de Ana" in detalle["mensaje"]
     assert "Eliminar partido" in detalle["mensaje"]
 
@@ -236,7 +236,7 @@ def test_la_app_puede_registrar_el_inicio_de_la_eliminacion(db):
     assert http.post(
         "/api/analitica/eventos", json={"evento": "eliminacion_iniciada"}
     ).status_code < 300
-    # The success comes only from the backend.
+    # El éxito lo registra solo el backend.
     assert http.post(
         "/api/analitica/eventos", json={"evento": "cuenta_eliminada"}
     ).status_code >= 400

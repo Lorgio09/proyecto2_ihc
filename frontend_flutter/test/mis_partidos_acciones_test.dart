@@ -1,4 +1,5 @@
-// Mis partidos (Organizo): the actions of a card and the notices it shows.
+// Mis partidos (Organizo): las acciones de una tarjeta y los avisos que
+// muestra.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend_flutter/models/partido.dart';
@@ -229,7 +230,7 @@ void main() {
     await tester.tap(find.text('Cancelar'));
     await tester.pumpAndSettle();
 
-    // Editing is not part of the "create a match" funnel.
+    // Editar no forma parte del embudo "crear un partido".
     expect(servicio.eventos, isNot(contains('partido_creacion_iniciada')));
   });
 
@@ -251,7 +252,8 @@ void main() {
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle();
 
-    // The search box also shows the typed text: look only inside the cards.
+    // La caja de búsqueda también muestra el texto escrito: buscar solo dentro
+    // de las tarjetas.
     expect(find.widgetWithText(Card, 'Fulbito 2'), findsOneWidget);
     expect(find.widgetWithText(Card, 'Fulbito 1'), findsNothing);
   });

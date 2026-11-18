@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Runs every test suite and saves the result under docs/evidencias/tarea-6/,
-# or under SUITE_OUT_DIR when it is set.
+# Ejecuta todas las suites de pruebas y guarda el resultado en docs/evidencias/tarea-6/,
+# o en SUITE_OUT_DIR si está definida.
 #
-# Usage: ./run_suite.sh <label> [flutter device, default: linux]
-#   ./run_suite.sh antes     # before a feature
-#   ./run_suite.sh despues   # after it
+# Uso: ./run_suite.sh <etiqueta> [dispositivo de flutter, por defecto: linux]
+#   ./run_suite.sh antes     # antes de una funcionalidad
+#   ./run_suite.sh despues   # después de ella
 #   SUITE_OUT_DIR=evidencias/tarea-8 ./run_suite.sh despues
 set -uo pipefail
 

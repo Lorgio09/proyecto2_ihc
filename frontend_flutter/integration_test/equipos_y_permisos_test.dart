@@ -7,8 +7,9 @@ import 'package:frontend_flutter/services/auth_service.dart';
 import 'helpers_resultado.dart';
 import 'pantalla.dart';
 
-// Requires the backend running with seed data (backend/seed.py --reset).
-// "Amistoso del sábado" is next week, with three players and no teams yet.
+// Requiere el backend corriendo con datos de seed (backend/seed.py --reset).
+// "Amistoso del sábado" es la próxima semana, con tres jugadores y aún sin
+// equipos.
 const _partido = 'Amistoso del sábado';
 
 void main() {
@@ -24,7 +25,7 @@ void main() {
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
 
-      // The organizer proposes the teams and the rival captain.
+      // El organizador propone los equipos y el capitán rival.
       await entrar(tester, organizador);
       await abrirResultadoComoOrganizador(tester, _partido);
       expect(
@@ -46,7 +47,7 @@ void main() {
       await salirAlInicio(tester);
       await cerrarSesion(tester);
 
-      // A teammate of the captain can see the proposal but cannot accept it.
+      // Un compañero del capitán puede ver la propuesta pero no aceptarla.
       await entrar(tester, tercerJugador);
       await abrirResultadoComoJugador(tester, _partido);
       expect(
@@ -57,7 +58,7 @@ void main() {
       await salirAlInicio(tester);
       await cerrarSesion(tester);
 
-      // The captain accepts before the match.
+      // El capitán acepta antes del partido.
       await entrar(tester, capitan);
       await abrirResultadoComoJugador(tester, _partido);
       await tocar(tester, find.byKey(const Key('boton-aceptar-equipos')));
@@ -69,8 +70,8 @@ void main() {
       await salirAlInicio(tester);
       await cerrarSesion(tester);
 
-      // Reload: the acceptance persists, and the organizer still cannot
-      // register a score because the match has not been played.
+      // Recarga: la aceptación se mantiene, y el organizador aún no puede
+      // registrar un marcador porque el partido no se ha jugado.
       await tester.pumpWidget(const SizedBox());
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();

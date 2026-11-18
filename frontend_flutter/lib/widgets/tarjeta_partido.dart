@@ -19,7 +19,7 @@ const _meses = [
   'dic',
 ];
 
-/// "Vie 20 nov · 18:00", the way people say a match date out loud.
+/// "Vie 20 nov · 18:00", como la gente dice en voz alta la fecha de un partido.
 String fechaLegible(DateTime? fecha) {
   if (fecha == null) return 'Sin fecha';
   final hora =
@@ -40,9 +40,9 @@ IconData iconoDeporte(String deporte) {
   }
 }
 
-/// One match, the same way in Mis partidos, Me uní and Explorar: sport and
-/// state at a glance, the key data with icons, how full it is, notices and
-/// the actions of whoever is looking.
+/// Un partido, mostrado igual en Mis partidos, Me uní y Explorar: deporte y
+/// estado de un vistazo, los datos clave con íconos, qué tan lleno está, avisos
+/// y las acciones de quien lo mira.
 class TarjetaPartido extends StatelessWidget {
   const TarjetaPartido({
     super.key,
@@ -58,19 +58,19 @@ class TarjetaPartido extends StatelessWidget {
 
   final Partido partido;
 
-  /// Shown under the title when the viewer is not the organizer.
+  /// Se muestra bajo el título cuando quien mira no es el organizador.
   final String? organizador;
 
-  /// Short notices (reschedule, substitute position, late withdrawals...).
+  /// Avisos cortos (reprogramación, puesto de suplente, bajas tardías...).
   final List<Widget> avisos;
   final bool participantesAbiertos;
   final VoidCallback? alAlternarParticipantes;
   final bool mostrarNombresDeSuplentes;
 
-  /// Secondary actions, in the top right corner (e.g. a "⋮" menu).
+  /// Acciones secundarias, en la esquina superior derecha (p. ej. un menú "⋮").
   final Widget? menu;
 
-  /// Main actions, at the bottom.
+  /// Acciones principales, abajo.
   final Widget? acciones;
 
   @override
@@ -173,7 +173,8 @@ class TarjetaPartido extends StatelessWidget {
   }
 }
 
-/// A one-line notice inside a card, with an icon that says what kind it is.
+/// Un aviso de una línea dentro de una tarjeta, con un ícono que indica de qué
+/// tipo es.
 class AvisoTarjeta extends StatelessWidget {
   const AvisoTarjeta({
     super.key,
@@ -210,7 +211,7 @@ class AvisoTarjeta extends StatelessWidget {
   }
 }
 
-/// What an empty list says: what is going on and what to do next.
+/// Lo que dice una lista vacía: qué está pasando y qué hacer a continuación.
 class EstadoVacio extends StatelessWidget {
   const EstadoVacio({
     super.key,
@@ -292,7 +293,7 @@ class _InsigniaEstado extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final abierto = partido.estado.trim().toLowerCase() == 'cupos abiertos';
-    // Dark text on a light tint: readable (AA) in both states.
+    // Texto oscuro sobre un tono claro: legible (AA) en ambos estados.
     final fondo = abierto ? UniColores.exitoSuave : UniColores.neutroSuave;
     final texto = abierto ? UniColores.exito : UniColores.neutro;
 

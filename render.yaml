@@ -1,6 +1,6 @@
-# Render Blueprint: the UniSport API. Its PostgreSQL database lives on Neon.
-# Render reads this file when the fork is connected (New > Blueprint).
-# The web app (Flutter) is published separately to GitHub Pages; see
+# Blueprint de Render: la API de UniSport. Su base de datos PostgreSQL está en Neon.
+# Render lee este archivo cuando se conecta el fork (New > Blueprint).
+# La app web (Flutter) se publica por separado en GitHub Pages; ver
 # .github/workflows/web.yml.
 services:
   - type: web
@@ -10,21 +10,21 @@ services:
     region: oregon
     rootDir: backend
     buildCommand: pip install -r requirements.txt
-    # Every start: apply migrations and add the demo data that is missing
-    # (seed.py only inserts what is not there), then serve the API.
+    # En cada arranque: aplica las migraciones y agrega los datos de demostración que falten
+    # (seed.py solo inserta lo que no existe) y luego levanta la API.
     startCommand: alembic upgrade head && python seed.py && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /docs
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.6
-      # PostgreSQL on Neon (free, does not expire): its connection string
-      # (direct, not pooled) is pasted by hand in Render, never committed.
+      # PostgreSQL en Neon (gratis y no vence): su cadena de conexión
+      # (directa, sin pooling) se pega a mano en Render y nunca se sube al repositorio.
       - key: DATABASE_URL
         sync: false
       - key: SECRET_KEY
         generateValue: true
-      # Google Analytics 4 (Tarea 9). Filled in by hand in Render, never
-      # committed: leave them empty to disable sending events to GA.
+      # Google Analytics 4 (Tarea 9). Se completan a mano en Render y nunca se
+      # suben al repositorio: déjalas vacías para no enviar eventos a GA.
       - key: GA_MEASUREMENT_ID
         sync: false
       - key: GA_API_SECRET

@@ -6,30 +6,32 @@ import 'package:frontend_flutter/services/auth_service.dart';
 
 import 'pantalla.dart';
 
-// Requires the backend running with seed data (backend/seed.py --reset).
-// Accounts created here use the e2e-*@unisport.test pattern, which the
-// seed's --reset removes.
+// Requiere el backend corriendo con datos de seed (backend/seed.py --reset).
+// Las cuentas creadas aquí usan el patrón e2e-*@unisport.test, que el
+// --reset del seed elimina.
 const _password = 'Seed1234';
 
 String _emailUnico() =>
     'e2e-${DateTime.now().millisecondsSinceEpoch}@unisport.test';
 
-/// A snackbar is dismissed on its own, so pumpAndSettle would wait past it.
+/// Un snackbar se cierra solo, así que pumpAndSettle esperaría hasta después de
+/// que desaparezca.
 Future<void> _esperar(WidgetTester tester, Finder finder) async {
   for (var i = 0; i < 50 && finder.evaluate().isEmpty; i++) {
     await tester.pump(const Duration(milliseconds: 200));
   }
 }
 
-/// A snackbar outlives pumpAndSettle (its timer schedules no frames) and can
-/// cover the button the next step taps, so dismiss it first.
+/// Un snackbar sigue visible tras pumpAndSettle (su temporizador no programa
+/// frames) y puede tapar el botón que toca el siguiente paso, así que primero
+/// se cierra.
 Future<void> _limpiarAvisos(WidgetTester tester) async {
   final scaffold = find.byType(Scaffold).evaluate().last;
   ScaffoldMessenger.of(scaffold).clearSnackBars();
   await tester.pumpAndSettle();
 }
 
-/// Creates an account through the service, then drops its session.
+/// Crea una cuenta mediante el servicio y luego descarta su sesión.
 Future<String> _crearCuenta() async {
   final email = _emailUnico();
   final servicio = AuthService();
@@ -59,7 +61,7 @@ void main() {
   iniciarComoTelefono();
 
   setUp(() async {
-    // Start every test without a stored session.
+    // Cada prueba empieza sin sesión guardada.
     await AuthService().logout();
   });
 
@@ -191,7 +193,7 @@ void main() {
     expect(find.text('Contraseña actualizada correctamente.'), findsWidgets);
     await tester.pumpAndSettle(const Duration(seconds: 5));
 
-    // The old password no longer works; the new one does.
+    // La contraseña anterior ya no funciona; la nueva sí.
     await _limpiarAvisos(tester);
     await tester.tap(find.byTooltip('Cerrar sesión'));
     await tester.pumpAndSettle();

@@ -1,4 +1,4 @@
-// Mis partidos > Me uní: loading errors, substitutes, leaving and the result.
+// Mis partidos > Me uní: errores al cargar, suplentes, salir y el resultado.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend_flutter/models/partido.dart';

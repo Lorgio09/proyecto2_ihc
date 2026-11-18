@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import '../../models/partido.dart';
 import '../../widgets/confirmacion.dart';
 
-/// Leaving a match, said plainly: what happens with the spot and, when it is
-/// late, that the organizer will see it. Facts only, no guilt.
-/// Shared by Explorar partidos and Mis partidos > Me uní.
+/// Salir de un partido, dicho con claridad: qué pasa con el cupo y, si es
+/// tarde, que el organizador lo verá. Solo hechos, sin culpa.
+/// Lo comparten Explorar partidos y Mis partidos > Me uní.
 Future<bool> confirmarSalida(
   BuildContext context,
   Partido partido,

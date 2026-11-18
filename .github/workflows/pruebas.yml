@@ -1,6 +1,6 @@
-# Unit tests (backend + Flutter, with coverage) and E2E tests on every push.
-# The E2E tests run the real app (Linux desktop, under xvfb) against the real
-# API, backed by a PostgreSQL service loaded with the seed data.
+# Pruebas unitarias (backend + Flutter, con coverage) y pruebas E2E en cada push.
+# Las pruebas E2E ejecutan la app real (escritorio Linux, con xvfb) contra la API
+# real, respaldada por un servicio PostgreSQL cargado con los datos seed.
 name: pruebas
 
 on: [push, pull_request]
@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # Full history: diff-cover compares against the original repository.
+          # Historial completo: diff-cover compara contra el repositorio original.
           fetch-depth: 0
 
       - uses: actions/setup-python@v5
@@ -54,7 +54,7 @@ jobs:
         working-directory: frontend_flutter
         run: flutter pub get
 
-      # ---- Unit tests -----------------------------------------------------
+      # ---- Pruebas unitarias ----------------------------------------------
       - name: Pruebas unitarias (backend y app, con coverage)
         run: |
           cd backend
@@ -62,8 +62,8 @@ jobs:
           cd ../frontend_flutter
           flutter test --coverage --coverage-path=../coverage/app.lcov
 
-      # Only the lines added in the fork count: compare with the original
-      # repository (alvaroSG34/proyecto2_ihc). Fails below 100 %.
+      # Solo cuentan las líneas agregadas en el fork: se compara con el repositorio
+      # original (alvaroSG34/proyecto2_ihc). Falla si queda por debajo del 100 %.
       - name: Cobertura del código del fork (diff-cover)
         run: |
           git remote add upstream https://github.com/alvaroSG34/proyecto2_ihc.git
@@ -77,7 +77,7 @@ jobs:
             --include "frontend_flutter/lib/**" --fail-under=100 \
             --html-report playwright-report/cobertura/app.html
 
-      # ---- E2E tests ------------------------------------------------------
+      # ---- Pruebas E2E ----------------------------------------------------
       - name: Preparar la base de datos y la API para las E2E
         working-directory: backend
         run: |
@@ -95,10 +95,10 @@ jobs:
       - name: Pruebas E2E (integration_test en Linux con xvfb)
         working-directory: frontend_flutter
         run: |
-          # The session is kept with flutter_secure_storage, which needs an
-          # unlocked keyring on Linux. Each file starts from fresh seed data.
-          # Every file runs even if an earlier one fails; the step fails at the
-          # end and lists which ones did.
+          # La sesión se guarda con flutter_secure_storage, que en Linux necesita un
+          # llavero (keyring) desbloqueado. Cada archivo empieza con datos seed nuevos.
+          # Se ejecutan todos los archivos aunque uno anterior falle; el paso falla al
+          # final e indica cuáles fallaron.
           dbus-run-session -- bash -c '
             echo -n "ci" | gnome-keyring-daemon --unlock --components=secrets > /dev/null
             fallidas=""

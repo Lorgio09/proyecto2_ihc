@@ -1,4 +1,5 @@
-// Mi cuenta when something goes wrong, and leaving to the login screen.
+// Mi cuenta cuando algo sale mal, y la salida a la pantalla de inicio de
+// sesión.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend_flutter/services/cuenta_service.dart';
@@ -55,7 +56,7 @@ class _Servicio extends CuentaService {
 }
 
 Future<_Servicio> _abrir(WidgetTester tester, _Servicio servicio) async {
-  // A tall phone, so both sections fit without scrolling.
+  // Un teléfono alto, para que ambas secciones quepan sin desplazarse.
   tester.view.physicalSize = const Size(1080, 3200);
   tester.view.devicePixelRatio = 2.625;
   addTearDown(tester.view.reset);
@@ -122,7 +123,7 @@ void main() {
 
     expect(find.text('Todavía no puedes eliminar tu cuenta'), findsOneWidget);
     expect(find.text('Hay un marcador esperando tu validación.'), findsOneWidget);
-    // The backend already recorded this block.
+    // El backend ya registró este bloqueo.
     expect(servicio.eventos, isNot(contains('tarea_fallida')));
   });
 

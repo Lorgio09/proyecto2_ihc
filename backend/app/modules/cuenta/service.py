@@ -1,6 +1,6 @@
-"""The account's own data: what UniSport keeps about a person, to see it and
-take it away. Only that person's data: never other players' names or emails,
-and never the password hash or recovery tokens."""
+"""Los datos propios de la cuenta: lo que UniSport guarda sobre una persona, para verlo
+y eliminarlo. Solo los datos de esa persona: nunca nombres ni emails de otros jugadores,
+y nunca el hash de la contraseña ni los tokens de recuperación."""
 import secrets
 from datetime import datetime, timezone
 
@@ -79,7 +79,7 @@ def mis_datos(usuario: Usuario, base_datos: Session) -> dict:
     }
 
 
-# --- Deleting the account ---------------------------------------------------
+# --- Eliminación de la cuenta ------------------------------------------------
 
 ANONIMO_EMAIL = "usuario-eliminado@unisport.invalid"
 ANONIMO_NOMBRE = "Usuario eliminado"
@@ -113,7 +113,7 @@ def _organizados(usuario: Usuario, base_datos: Session) -> list[Partido]:
 
 
 def bloqueos_eliminacion(usuario: Usuario, base_datos: Session) -> list[dict]:
-    """What stops the deletion, each one saying why and what to do."""
+    """Lo que impide la eliminación; cada motivo dice por qué y qué hacer."""
     bloqueos = []
 
     con_jugadores = [
@@ -158,7 +158,7 @@ def bloqueos_eliminacion(usuario: Usuario, base_datos: Session) -> list[dict]:
 
 
 def consecuencias_eliminacion(usuario: Usuario, base_datos: Session) -> dict:
-    """What will happen, in numbers, so the confirmation can say it plainly."""
+    """Lo que pasará, en números, para que la confirmación lo diga con claridad."""
     futuras = [
         item for item in usuario.partidos_participados if _aun_no_se_juega(item.partido)
     ]
@@ -189,7 +189,7 @@ def _usuario_anonimo(base_datos: Session) -> Usuario:
     if anonimo is None:
         from app.modules.auth.service import hash_password
 
-        # A random password nobody knows: this account can never sign in.
+        # Una contraseña aleatoria que nadie conoce: esta cuenta ya nunca podrá iniciar sesión.
         anonimo = Usuario(
             nombre=ANONIMO_NOMBRE,
             email=ANONIMO_EMAIL,
@@ -201,9 +201,9 @@ def _usuario_anonimo(base_datos: Session) -> Usuario:
 
 
 def eliminar_cuenta(usuario: Usuario, base_datos: Session) -> None:
-    """Delete the account with UniSport's rule: a holder's spot in a future
-    match goes to the first substitute, and confirmed results stay, with the
-    person replaced by an anonymous "Usuario eliminado"."""
+    """Elimina la cuenta según la regla de UniSport: el lugar de un titular en un
+    partido futuro pasa al primer suplente, y los resultados confirmados se conservan,
+    con la persona reemplazada por un anónimo "Usuario eliminado"."""
     from app.modules.partidos.service import promover_suplentes
 
     bloqueos = bloqueos_eliminacion(usuario, base_datos)
@@ -239,7 +239,7 @@ def eliminar_cuenta(usuario: Usuario, base_datos: Session) -> None:
             anonimo = anonimo or _usuario_anonimo(base_datos)
             partido.capitan_rival_id = anonimo.id
         else:
-            # The teams need a new captain, who has to accept them again.
+            # Los equipos necesitan un nuevo capitán, que debe volver a aceptarlos.
             partido.capitan_rival_id = None
             partido.equipos_aceptados = False
 
@@ -250,7 +250,7 @@ def eliminar_cuenta(usuario: Usuario, base_datos: Session) -> None:
         else:
             base_datos.delete(partido)
 
-    # The history and the recovery token go with the account.
+    # El historial y el token de recuperación se eliminan junto con la cuenta.
     for registro in base_datos.scalars(
         select(HistorialParticipacion).where(
             HistorialParticipacion.usuario_id == usuario.id

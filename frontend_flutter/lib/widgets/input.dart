@@ -25,7 +25,7 @@ class Input extends StatefulWidget {
 }
 
 class _InputState extends State<Input> {
-  // A password field starts hidden; the eye lets the person check what they typed.
+  // Un campo de contraseña empieza oculto; el ojo permite revisar lo escrito.
   late bool _oculto = widget.ocultarTexto;
 
   @override
@@ -41,8 +41,9 @@ class _InputState extends State<Input> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // The visible label is read as the field's own name (below), so a
-        // screen reader announces "Email" instead of the example text, once.
+        // La etiqueta visible se lee como el nombre del propio campo (abajo),
+        // así un lector de pantalla anuncia "Email" en lugar del texto de
+        // ejemplo, una vez.
         ExcludeSemantics(
           child: Text(
             widget.etiqueta,

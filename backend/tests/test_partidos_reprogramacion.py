@@ -56,7 +56,7 @@ def usuarios(db):
 
 @pytest.fixture
 def partido(db, usuarios):
-    """Two holder spots taken by ana and beto, carla waiting as substitute."""
+    """Dos lugares de titular ocupados por ana y beto; carla espera como suplente."""
     organizador, ana, beto, carla = usuarios
     partido = crear_partido(
         DatosPartido(
@@ -95,7 +95,7 @@ def test_reprogramar_cambia_datos_y_pide_reconfirmar_a_los_titulares(db, partido
     datos = datos_partido(partido)
     assert datos["ubicacion"] == "Coliseo"
     assert datos["motivo_reprogramacion"] == "La cancha está en mantenimiento"
-    # Holders keep their spot while they answer; the substitute is not asked.
+    # Los titulares conservan su lugar mientras responden; al suplente no se le pregunta.
     assert nombres(datos["participantes"]) == ["ana", "beto"]
     assert nombres(datos["pendientes_confirmar"]) == ["ana", "beto"]
     assert nombres(datos["suplentes"]) == ["carla"]
@@ -118,7 +118,7 @@ def test_un_titular_acepta_otro_se_retira_y_asciende_el_primer_suplente(
     assert nombres(datos["participantes"]) == ["ana", "carla"]
     assert datos["suplentes"] == []
     assert datos["pendientes_confirmar"] == []
-    # Never over capacity and nobody listed twice.
+    # Nunca se supera la capacidad y nadie aparece dos veces.
     assert datos["cantidad_participantes"] == partido.cantidad_jugadores
     inscripciones = db.scalars(
         select(PartidoParticipante.usuario_id).where(
@@ -194,6 +194,6 @@ def test_reconfirmar_sin_reprogramacion_pendiente_se_rechaza(db, usuarios, parti
     assert error.value.codigo == "SIN_RECONFIRMACION"
 
     reprogramar_partido(partido, Reprogramacion(fecha=nueva_fecha(), motivo="Lluvia"), db)
-    # The substitute was not asked to reconfirm.
+    # Al suplente no se le pidió reconfirmar.
     with pytest.raises(ErrorPartido):
         reconfirmar_partido(partido.id, carla, db)

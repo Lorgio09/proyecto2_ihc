@@ -1,5 +1,5 @@
-// Resultado del partido: loading errors, accepting teams and the checks made
-// before calling the API.
+// Resultado del partido: errores al cargar, aceptar equipos y las validaciones
+// que se hacen antes de llamar a la API.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend_flutter/models/partido.dart';
@@ -143,7 +143,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('capitan-Beto')));
     await tester.pumpAndSettle();
-    // Unticking the captain from team B also clears the captain.
+    // Desmarcar al capitán del equipo B también borra el capitán elegido.
     await tester.tap(find.byKey(const Key('equipo-b-Beto')));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('capitan-Beto')), findsNothing);

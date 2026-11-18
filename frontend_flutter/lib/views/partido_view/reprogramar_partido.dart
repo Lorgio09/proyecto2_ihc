@@ -20,7 +20,8 @@ class ReprogramarPartidoDialog extends StatefulWidget {
   });
 
   final Partido partido;
-  // Analytics: called with a reason from the fixed list when saving is blocked.
+  // Analítica: se llama con un motivo de la lista fija cuando se bloquea el
+  // guardado.
   final void Function(String motivo)? alFallar;
 
   @override

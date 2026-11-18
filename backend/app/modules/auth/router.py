@@ -1,4 +1,4 @@
-"""estas son las endpoints que expone el backend para los use el frontend y se haga login"""
+"""Endpoints de autenticación que el backend expone para que el frontend registre usuarios e inicie sesión."""
 
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session

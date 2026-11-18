@@ -47,7 +47,7 @@ void main() {
     );
     expect(completar.dy, greaterThan(cupos.dy));
 
-    // Editing and deleting live in the "⋮" menu, not as loose icons (H8).
+    // Editar y eliminar están en el menú "⋮", no como íconos sueltos (H8).
     expect(find.byIcon(Icons.edit), findsNothing);
     await tester.tap(find.byTooltip('Más acciones'));
     await tester.pumpAndSettle();

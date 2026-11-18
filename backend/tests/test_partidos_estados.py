@@ -94,7 +94,7 @@ def test_completar_equipo_cambia_estado(db, partido):
 
 
 # PRUEBA 3
-# Una transicion inavalida debe rechazarse
+# Una transición inválida debe rechazarse
 
 def test_no_permite_completar_dos_veces(db, partido):
 
@@ -111,7 +111,7 @@ def test_no_permite_completar_dos_veces(db, partido):
 
 
 # PRUEBA 4
-# Los demas datos deben conservarse
+# Los demás datos deben conservarse
 
 def test_completar_equipo_conserva_datos(db, partido):
 

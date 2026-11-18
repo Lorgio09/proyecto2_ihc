@@ -1,6 +1,6 @@
-# Builds the Flutter web app and publishes it to GitHub Pages.
-# The API address comes from the repository variable API_BASE_URL
-# (Settings > Secrets and variables > Actions > Variables), for example
+# Compila la app web de Flutter y la publica en GitHub Pages.
+# La dirección de la API se toma de la variable del repositorio API_BASE_URL
+# (Settings > Secrets and variables > Actions > Variables), por ejemplo
 # https://unisport-api.onrender.com
 name: App web en GitHub Pages
 

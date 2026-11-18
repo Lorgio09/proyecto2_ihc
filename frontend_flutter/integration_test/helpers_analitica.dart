@@ -1,5 +1,5 @@
-// Analytics checks for the E2E tests: read the event counts from the API
-// before and after a flow and compare.
+// Revisiones de analítica para las pruebas E2E: leen los conteos de eventos de
+// la API antes y después de un flujo y los comparan.
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -14,8 +14,9 @@ Future<Map<String, int>> conteoEventos() async {
   return conteos.map((evento, cantidad) => MapEntry(evento, cantidad as int));
 }
 
-/// Expects each event in [esperados] to have grown by that many since [antes].
-/// The app sends start events in the background, so it waits a little.
+/// Espera que cada evento de [esperados] haya crecido esa cantidad desde
+/// [antes]. La app envía los eventos de inicio en segundo plano, así que espera
+/// un poco.
 Future<void> expectEventos(
   Map<String, int> antes,
   Map<String, int> esperados,

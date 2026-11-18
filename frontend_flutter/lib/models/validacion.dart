@@ -1,6 +1,6 @@
 import 'partido.dart';
 
-/// One score version. A correction adds a new one; none is deleted.
+/// Una versión del marcador. Una corrección agrega una nueva; ninguna se borra.
 class VersionResultado {
   final int version;
   final int golesA;
@@ -37,7 +37,8 @@ class VersionResultado {
   };
 }
 
-/// Teams, rival captain and score history of a match, seen by one user.
+/// Equipos, capitán rival e historial de marcadores de un partido, vistos por
+/// un usuario.
 class Validacion {
   final int partidoId;
   final String nombre;

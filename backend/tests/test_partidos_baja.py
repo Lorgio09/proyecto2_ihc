@@ -48,7 +48,7 @@ def usuarios(db):
 
 
 def partido_en(db, usuarios, falta: timedelta):
-    """One holder spot taken by ana, beto waiting as substitute."""
+    """Un lugar de titular ocupado por ana; beto espera como suplente."""
     organizador, ana, beto = usuarios
     partido = crear_partido(
         DatosPartido(
@@ -97,9 +97,9 @@ def test_baja_dentro_de_las_2_horas_queda_como_baja_tardia(db, usuarios):
     salir_partido(partido.id, ana, db)
 
     datos = datos_partido(partido)
-    # The spot is still freed and the substitute takes it.
+    # El lugar igual se libera y el suplente lo ocupa.
     assert nombres(datos["participantes"]) == ["beto"]
-    # The organizer sees who left late, and the player's history says so.
+    # El organizador ve quién se salió tarde, y el historial del jugador lo indica.
     assert nombres(datos["bajas_tardias"]) == ["ana"]
     assert "baja_tardia" in acciones(db, ana)
 

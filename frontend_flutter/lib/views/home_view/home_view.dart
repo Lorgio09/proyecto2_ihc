@@ -136,8 +136,8 @@ class HomeView extends StatelessWidget {
   }
 }
 
-/// A main entry of the home screen: icon, name and what it is for, all of
-/// it one big touch target.
+/// Una entrada principal de la pantalla de inicio: ícono, nombre y para qué
+/// sirve, todo en una sola área táctil grande.
 class _Acceso extends StatelessWidget {
   const _Acceso({
     super.key,

@@ -20,8 +20,8 @@ class PartidoError implements Exception {
 }
 
 class PartidoService {
-  /// The client and the token storage can be swapped in tests; the app uses
-  /// the defaults.
+  /// El cliente y el almacenamiento del token se pueden reemplazar en las
+  /// pruebas; la app usa los valores por defecto.
   PartidoService({http.Client? client, TokenStorage? storage})
     : client = client ?? http.Client(),
       storage = storage ?? SecureTokenStorage();
@@ -190,8 +190,9 @@ class PartidoService {
     return Partido.fromJson(jsonDecode(respuesta.body));
   }
 
-  /// Analytics: records an interaction event. Fire and forget: a failure
-  /// here must never block or break what the person is doing.
+  /// Analítica: registra un evento de interacción. Se envía sin esperar
+  /// respuesta: si falla, nunca debe bloquear ni romper lo que la persona está
+  /// haciendo.
   Future<void> registrarEvento(
     String evento,
     Map<String, Object?> props,

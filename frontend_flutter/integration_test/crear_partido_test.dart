@@ -7,7 +7,7 @@ import 'package:frontend_flutter/services/auth_service.dart';
 import 'helpers_analitica.dart';
 import 'pantalla.dart';
 
-// Requires the backend running with seed data (backend/seed.py).
+// Requiere el backend corriendo con datos de seed (backend/seed.py).
 const _email = 'organizador@unisport.test';
 const _password = 'Seed1234';
 
@@ -27,7 +27,7 @@ Future<void> _abrirFormularioNuevoPartido(WidgetTester tester) async {
   await tester.pumpAndSettle(const Duration(seconds: 5));
   await tester.tap(find.byType(FloatingActionButton));
   await tester.pumpAndSettle();
-  // The dialog's title; the button that opens it says the same.
+  // El título del diálogo; el botón que lo abre dice lo mismo.
   expect(
     find.descendant(
       of: find.byType(AlertDialog),
@@ -41,14 +41,14 @@ void main() {
   iniciarComoTelefono();
 
   setUp(() async {
-    // Start every test without a stored session.
+    // Cada prueba empieza sin sesión guardada.
     await AuthService().logout();
   });
 
   testWidgets('Organizador crea un partido y lo ve en Mis partidos', (
     tester,
   ) async {
-    // A unique name keeps the assertion exact across repeated runs.
+    // Un nombre único mantiene exacta la verificación en ejecuciones repetidas.
     final nombre = 'Partido E2E ${DateTime.now().millisecondsSinceEpoch}';
 
     await _iniciarSesion(tester);
@@ -71,7 +71,8 @@ void main() {
     await tester.tap(find.byKey(const Key('boton-guardar-partido')));
     await tester.pumpAndSettle(const Duration(seconds: 5));
 
-    // Scope to the match card: a confirmation snackbar may repeat the name.
+    // Limitar a la tarjeta del partido: un snackbar de confirmación puede
+    // repetir el nombre.
     final tarjeta = find.descendant(
       of: find.byType(Card),
       matching: find.text(nombre),
@@ -105,7 +106,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('La fecha es obligatoria'), findsOneWidget);
-    // The dialog's title; the button that opens it says the same.
+    // El título del diálogo; el botón que lo abre dice lo mismo.
     expect(
       find.descendant(
         of: find.byType(AlertDialog),
@@ -113,7 +114,7 @@ void main() {
       ),
       findsOneWidget,
     );
-    // Started but blocked by validation: no success, one failure.
+    // Iniciado pero bloqueado por la validación: ningún éxito, un fallo.
     await expectEventos(antes, {
       'partido_creacion_iniciada': 1,
       'tarea_fallida': 1,

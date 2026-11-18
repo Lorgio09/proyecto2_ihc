@@ -38,8 +38,9 @@ class _ServicioFalso extends PartidoService {
 
 const _usuario = Usuario(id: 99, nombre: 'Ana', email: 'ana@unisport.test');
 
-/// The same four checks on every screen: touch target size on both
-/// platforms, a label on every tappable control, and text contrast.
+/// Las mismas cuatro revisiones en cada pantalla: tamaño del área táctil en
+/// ambas plataformas, una etiqueta en cada control tocable y contraste del
+/// texto.
 Future<void> _cumpleLasGuias(WidgetTester tester, Widget pantalla) async {
   final semantica = tester.ensureSemantics();
   await tester.pumpWidget(MaterialApp(home: pantalla));

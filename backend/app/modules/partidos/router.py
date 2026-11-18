@@ -123,7 +123,7 @@ def explorar(
             solo_con_cupos=solo_con_cupos,
         )
     ]
-    # Which filters were used, never what was typed.
+    # Qué filtros se usaron, nunca lo que se escribió.
     filtros = [
         nombre
         for nombre, valor in (
@@ -266,7 +266,7 @@ def unirse(
         if not partido:
             raise no_encontrado()
         datos = datos_partido(partido)
-        # Success event: only reached once joining was saved.
+        # Evento de éxito: solo se llega aquí cuando la inscripción ya quedó guardada.
         registrar_evento(
             base_datos,
             PARTIDO_UNIDO,
@@ -354,7 +354,7 @@ def reconfirmar(
         )
 
 
-# --- Result validation -----------------------------------------------------
+# --- Validación del resultado -----------------------------------------------
 
 ERRORES_DE_PERMISO = {"SOLO_CAPITAN", "SOLO_ORGANIZADOR"}
 ERRORES_DE_DATOS = {"MOTIVO_OBLIGATORIO", "MARCADOR_INVALIDO", "EQUIPOS_INVALIDOS"}

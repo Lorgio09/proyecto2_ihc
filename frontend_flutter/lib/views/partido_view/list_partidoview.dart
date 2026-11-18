@@ -18,7 +18,7 @@ class ListPartidoView extends StatefulWidget {
 
   final PartidoService? partidoService;
 
-  /// When provided, the view shows the "Organizo" / "Me uní" tabs.
+  /// Si se indica, la vista muestra las pestañas "Organizo" / "Me uní".
   final Usuario? usuario;
 
   @override
@@ -96,8 +96,8 @@ class _ListPartidoViewState extends State<ListPartidoView>
     });
   }
 
-  /// Compact filters: search on top, state and "Buscar" in one row, and
-  /// "Limpiar filtros" only when there is something to clear.
+  /// Filtros compactos: búsqueda arriba, estado y "Buscar" en una fila, y
+  /// "Limpiar filtros" solo cuando hay algo que limpiar.
   Widget panelFiltros() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
@@ -121,7 +121,8 @@ class _ListPartidoViewState extends State<ListPartidoView>
                 child: DropdownButtonFormField<String>(
                   initialValue: estadoFiltro,
                   isDense: true,
-                  // Shares the row with the button: it must shrink, not overflow.
+                  // Comparte la fila con el botón: debe encogerse, no
+                  // desbordarse.
                   isExpanded: true,
                   decoration: const InputDecoration(
                     labelText: 'Filtrar por estado',
@@ -206,7 +207,7 @@ class _ListPartidoViewState extends State<ListPartidoView>
 
   Future<void> abrirFormulario({Partido? partido}) async {
     final creando = partido == null;
-    // Start of the "create a match" funnel (editing is not part of it).
+    // Inicio del embudo "crear un partido" (editar no forma parte de él).
     if (creando) {
       partidoService.registrarEvento('partido_creacion_iniciada', {});
     }
@@ -404,8 +405,8 @@ class _ListPartidoViewState extends State<ListPartidoView>
     );
   }
 
-  /// The main action stays visible; the rest live in the "⋮" menu so the card
-  /// is not crowded (H8).
+  /// La acción principal queda visible; el resto va en el menú "⋮" para que la
+  /// tarjeta no se vea recargada (H8).
   Widget _construirAcciones(Partido partido) {
     final estado = partido.estado.trim().toLowerCase();
     final estaCompletando = partidoCompletandoId == partido.id;
@@ -414,7 +415,8 @@ class _ListPartidoViewState extends State<ListPartidoView>
     Widget cargando() => const SizedBox(
       width: 18,
       height: 18,
-      // On the disabled button background, so the theme's color shows.
+      // Sobre el fondo del botón deshabilitado, para que se vea el color del
+      // tema.
       child: CircularProgressIndicator(strokeWidth: 2),
     );
 

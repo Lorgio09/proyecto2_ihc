@@ -51,7 +51,7 @@ def usuarios(db):
 
 @pytest.fixture
 def partido(db, usuarios):
-    """A match for two players, already filled by ana and beto."""
+    """Un partido para dos jugadores, ya lleno con ana y beto."""
     organizador, ana, beto, _, _ = usuarios
     partido = crear_partido(
         DatosPartido(

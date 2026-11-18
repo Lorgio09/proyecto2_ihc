@@ -13,34 +13,33 @@ from app.config import settings
 from app.database.connection import Base
 from app.database import models
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+# Objeto de configuración de Alembic; da acceso
+# a los valores del archivo .ini que se está usando.
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
+# Lee el archivo de configuración para el logging de Python.
+# Básicamente, esta línea prepara los loggers.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata
 
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
+# Otros valores de la configuración, según lo que necesite env.py,
+# se pueden obtener así:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
 
 def run_migrations_offline() -> None:
-    """Run migrations in 'offline' mode.
+    """Ejecuta las migraciones en modo 'offline' (sin conexión).
 
-    This configures the context with just a URL
-    and not an Engine, though an Engine is acceptable
-    here as well.  By skipping the Engine creation
-    we don't even need a DBAPI to be available.
+    Configura el contexto solo con una URL y no con un Engine,
+    aunque aquí también se aceptaría un Engine. Como no se crea
+    el Engine, ni siquiera hace falta tener un DBAPI disponible.
 
-    Calls to context.execute() here emit the given string to the
-    script output.
+    Las llamadas a context.execute() escriben el texto recibido
+    en la salida del script.
 
     """
     url = settings.database_url
@@ -56,10 +55,10 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
+    """Ejecuta las migraciones en modo 'online' (con conexión).
 
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
+    En este caso hay que crear un Engine
+    y asociar una conexión al contexto.
 
     """
     connectable = engine_from_config(

@@ -7,7 +7,7 @@ import 'package:frontend_flutter/services/auth_service.dart';
 import 'helpers_analitica.dart';
 import 'pantalla.dart';
 
-// Requires the backend running with seed data (backend/seed.py --reset).
+// Requiere el backend corriendo con datos de seed (backend/seed.py --reset).
 const _password = 'Seed1234';
 const _partido = 'Futsal nocturno';
 
@@ -27,15 +27,15 @@ Future<void> _abrirExplorar(WidgetTester tester) async {
   await tester.pumpAndSettle(const Duration(seconds: 5));
 }
 
-/// The seeded match's card, scrolled into view.
+/// La tarjeta del partido de seed, desplazada hasta quedar visible.
 Future<Finder> _tarjeta(WidgetTester tester) async {
   await _esperar(tester, find.byType(Card));
   final tarjeta = find.widgetWithText(Card, _partido);
   await tester.scrollUntilVisible(
     tarjeta,
     300,
-    // The filters panel scrolls with the list and its text fields are
-    // scrollables too: the list's own one is the first.
+    // El panel de filtros se desplaza con la lista y sus campos de texto
+    // también son desplazables: el de la propia lista es el primero.
     scrollable: find
         .descendant(
           of: find.byType(ListView),
@@ -46,8 +46,9 @@ Future<Finder> _tarjeta(WidgetTester tester) async {
   return tarjeta;
 }
 
-/// Waits until [finder] appears. A snackbar is dismissed on its own, so
-/// pumpAndSettle would wait past it and the assertion would miss it.
+/// Espera hasta que aparezca [finder]. Un snackbar se cierra solo, así que
+/// pumpAndSettle esperaría hasta después de que desaparezca y la verificación
+/// no lo vería.
 Future<void> _esperar(WidgetTester tester, Finder finder) async {
   for (var i = 0; i < 50 && finder.evaluate().isEmpty; i++) {
     await tester.pump(const Duration(milliseconds: 200));
@@ -61,7 +62,7 @@ void main() {
   iniciarComoTelefono();
 
   setUp(() async {
-    // Start every test without a stored session.
+    // Cada prueba empieza sin sesión guardada.
     await AuthService().logout();
   });
 
@@ -77,7 +78,8 @@ void main() {
       find.descendant(of: tarjeta, matching: find.text('Cupos: 0/8')),
       findsOneWidget,
     );
-    // The card can be on screen while its button is still below the edge.
+    // La tarjeta puede estar en pantalla mientras su botón sigue debajo del
+    // borde.
     await tester.ensureVisible(_en(tarjeta, 'boton-unirse-partido'));
     await tester.pumpAndSettle();
     await tester.tap(_en(tarjeta, 'boton-unirse-partido'));
@@ -93,7 +95,7 @@ void main() {
     expect(_en(tarjeta, 'boton-salir-partido'), findsOneWidget);
     expect(_en(tarjeta, 'boton-unirse-partido'), findsNothing);
 
-    // The join shows up in the history.
+    // La unión aparece en el historial.
     await tester.pageBack();
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('boton-mi-historial')));
@@ -101,7 +103,7 @@ void main() {
     expect(find.text(_partido), findsOneWidget);
     expect(find.text('Te uniste al partido'), findsOneWidget);
 
-    // Leave the match and the slot is released.
+    // Salir del partido libera el cupo.
     await tester.pageBack();
     await tester.pumpAndSettle();
     await _abrirExplorar(tester);
@@ -121,7 +123,7 @@ void main() {
       findsOneWidget,
     );
     expect(_en(tarjeta, 'boton-unirse-partido'), findsOneWidget);
-    // Both funnels recorded their start and their success.
+    // Ambos embudos registraron su inicio y su éxito.
     await expectEventos(antes, {
       'union_iniciada': 1,
       'partido_unido': 1,
@@ -135,22 +137,22 @@ void main() {
     final antes = await conteoEventos();
     await _abrirExplorar(tester);
     await _esperar(tester, find.text('Buscar por nombre'));
-    // Search only once the first list has loaded; on a slow machine (CI) the
-    // first load can still be on its way.
+    // Buscar solo cuando la primera lista ya cargó; en una máquina lenta (CI)
+    // la primera carga todavía puede estar en camino.
     await _esperar(tester, find.byKey(const Key('boton-unirse-partido')));
 
     final buscador = find.widgetWithText(TextField, 'Buscar por nombre');
     await tester.enterText(buscador, 'zzz partido que no existe');
-    // On a desktop the typed text lands on the next frame: let it arrive and
-    // check it is there before searching.
+    // En escritorio el texto escrito llega en el siguiente frame: se deja
+    // llegar y se comprueba que esté antes de buscar.
     await tester.pumpAndSettle();
     expect(
       tester.widget<TextField>(buscador).controller!.text,
       'zzz partido que no existe',
     );
     await tester.tap(find.byTooltip('Buscar partidos'));
-    // The answer arrives outside the frames, so pumpAndSettle can return
-    // before it: wait for the empty state itself.
+    // La respuesta llega fuera de los frames, así que pumpAndSettle puede
+    // terminar antes: se espera al propio estado vacío.
     final vacio = find.text(
       'No encontramos partidos que coincidan con los filtros.',
     );

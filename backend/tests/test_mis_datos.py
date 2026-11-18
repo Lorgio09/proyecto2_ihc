@@ -1,5 +1,5 @@
-"""Tarea 10 · Mis datos: a person can see everything UniSport keeps about them,
-and only that (never other players' data, passwords or tokens)."""
+"""Tarea 10 · Mis datos: una persona puede ver todo lo que UniSport guarda sobre ella,
+y solo eso (nunca datos de otros jugadores, contraseñas ni tokens)."""
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -83,9 +83,9 @@ def test_mis_datos_trae_perfil_partidos_participaciones_e_historial(escenario):
 def test_mis_datos_no_incluye_datos_ajenos_ni_secretos(escenario):
     texto = escenario.get("/api/cuenta/mis-datos").text
 
-    # Other people: Beto plays in Ana's match and organizes the other one.
+    # Otras personas: Beto juega en el partido de Ana y organiza el otro.
     assert "Beto" not in texto.replace("Partido de Beto", "")
     assert "beto@correo.com" not in texto
-    # Secrets.
+    # Datos secretos.
     assert "hash-secreto" not in texto
     assert "123456" not in texto

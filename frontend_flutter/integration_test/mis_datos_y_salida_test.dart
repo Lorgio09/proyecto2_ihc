@@ -1,9 +1,10 @@
-// Tarea 10 · Mis datos y salida honesta, end to end on the real backend:
-// download the data, a deletion blocked by UniSport's rule, and a complete
-// deletion after which the account cannot sign in. Each step checks its
-// analytics events (start, success and block), which carry no personal data.
+// Tarea 10 · Mis datos y salida honesta, de punta a punta con el backend real:
+// descargar los datos, una eliminación bloqueada por la regla de UniSport y una
+// eliminación completa tras la cual la cuenta ya no puede iniciar sesión. Cada
+// paso revisa sus eventos de analítica (inicio, éxito y bloqueo), que no llevan
+// datos personales.
 //
-// Requires the backend running with seed data (backend/seed.py --reset).
+// Requiere el backend corriendo con datos de seed (backend/seed.py --reset).
 import 'dart:convert';
 import 'dart:io';
 
@@ -18,8 +19,8 @@ import 'helpers_analitica.dart';
 import 'helpers_resultado.dart';
 import 'pantalla.dart';
 
-/// Where the app saves the download on each platform (see descarga_io.dart):
-/// the shared Downloads folder on Android, ~/Downloads on Linux (CI).
+/// Dónde guarda la app la descarga en cada plataforma (ver descarga_io.dart):
+/// la carpeta compartida Descargas en Android, ~/Downloads en Linux (CI).
 String get _descargas => Platform.isAndroid
     ? '/storage/emulated/0/Download'
     : '${Platform.environment['HOME'] ?? Platform.environment['USERPROFILE']}/Downloads';
@@ -44,7 +45,8 @@ Future<void> _tocarEliminar(WidgetTester tester) async {
   await tester.pumpAndSettle(const Duration(seconds: 3));
 }
 
-/// A new account that joined "Futsal nocturno", so leaving has consequences.
+/// Una cuenta nueva que se unió a "Futsal nocturno", así que salir tiene
+/// consecuencias.
 Future<String> _cuentaConPartido() async {
   final email = 'e2e-${DateTime.now().millisecondsSinceEpoch}@unisport.test';
   final auth = AuthService();
@@ -75,7 +77,7 @@ void main() {
     await _abrirMiCuenta(tester);
     await _tocarEliminar(tester);
 
-    // Why it is blocked and what to do, never the confirmation.
+    // Por qué está bloqueado y qué hacer, nunca la confirmación.
     expect(find.text('Todavía no puedes eliminar tu cuenta'), findsOneWidget);
     expect(find.textContaining('Amistoso del sábado'), findsOneWidget);
     expect(find.textContaining('Eliminar partido'), findsOneWidget);
@@ -102,14 +104,14 @@ void main() {
       await entrar(tester, email);
       final antes = await conteoEventos();
 
-      // 1. See and download the data.
+      // 1. Ver y descargar los datos.
       await _abrirMiCuenta(tester);
       expect(find.text(email), findsOneWidget);
       expect(find.text('Partidos en los que participas: 1'), findsOneWidget);
       await tester.tap(find.byKey(const Key('boton-descargar-datos')));
       final aviso = find.textContaining(_aviso);
       await esperar(tester, aviso);
-      // Read back the very file the app says it saved.
+      // Leer el mismo archivo que la app dice haber guardado.
       final nombre = (tester.widget<Text>(aviso).data ?? '').substring(
         _aviso.length,
       );
@@ -120,7 +122,7 @@ void main() {
       expect(datos['participaciones'][0]['partido'], 'Futsal nocturno');
       await limpiarAvisos(tester);
 
-      // 2. The honest confirmation: consequences and two equal buttons.
+      // 2. La confirmación honesta: consecuencias y dos botones iguales.
       await _tocarEliminar(tester);
       expect(find.text('¿Eliminar tu cuenta?'), findsOneWidget);
       expect(
@@ -138,14 +140,15 @@ void main() {
         tester.getSize(find.byKey(const Key('confirmar-eliminar-cuenta'))),
       );
 
-      // 3. Delete: back to the login screen with a plain notice.
+      // 3. Eliminar: vuelta a la pantalla de inicio de sesión con un aviso
+      // claro.
       await tester.tap(find.byKey(const Key('confirmar-eliminar-cuenta')));
       await esperar(tester, find.text('Tu cuenta fue eliminada'));
       expect(find.text('Tu cuenta fue eliminada'), findsOneWidget);
       expect(find.byKey(const Key('boton-ingresar')), findsOneWidget);
       await limpiarAvisos(tester);
 
-      // 4. The account no longer signs in.
+      // 4. La cuenta ya no inicia sesión.
       await entrar(tester, email);
       expect(find.byKey(const Key('boton-ingresar')), findsOneWidget);
       expect(find.byKey(const Key('boton-mi-cuenta')), findsNothing);

@@ -8,9 +8,9 @@ import 'helpers_analitica.dart';
 import 'helpers_resultado.dart';
 import 'pantalla.dart';
 
-// Requires the backend running with seed data (backend/seed.py --reset).
-// "Clásico de la facultad" was played 3 hours ago; its teams are accepted and
-// the rival captain is jugador2 (Segundo Jugador).
+// Requiere el backend corriendo con datos de seed (backend/seed.py --reset).
+// "Clásico de la facultad" se jugó hace 3 horas; sus equipos están aceptados y
+// el capitán rival es jugador2 (Segundo Jugador).
 const _partido = 'Clásico de la facultad';
 
 void main() {
@@ -28,7 +28,7 @@ void main() {
 
       final antes = await conteoEventos();
 
-      // 1. The organizer registers the score: it waits for the captain.
+      // 1. El organizador registra el marcador: queda esperando al capitán.
       await entrar(tester, organizador);
       await abrirResultadoComoOrganizador(tester, _partido);
       await registrarMarcador(tester, 3, 2);
@@ -40,7 +40,7 @@ void main() {
         find.text('Todavía no hay un resultado definitivo'),
         findsOneWidget,
       );
-      // The organizer cannot validate their own score.
+      // El organizador no puede validar su propio marcador.
       expect(find.byKey(const Key('boton-confirmar-resultado')), findsNothing);
       await verHistorial(tester);
       expect(
@@ -50,7 +50,7 @@ void main() {
       await salirAlInicio(tester);
       await cerrarSesion(tester);
 
-      // 2. The rival captain disputes it with a reason.
+      // 2. El capitán rival lo disputa indicando un motivo.
       await entrar(tester, capitan);
       await abrirResultadoComoJugador(tester, _partido);
       await disputar(tester, 'El tercer gol fue en fuera de juego');
@@ -71,7 +71,8 @@ void main() {
       await salirAlInicio(tester);
       await cerrarSesion(tester);
 
-      // 3. The organizer corrects it: the correction needs a new validation.
+      // 3. El organizador lo corrige: la corrección necesita una nueva
+      // validación.
       await entrar(tester, organizador);
       await abrirResultadoComoOrganizador(tester, _partido);
       expect(find.text('Corregir el marcador'), findsOneWidget);
@@ -92,7 +93,8 @@ void main() {
       await salirAlInicio(tester);
       await cerrarSesion(tester);
 
-      // 4. The captain confirms: now, and only now, the result is definitive.
+      // 4. El capitán confirma: ahora, y solo ahora, el resultado es
+      // definitivo.
       await entrar(tester, capitan);
       await abrirResultadoComoJugador(tester, _partido);
       await tocar(tester, find.byKey(const Key('boton-confirmar-resultado')));
@@ -101,8 +103,8 @@ void main() {
       await salirAlInicio(tester);
       await cerrarSesion(tester);
 
-      // 5. Reload: a fresh app start and another player see the same data,
-      //    with the whole history kept.
+      // 5. Recarga: un inicio nuevo de la app y otro jugador ven los mismos
+      //    datos, con todo el historial conservado.
       await tester.pumpWidget(const SizedBox());
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
@@ -120,7 +122,7 @@ void main() {
       expect(find.byKey(const Key('boton-registrar-marcador')), findsNothing);
       expect(find.byKey(const Key('boton-confirmar-resultado')), findsNothing);
 
-      // Two scores registered, one disputed and one confirmed.
+      // Dos marcadores registrados, uno disputado y uno confirmado.
       await expectEventos(antes, {
         'resultado_registrado': 2,
         'resultado_disputado': 1,

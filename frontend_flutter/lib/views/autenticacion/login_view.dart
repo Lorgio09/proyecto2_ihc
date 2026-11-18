@@ -125,7 +125,8 @@ class _LoginViewState extends State<LoginView> {
                                   builder: (_) => const RegisterView(),
                                 ),
                               ),
-                              // Same touch target as "Inicia sesión" in the sign-up screen.
+                              // Misma área táctil que "Inicia sesión" en la
+                              // pantalla de registro.
                               child: Padding(
                                 padding: EdgeInsets.symmetric(vertical: 14),
                                 child: Text('Regístrate'),

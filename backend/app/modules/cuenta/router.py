@@ -29,7 +29,7 @@ def antes_de_eliminar(
     base_datos: Session = Depends(get_db),
     usuario: Usuario = Depends(current_user),
 ):
-    """What deleting the account would do, or what stops it, before asking."""
+    """Qué haría eliminar la cuenta, o qué lo impide, antes de pedir confirmación."""
     bloqueos = bloqueos_eliminacion(usuario, base_datos)
     return {
         "puede_eliminar": not bloqueos,

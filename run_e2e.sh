@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Runs the whole E2E flow with one command:
-# database -> migrations -> seed data -> backend -> Flutter integration tests.
+# Ejecuta todo el flujo E2E con un solo comando:
+# base de datos -> migraciones -> datos seed -> backend -> pruebas de integración de Flutter.
 #
-# Usage: ./run_e2e.sh [flutter device, default: linux]
-#   E2E_PORT=8010 ./run_e2e.sh   # when another service already uses :8000
+# Uso: ./run_e2e.sh [dispositivo de flutter, por defecto: linux]
+#   E2E_PORT=8010 ./run_e2e.sh   # cuando otro servicio ya usa el puerto :8000
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 DEVICE="${1:-linux}"
 PORT="${E2E_PORT:-8000}"
-# The Android emulator reaches the host through 10.0.2.2.
+# El emulador de Android accede a la máquina anfitriona a través de 10.0.2.2.
 case "$DEVICE" in
   emulator*|android*) API_HOST="10.0.2.2" ;;
   *) API_HOST="127.0.0.1" ;;
@@ -42,8 +42,8 @@ python seed.py --reset
 
 echo "4/5 Starting backend..."
 if curl -s -o /dev/null "http://127.0.0.1:$PORT/docs"; then
-  # Reuse it only if it really is UniSport: another project's API on this
-  # port would answer every request with "Not Found" and fail the whole suite.
+  # Se reutiliza solo si de verdad es UniSport: la API de otro proyecto en este
+  # puerto respondería "Not Found" a todo y haría fallar toda la suite.
   if curl -s "http://127.0.0.1:$PORT/openapi.json" | grep -q '"/api/partidos"'; then
     echo "UniSport backend already running on :$PORT, reusing it."
   else
@@ -65,8 +65,8 @@ fi
 
 echo "5/5 Running E2E tests on device: $DEVICE"
 cd "$ROOT/frontend_flutter"
-# One process per file: launching two desktop apps back to back in a single
-# `flutter test` run is flaky because the first window is still closing.
+# Un proceso por archivo: lanzar dos apps de escritorio seguidas en una misma
+# ejecución de `flutter test` es inestable porque la primera ventana aún se está cerrando.
 FAILED=0
 for test_file in integration_test/*_test.dart; do
   echo "=== $(basename "$test_file")"

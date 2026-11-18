@@ -1,4 +1,4 @@
-"""juan. Aqui estan los servicios para hacer un crud, crea, actualiza, edita y elimina los partidoss"""
+"""Servicios de partidos: crear, consultar, actualizar y eliminar partidos, y gestionar a sus participantes."""
 from datetime import date, datetime, time, timedelta, timezone
 
 from sqlalchemy import exists, func, select
@@ -12,8 +12,8 @@ from app.modules.partidos.schemas import (
 )
 
 
-# A player may leave freely until this long before kick-off; later it counts
-# as a late withdrawal ("baja tardía") that the organizer can see.
+# Un jugador puede salirse libremente hasta este tiempo antes del inicio; después
+# cuenta como una baja tardía que el organizador puede ver.
 PLAZO_BAJA = timedelta(hours=2)
 
 
@@ -258,7 +258,7 @@ def reprogramar_partido(
     datos: Reprogramacion,
     base_datos: Session,
 ) -> Partido:
-    """Change date or place with a reason; holders must reconfirm."""
+    """Cambia la fecha o el lugar indicando un motivo; los titulares deben reconfirmar."""
     if hay_confirmaciones_pendientes(partido):
         raise ErrorPartido(
             "REPROGRAMACION_PENDIENTE",
@@ -290,7 +290,7 @@ def reprogramar_partido(
     for nombre, valor in cambios.items():
         setattr(partido, nombre, valor)
     partido.motivo_reprogramacion = motivo
-    # Holders keep their spot while they answer; substitutes are not asked.
+    # Los titulares conservan su lugar mientras responden; a los suplentes no se les pregunta.
     for item in partido.participantes:
         if not item.es_suplente:
             item.pendiente_confirmar = True
@@ -372,7 +372,7 @@ def contar_titulares(partido_id: int, base_datos: Session) -> int:
 
 
 def promover_suplentes(partido: Partido, base_datos: Session) -> int:
-    """Move substitutes, first come first served, into free holder spots."""
+    """Pasa a los suplentes, por orden de llegada, a los lugares libres de titular."""
     base_datos.flush()
     promovidos = 0
     while contar_titulares(partido.id, base_datos) < partido.cantidad_jugadores:
@@ -449,13 +449,13 @@ def unirse_partido(
     titulares = contar_titulares(partido_id, base_datos)
     hay_cupo = titulares < partido.cantidad_jugadores
     if hay_cupo and partido.estado != "cupos abiertos":
-        # The organizer closed the team while there were still free spots.
+        # El organizador cerró el equipo cuando todavía había lugares libres.
         raise ErrorPartido(
             "EQUIPO_COMPLETO",
             "El equipo ya está completo",
         )
 
-    # With the holders' spots taken, the newcomer waits as a substitute.
+    # Con los lugares de titular ocupados, quien llega espera como suplente.
     es_suplente = not hay_cupo
     base_datos.add(
         PartidoParticipante(
@@ -517,8 +517,8 @@ def salir_partido(
             "No estás unido a este partido",
         )
 
-    # Leaving must not break the result validation: the rival captain has
-    # to stay to validate the score, and accepted teams cannot shrink.
+    # Salirse no debe romper la validación del resultado: el capitán rival debe
+    # quedarse para validar el marcador, y los equipos aceptados no pueden achicarse.
     fecha = partido.fecha
     if fecha is not None:
         if fecha.tzinfo is None:
@@ -553,8 +553,8 @@ def salir_partido(
             )
         )
     if not era_suplente:
-        # The first substitute takes the freed spot; with none waiting, the
-        # spot opens up again.
+        # El primer suplente ocupa el lugar liberado; si no hay nadie esperando,
+        # el lugar vuelve a quedar libre.
         promovidos = promover_suplentes(partido, base_datos)
         if not promovidos and partido.estado == "equipo completo":
             partido.estado = "cupos abiertos"

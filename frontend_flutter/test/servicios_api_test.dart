@@ -9,7 +9,7 @@ import 'package:frontend_flutter/models/partido.dart';
 import 'package:frontend_flutter/models/validacion.dart';
 import 'package:frontend_flutter/services/auth_service.dart';
 import 'package:frontend_flutter/services/cuenta_service.dart';
-import 'package:frontend_flutter/services/descarga.dart';
+import 'package:frontend_flutter/services/descarga_io.dart';
 import 'package:frontend_flutter/services/partido.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -385,6 +385,36 @@ void main() {
     expect(ruta, startsWith(inicio!));
     expect(ruta, contains('Downloads'));
     expect(await File(ruta).readAsString(), '{"ok": true}');
+  });
+
+  test('la carpeta de descargas según el dispositivo', () {
+    expect(
+      carpetaDescargas(android: true).path,
+      '/storage/emulated/0/Download',
+    );
+    expect(
+      carpetaDescargas(android: false, entorno: {'HOME': '/home/ana'}).path,
+      '/home/ana${Platform.pathSeparator}Downloads',
+    );
+    expect(
+      carpetaDescargas(android: false, entorno: {'USERPROFILE': r'C:\Ana'}).path,
+      'C:\\Ana${Platform.pathSeparator}Downloads',
+    );
+    // With no home folder at all, the system's temporary folder.
+    expect(
+      carpetaDescargas(android: false, entorno: {}).path,
+      Directory.systemTemp.path,
+    );
+  });
+
+  test('Mi cuenta guarda el archivo con el servicio de descargas', () async {
+    final nombre = 'unisport-cuenta-${DateTime.now().microsecondsSinceEpoch}.json';
+    final ruta = await CuentaService(storage: _Token()).guardarEnDescargas(
+      nombre,
+      '{}',
+    );
+    addTearDown(() => File(ruta).deleteSync());
+    expect(File(ruta).existsSync(), isTrue);
   });
 
   test('editar un partido solo envía lo que cambió', () {

@@ -30,6 +30,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history: diff-cover compares against the original repository.
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -39,7 +42,7 @@ jobs:
 
       - name: Instalar dependencias del backend
         working-directory: backend
-        run: pip install -r requirements.txt pytest-cov
+        run: pip install -r requirements.txt pytest-cov diff-cover
 
       - uses: subosito/flutter-action@v2
         with:
@@ -58,6 +61,20 @@ jobs:
           python -m pytest --cov=app --cov-report=term --cov-report=xml:../coverage/backend.xml
           cd ../frontend_flutter
           flutter test --coverage --coverage-path=../coverage/app.lcov
+
+      # Only the lines added in the fork count: compare with the original
+      # repository (alvaroSG34/proyecto2_ihc). Fails below 100 %.
+      - name: Cobertura del código del fork (diff-cover)
+        run: |
+          git remote add upstream https://github.com/alvaroSG34/proyecto2_ihc.git
+          git fetch --quiet upstream main
+          sed 's#^SF:#SF:frontend_flutter/#' coverage/app.lcov > coverage/app-repo.lcov
+          diff-cover coverage/backend.xml --compare-branch=upstream/main \
+            --include "backend/app/**" --fail-under=100 \
+            --html-report coverage/diff-cover-backend.html
+          diff-cover coverage/app-repo.lcov --compare-branch=upstream/main \
+            --include "frontend_flutter/lib/**" --fail-under=100 \
+            --html-report coverage/diff-cover-app.html
 
       # ---- E2E tests ------------------------------------------------------
       - name: Preparar la base de datos y la API para las E2E

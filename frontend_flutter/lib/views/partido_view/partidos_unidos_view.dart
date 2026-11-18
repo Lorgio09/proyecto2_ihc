@@ -88,13 +88,6 @@ class _PartidosUnidosViewState extends State<PartidosUnidosView> {
     }
   }
 
-  String fechaTexto(DateTime? fecha) {
-    if (fecha == null) return 'Sin fecha';
-    return '${fecha.day.toString().padLeft(2, '0')}/'
-        '${fecha.month.toString().padLeft(2, '0')}/${fecha.year} '
-        '${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}';
-  }
-
   @override
   Widget build(BuildContext context) {
     if (cargando) return const Center(child: CircularProgressIndicator());

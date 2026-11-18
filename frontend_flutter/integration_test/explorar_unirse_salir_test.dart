@@ -135,6 +135,9 @@ void main() {
     final antes = await conteoEventos();
     await _abrirExplorar(tester);
     await _esperar(tester, find.text('Buscar por nombre'));
+    // Search only once the first list has loaded; on a slow machine (CI) the
+    // first load can still be on its way.
+    await _esperar(tester, find.byKey(const Key('boton-unirse-partido')));
 
     await tester.enterText(
       find.widgetWithText(TextField, 'Buscar por nombre'),
@@ -142,12 +145,16 @@ void main() {
     );
     await tester.tap(find.byTooltip('Buscar partidos'));
     // The answer arrives outside the frames, so pumpAndSettle can return
-    // before it: wait until only the filters card is left.
-    for (var i = 0; i < 50 && find.byType(Card).evaluate().length > 1; i++) {
+    // before it: wait for the empty state itself.
+    final vacio = find.text(
+      'No encontramos partidos que coincidan con los filtros.',
+    );
+    for (var i = 0; i < 150 && vacio.evaluate().isEmpty; i++) {
       await tester.pump(const Duration(milliseconds: 200));
     }
 
-    expect(find.byType(Card).evaluate().length, lessThanOrEqualTo(1));
+    expect(vacio, findsOneWidget);
+    expect(find.byKey(const Key('boton-unirse-partido')), findsNothing);
     await expectEventos(antes, {'busqueda_sin_resultados': 1});
   });
 

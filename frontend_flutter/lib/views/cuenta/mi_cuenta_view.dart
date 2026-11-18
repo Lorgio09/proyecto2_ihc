@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
-import '../../consts/color.dart';
+import '../../theme/tokens.dart';
 import '../../services/cuenta_service.dart';
 import '../../widgets/confirmacion.dart';
 import '../../widgets/mensaje.dart';
@@ -218,7 +218,9 @@ class _MiCuentaViewState extends State<MiCuentaView> {
             Text(
               'Borra tu cuenta y tus datos. Antes de confirmar verás qué '
               'pasa con tus partidos.',
-              style: textos.bodyMedium?.copyWith(color: Blueslate),
+              style: textos.bodyMedium?.copyWith(
+                color: UniColores.textoSecundario,
+              ),
             ),
             const SizedBox(height: 12),
             SizedBox(
@@ -288,7 +290,9 @@ class _MiCuentaViewState extends State<MiCuentaView> {
             const SizedBox(height: 4),
             Text(
               'Esto es todo lo que UniSport guarda sobre ti.',
-              style: textos.bodyMedium?.copyWith(color: Blueslate),
+              style: textos.bodyMedium?.copyWith(
+                color: UniColores.textoSecundario,
+              ),
             ),
             const SizedBox(height: 12),
             _Fila(
@@ -335,7 +339,9 @@ class _MiCuentaViewState extends State<MiCuentaView> {
             Text(
               'Se guarda en tu carpeta Descargas, con la fecha y la hora en '
               'el nombre del archivo.',
-              style: textos.bodySmall?.copyWith(color: Blueslate),
+              style: textos.bodySmall?.copyWith(
+                color: UniColores.textoSecundario,
+              ),
             ),
             const Divider(height: 24),
             // Transparency: the analytics exist, and they are not about you.
@@ -344,7 +350,9 @@ class _MiCuentaViewState extends State<MiCuentaView> {
               'a un partido" sin tu nombre, tu correo ni ningún dato que te '
               'identifique. Por eso no aparecen en tus datos.',
               key: const Key('aviso-analitica'),
-              style: textos.bodySmall?.copyWith(color: Blueslate),
+              style: textos.bodySmall?.copyWith(
+                color: UniColores.textoSecundario,
+              ),
             ),
           ],
         ),
@@ -365,7 +373,7 @@ class _Fila extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(icono, size: 20, color: Blueslate),
+          Icon(icono, size: 20, color: UniColores.textoSecundario),
           const SizedBox(width: 10),
           Expanded(child: Text(texto)),
         ],

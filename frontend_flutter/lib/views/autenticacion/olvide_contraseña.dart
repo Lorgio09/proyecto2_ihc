@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../consts/color.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/boton_guardar.dart';
 import '../../widgets/input.dart';
@@ -75,7 +74,6 @@ class _OlvideContrasenaViewState extends State<OlvideContrasenaView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: white,
       appBar: AppBar(title: const Text('Recuperar contraseña')),
       body: SafeArea(
         child: SingleChildScrollView(

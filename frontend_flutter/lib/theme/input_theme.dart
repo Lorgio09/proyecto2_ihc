@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../consts/color.dart';
+import 'tokens.dart';
 
 final inputTheme = InputDecorationTheme(
   filled: true,
-  fillColor: white,
-  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+  fillColor: UniColores.superficie,
+  border: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(UniRadio.campo),
+  ),
+  errorStyle: UniTexto.detalle.copyWith(color: UniColores.error),
 );

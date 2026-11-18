@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../theme/tokens.dart';
 import '../../models/historial_partido.dart';
 import '../../models/usuario.dart';
 import '../../services/partido.dart';
@@ -96,7 +97,7 @@ class _HistorialPartidosViewState extends State<HistorialPartidosView> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.history, size: 72, color: Colors.grey),
+            const Icon(Icons.history, size: 72, color: UniColores.textoSecundario),
             const SizedBox(height: 16),
             Text(
               'Todavía no participaste en ningún partido',
@@ -127,7 +128,7 @@ class _HistorialPartidosViewState extends State<HistorialPartidosView> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const Icon(Icons.error_outline, size: 64, color: UniColores.error),
             const SizedBox(height: 16),
             Text(
               mensajeError ?? 'Ocurrió un error',

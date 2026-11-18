@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../consts/color.dart';
+import '../theme/tokens.dart';
 
 /// UniSport's logo, name and slogan, drawn in code so it needs no image file.
 /// [compacta] shows a smaller logo without the slogan, for inner screens.
@@ -30,12 +30,14 @@ class MarcaUniSport extends StatelessWidget {
                 gradient: const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [CoralgLow, CoralAccesible],
+                  colors: [UniColores.primarioClaro, UniColores.primario],
                 ),
                 borderRadius: BorderRadius.circular(tamano * 0.28),
                 boxShadow: [
                   BoxShadow(
-                    color: CoralAccesible.withValues(alpha: 0.3),
+                    color: UniColores.primario.withValues(
+                      alpha: 0.3,
+                    ), // logo shadow
                     blurRadius: 16,
                     offset: const Offset(0, 6),
                   ),
@@ -43,7 +45,7 @@ class MarcaUniSport extends StatelessWidget {
               ),
               child: Icon(
                 Icons.sports_soccer,
-                color: white,
+                color: UniColores.sobreColor,
                 size: tamano * 0.6,
               ),
             ),
@@ -53,15 +55,18 @@ class MarcaUniSport extends StatelessWidget {
                 children: [
                   const TextSpan(
                     text: 'Uni',
-                    style: TextStyle(color: Jetblack),
+                    style: TextStyle(color: UniColores.texto),
                   ),
                   const TextSpan(
                     text: 'Sport',
-                    style: TextStyle(color: CoralAccesible),
+                    style: TextStyle(color: UniColores.primario),
                   ),
                 ],
                 style: (compacta ? textos.titleLarge : textos.headlineMedium)
-                    ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.5),
+                    ?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.5,
+                    ),
               ),
             ),
             if (!compacta) ...[
@@ -69,7 +74,9 @@ class MarcaUniSport extends StatelessWidget {
               Text(
                 eslogan,
                 textAlign: TextAlign.center,
-                style: textos.bodyMedium?.copyWith(color: Blueslate),
+                style: textos.bodyMedium?.copyWith(
+                  color: UniColores.textoSecundario,
+                ),
               ),
             ],
           ],

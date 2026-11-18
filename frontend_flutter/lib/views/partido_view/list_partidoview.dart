@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../theme/tokens.dart';
 import '../../models/partido.dart';
 import '../../models/usuario.dart';
 import '../../services/partido.dart';
@@ -413,7 +414,8 @@ class _ListPartidoViewState extends State<ListPartidoView>
     Widget cargando() => const SizedBox(
       width: 18,
       height: 18,
-      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+      // On the disabled button background, so the theme's color shows.
+      child: CircularProgressIndicator(strokeWidth: 2),
     );
 
     if (estado == 'cupos abiertos') {
@@ -429,8 +431,9 @@ class _ListPartidoViewState extends State<ListPartidoView>
         key: const Key('boton-reabrir-partido'),
         onPressed: estaReabriendo ? null : () => reabrirEquipo(partido),
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green.shade800,
-          foregroundColor: Colors.white,
+          backgroundColor: UniColores.superficie,
+          foregroundColor: UniColores.primario,
+          side: const BorderSide(color: UniColores.primario),
         ),
         icon: const Icon(Icons.lock_open, size: 18),
         label: estaReabriendo ? cargando() : const Text('Reabrir equipo'),

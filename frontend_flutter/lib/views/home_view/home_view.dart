@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../consts/color.dart';
+import '../../theme/tokens.dart';
 import '../../models/usuario.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/ayuda.dart';
@@ -21,7 +21,6 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: white,
       appBar: AppBar(
         title: const Text('Inicio'),
         actions: [
@@ -79,15 +78,17 @@ class HomeView extends StatelessWidget {
                 const SizedBox(height: 24),
                 Text(
                   '¡Bienvenido, ${user.nombre}!',
-                  style: Theme.of(context).textTheme.headlineMedium
-                      ?.copyWith(color: Jetblack, fontWeight: FontWeight.w600),
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    color: UniColores.texto,
+                    fontWeight: FontWeight.w600,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   user.email,
                   style: Theme.of(context).textTheme.bodyLarge
-                      ?.copyWith(color: Blueslate),
+                      ?.copyWith(color: UniColores.textoSecundario),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
@@ -172,10 +173,10 @@ class _Acceso extends StatelessWidget {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: CoralAccesible.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
+                      color: UniColores.primarioSuave,
+                      borderRadius: BorderRadius.circular(UniRadio.icono),
                     ),
-                    child: Icon(icono, color: CoralAccesible),
+                    child: Icon(icono, color: UniColores.primario),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -186,12 +187,17 @@ class _Acceso extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           descripcion,
-                          style: textos.bodySmall?.copyWith(color: Blueslate),
+                          style: textos.bodySmall?.copyWith(
+                            color: UniColores.textoSecundario,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  const Icon(Icons.chevron_right, color: Blueslate),
+                  const Icon(
+                    Icons.chevron_right,
+                    color: UniColores.textoSecundario,
+                  ),
                 ],
               ),
             ),

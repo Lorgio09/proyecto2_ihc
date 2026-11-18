@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../theme/tokens.dart';
 import '../../models/partido.dart';
 import '../../models/usuario.dart';
 import '../../services/partido.dart';
@@ -548,8 +549,8 @@ class _ExplorarPartidosViewState extends State<ExplorarPartidosView> {
                           ? Icons.check_circle_outline
                           : Icons.block,
                       color: motivo == 'Ya estás unido a este partido'
-                          ? Colors.green.shade800
-                          : Theme.of(context).colorScheme.error,
+                          ? UniColores.exito
+                          : UniColores.error,
                       texto: motivo,
                       negrita: true,
                     ),

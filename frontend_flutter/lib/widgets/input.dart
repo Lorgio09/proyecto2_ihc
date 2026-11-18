@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/tokens.dart';
+
 class Input extends StatefulWidget {
   const Input({
     super.key,
@@ -47,9 +49,7 @@ class _InputState extends State<Input> {
             controller: widget.controlador,
             readOnly: widget.soloLectura,
             style: TextStyle(
-              color: widget.soloLectura
-                  ? const Color.fromARGB(255, 56, 56, 56)
-                  : null,
+              color: widget.soloLectura ? UniColores.texto : null,
             ),
             obscureText: _oculto,
             enableSuggestions: !widget.ocultarTexto,
@@ -57,8 +57,10 @@ class _InputState extends State<Input> {
             validator: widget.validator,
             decoration: InputDecoration(
               hintText: widget.placeholder,
-              filled: widget.soloLectura,
-              fillColor: widget.soloLectura ? Colors.grey.shade200 : null,
+              filled: true,
+              fillColor: widget.soloLectura
+                  ? UniColores.deshabilitado
+                  : UniColores.superficie,
               suffixIcon: widget.ocultarTexto
                   ? IconButton(
                       tooltip: _oculto

@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
 
-import '../consts/color.dart';
+import '../theme/tokens.dart';
 import '../models/partido.dart';
 
 const _dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 const _meses = [
-  'ene', 'feb', 'mar', 'abr', 'may', 'jun',
-  'jul', 'ago', 'sep', 'oct', 'nov', 'dic',
+  'ene',
+  'feb',
+  'mar',
+  'abr',
+  'may',
+  'jun',
+  'jul',
+  'ago',
+  'sep',
+  'oct',
+  'nov',
+  'dic',
 ];
 
 /// "Vie 20 nov · 18:00", the way people say a match date out loud.
@@ -90,7 +100,9 @@ class TarjetaPartido extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         subtitulo,
-                        style: textos.bodySmall?.copyWith(color: Blueslate),
+                        style: textos.bodySmall?.copyWith(
+                          color: UniColores.textoSecundario,
+                        ),
                       ),
                       const SizedBox(height: 6),
                       _InsigniaEstado(partido: partido),
@@ -178,7 +190,7 @@ class AvisoTarjeta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tono = color ?? Blueslate;
+    final tono = color ?? UniColores.textoSecundario;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -188,7 +200,7 @@ class AvisoTarjeta extends StatelessWidget {
           child: Text(
             texto,
             style: TextStyle(
-              color: color ?? Jetblack,
+              color: color ?? UniColores.texto,
               fontWeight: negrita ? FontWeight.w700 : FontWeight.normal,
             ),
           ),
@@ -226,18 +238,24 @@ class EstadoVacio extends StatelessWidget {
               width: 88,
               height: 88,
               decoration: BoxDecoration(
-                color: CoralAccesible.withValues(alpha: 0.1),
+                color: UniColores.primarioSuave,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icono, size: 44, color: CoralAccesible),
+              child: Icon(icono, size: 44, color: UniColores.primario),
             ),
             const SizedBox(height: 16),
-            Text(titulo, style: textos.titleMedium, textAlign: TextAlign.center),
+            Text(
+              titulo,
+              style: textos.titleMedium,
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 6),
             Text(
               mensaje,
               textAlign: TextAlign.center,
-              style: textos.bodyMedium?.copyWith(color: Blueslate),
+              style: textos.bodyMedium?.copyWith(
+                color: UniColores.textoSecundario,
+              ),
             ),
             if (accion != null) ...[const SizedBox(height: 16), accion!],
           ],
@@ -258,10 +276,10 @@ class _IconoDeporte extends StatelessWidget {
       width: 44,
       height: 44,
       decoration: BoxDecoration(
-        color: CoralAccesible.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(12),
+        color: UniColores.primarioSuave,
+        borderRadius: BorderRadius.circular(UniRadio.icono),
       ),
-      child: Icon(iconoDeporte(deporte), color: CoralAccesible),
+      child: Icon(iconoDeporte(deporte), color: UniColores.primario),
     );
   }
 }
@@ -275,24 +293,19 @@ class _InsigniaEstado extends StatelessWidget {
   Widget build(BuildContext context) {
     final abierto = partido.estado.trim().toLowerCase() == 'cupos abiertos';
     // Dark text on a light tint: readable (AA) in both states.
-    final fondo = abierto
-        ? const Color.fromRGBO(220, 241, 226, 1)
-        : const Color.fromRGBO(232, 234, 238, 1);
-    final texto = abierto
-        ? const Color.fromRGBO(22, 101, 52, 1)
-        : const Color.fromRGBO(55, 65, 81, 1);
+    final fondo = abierto ? UniColores.exitoSuave : UniColores.neutroSuave;
+    final texto = abierto ? UniColores.exito : UniColores.neutro;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       decoration: BoxDecoration(
         color: fondo,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(UniRadio.pildora),
       ),
       child: Text(
         partido.estadoTexto,
-        style: TextStyle(
+        style: UniTexto.detalle.copyWith(
           color: texto,
-          fontSize: 12,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -312,7 +325,7 @@ class _Dato extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
-          Icon(icono, size: 18, color: Blueslate),
+          Icon(icono, size: 18, color: UniColores.textoSecundario),
           const SizedBox(width: 8),
           Expanded(child: Text(texto)),
         ],
@@ -345,18 +358,20 @@ class _Cupos extends StatelessWidget {
             const Spacer(),
             Text(
               libres > 0 ? '$libres libres' : 'Sin lugares',
-              style: const TextStyle(color: Blueslate, fontSize: 12),
+              style: UniTexto.detalle.copyWith(
+                color: UniColores.textoSecundario,
+              ),
             ),
           ],
         ),
         const SizedBox(height: 4),
         ClipRRect(
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(UniRadio.pildora),
           child: LinearProgressIndicator(
             value: avance,
             minHeight: 6,
-            backgroundColor: const Color.fromRGBO(236, 231, 226, 1),
-            color: CoralAccesible,
+            backgroundColor: UniColores.pista,
+            color: UniColores.primario,
           ),
         ),
       ],

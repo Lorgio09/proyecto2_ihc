@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../consts/color.dart';
+import 'tokens.dart';
 
 final elevatedButtonTheme = ElevatedButtonThemeData(
   style: ElevatedButton.styleFrom(
-    backgroundColor: CoralAccesible,
-    foregroundColor: white,
+    backgroundColor: UniColores.primario,
+    foregroundColor: UniColores.sobreColor,
+    disabledBackgroundColor: UniColores.deshabilitado,
   ),
 );

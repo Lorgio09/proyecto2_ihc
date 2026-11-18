@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/partido.dart';
+import '../../theme/tokens.dart';
 import '../../widgets/ayuda.dart';
 import '../../widgets/boton_guardar.dart';
 import '../../widgets/input.dart';
@@ -227,9 +228,8 @@ class _FormularioPartidoState extends State<FormularioPartido> {
                           if (equipoCompleto) ...[
                             Text(
                               'No se puede modificar porque el equipo ya está completo',
-                              style: TextStyle(
-                                color: Colors.red.shade700,
-                                fontSize: 12,
+                              style: UniTexto.detalle.copyWith(
+                                color: UniColores.error,
                               ),
                             ),
                           ],
@@ -278,7 +278,7 @@ class _FormularioPartidoState extends State<FormularioPartido> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     errorFecha!,
-                    style: TextStyle(color: Colors.red.shade700, fontSize: 12),
+                    style: UniTexto.detalle.copyWith(color: UniColores.error),
                   ),
                 ),
             ],
@@ -292,7 +292,7 @@ class _FormularioPartidoState extends State<FormularioPartido> {
         ),
         BotonGuardar(
           key: const Key('boton-guardar-partido'),
-          texto: 'save',
+          texto: 'Guardar',
           alPresionar: guardar,
         ),
       ],

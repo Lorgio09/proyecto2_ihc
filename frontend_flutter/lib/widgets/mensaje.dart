@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/tokens.dart';
+
 void mostrarMensaje(BuildContext context, String mensaje) {
   _mostrarSnackBar(context, mensaje);
 }
@@ -27,13 +29,12 @@ void _mostrarSnackBar(
     SnackBar(
       content: Row(
         children: [
-          const Icon(Icons.info_outline, color: Colors.white),
+          const Icon(Icons.info_outline, color: UniColores.sobreColor),
           const SizedBox(width: 10),
           Expanded(child: Text(mensaje)),
         ],
       ),
       action: accion,
-      backgroundColor: Colors.deepOrangeAccent,
     ),
   );
 }

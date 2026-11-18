@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../consts/color.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/boton_guardar.dart';
 import '../../widgets/input.dart';
@@ -110,7 +109,6 @@ class _cambiarContraViewState extends State<cambiarContraView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: white,
       appBar: AppBar(
         title: Text(
           widget.modoRecuperacion

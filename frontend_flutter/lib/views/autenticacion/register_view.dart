@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../consts/color.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/boton_guardar.dart';
 import '../../widgets/input.dart';
@@ -72,7 +71,6 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: white,
       body: SafeArea(
         child: Column(
           children: [
@@ -124,12 +122,12 @@ class _RegisterViewState extends State<RegisterView> {
                         child: Wrap(
                           crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
-                            Text('Ya tienes Cuenta? '),
+                            Text('¿Ya tienes cuenta? '),
                             InkWell(
                               onTap: () => Navigator.of(context).pop(),
                               child: Padding(
                                 padding: EdgeInsets.symmetric(vertical: 14),
-                                child: Text('Inicia Sesion'),
+                                child: Text('Inicia sesión'),
                               ),
                             ),
                           ],

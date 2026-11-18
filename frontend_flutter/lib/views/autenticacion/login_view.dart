@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../consts/color.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/boton_guardar.dart';
 import '../../widgets/input.dart';
@@ -63,7 +62,6 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: white,
       body: SafeArea(
         child: Column(
           children: [
@@ -127,7 +125,11 @@ class _LoginViewState extends State<LoginView> {
                                   builder: (_) => const RegisterView(),
                                 ),
                               ),
-                              child: Text('Registrate'),
+                              // Same touch target as "Inicia sesión" in the sign-up screen.
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: 14),
+                                child: Text('Regístrate'),
+                              ),
                             ),
                           ],
                         ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../consts/color.dart';
+import '../theme/tokens.dart';
 
 class BotonGuardar extends StatelessWidget {
   const BotonGuardar({
@@ -22,10 +22,12 @@ class BotonGuardar extends StatelessWidget {
       width: 138,
       height: 48,
       child: Material(
-        color: CoralAccesible,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        color: UniColores.primario,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(UniRadio.pildora),
+        ),
         child: InkWell(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(UniRadio.pildora),
           onTap: habilitado ? alPresionar : null,
           child: Center(
             child: estaCargando
@@ -37,7 +39,7 @@ class BotonGuardar extends StatelessWidget {
                 : Text(
                     texto,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: white),
+                    style: const TextStyle(color: UniColores.sobreColor),
                   ),
           ),
         ),

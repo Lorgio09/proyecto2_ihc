@@ -19,7 +19,7 @@ Proyecto 2 de Interacción Hombre-Computador (UAGRM, 2026-2), sobre el fork de [
 | Pruebas en GitHub Actions (última ejecución) | https://github.com/Lorgio09/proyecto2_ihc/actions/workflows/pruebas.yml?query=branch%3Amain |
 | Sistema de diseño en Figma | https://www.figma.com/design/d1sI2DQyTPzJ31OuN4ncKM/UniSport---Sistema-de-dise%C3%B1o |
 | Video de la app (3:28, sin audio: se narra en vivo) | [`docs/presentacion/unisport-demo.mp4`](docs/presentacion/unisport-demo.mp4) |
-| Informe | _pendiente_ |
+| Informe | [`docs/entrega-final/informe.docx`](docs/entrega-final/informe.docx) |
 | Diapositivas | [`docs/presentacion/index.html`](docs/presentacion/index.html): se abre con el navegador (descargando la carpeta `docs/presentacion/`); → avanzar, F pantalla completa |
 | Evidencias por tarea | [`docs/evidencias/`](docs/evidencias) (Tareas 6 y 7) y [`evidencias/`](evidencias) (Tareas 8, 9, 10 y Clases 20, 22, 23) |
 | Accesibilidad (Lighthouse interpretado, correcciones y contraste AA) | [`evidencias/accesibilidad.md`](evidencias/accesibilidad.md) |

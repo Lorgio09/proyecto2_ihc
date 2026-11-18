@@ -1,0 +1,102 @@
+# Unit tests (backend + Flutter, with coverage) and E2E tests on every push.
+# The E2E tests run the real app (Linux desktop, under xvfb) against the real
+# API, backed by a PostgreSQL service loaded with the seed data.
+name: pruebas
+
+on: [push, pull_request]
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: unisport
+          POSTGRES_PASSWORD: unisport
+          POSTGRES_DB: unisport
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U unisport"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql+psycopg://unisport:unisport@localhost:5432/unisport
+      SECRET_KEY: clave-solo-para-las-pruebas-de-ci
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Instalar dependencias del backend
+        working-directory: backend
+        run: pip install -r requirements.txt pytest-cov
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.1
+          channel: stable
+          cache: true
+
+      - name: Instalar dependencias de la app
+        working-directory: frontend_flutter
+        run: flutter pub get
+
+      # ---- Unit tests -----------------------------------------------------
+      - name: Pruebas unitarias (backend y app, con coverage)
+        run: |
+          cd backend
+          python -m pytest --cov=app --cov-report=term --cov-report=xml:../coverage/backend.xml
+          cd ../frontend_flutter
+          flutter test --coverage --coverage-path=../coverage/app.lcov
+
+      # ---- E2E tests ------------------------------------------------------
+      - name: Preparar la base de datos y la API para las E2E
+        working-directory: backend
+        run: |
+          alembic upgrade head
+          python seed.py --reset
+          nohup python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 > ../api.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8000/docs > /dev/null && break; sleep 1; done
+
+      - name: Instalar lo necesario para correr la app en Linux
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev \
+            liblzma-dev libstdc++-12-dev libsecret-1-dev gnome-keyring dbus-x11 xvfb
+
+      - name: Pruebas E2E (integration_test en Linux con xvfb)
+        working-directory: frontend_flutter
+        run: |
+          # The session is kept with flutter_secure_storage, which needs an
+          # unlocked keyring on Linux. Each file starts from fresh seed data.
+          dbus-run-session -- bash -c '
+            echo -n "ci" | gnome-keyring-daemon --unlock --components=secrets > /dev/null
+            set -e
+            for prueba in integration_test/*_test.dart; do
+              echo "::group::$prueba"
+              (cd ../backend && python seed.py --reset > /dev/null)
+              xvfb-run -a flutter test "$prueba" -d linux \
+                --dart-define=API_BASE_URL=http://127.0.0.1:8000
+              echo "::endgroup::"
+            done
+          '
+
+      - name: Log de la API (si algo falló)
+        if: failure()
+        run: cat api.log || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reportes
+          path: coverage

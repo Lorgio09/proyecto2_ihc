@@ -18,7 +18,11 @@ import 'package:frontend_flutter/services/partido.dart';
 import 'helpers_analitica.dart';
 import 'helpers_resultado.dart';
 
-const _descargas = '/storage/emulated/0/Download';
+/// Where the app saves the download on each platform (see descarga_io.dart):
+/// the shared Downloads folder on Android, ~/Downloads on Linux (CI).
+String get _descargas => Platform.isAndroid
+    ? '/storage/emulated/0/Download'
+    : '${Platform.environment['HOME'] ?? Platform.environment['USERPROFILE']}/Downloads';
 const _aviso = 'Tus datos se guardaron en Descargas/';
 
 Future<void> _abrirMiCuenta(WidgetTester tester) async {

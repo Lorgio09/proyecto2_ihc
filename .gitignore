@@ -114,3 +114,7 @@ coverage/
 # Miscellaneous
 *.orig
 *.rej
+
+# Coverage
+.coverage
+coverage/

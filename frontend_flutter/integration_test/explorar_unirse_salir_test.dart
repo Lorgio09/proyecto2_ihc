@@ -139,8 +139,13 @@ void main() {
     // first load can still be on its way.
     await _esperar(tester, find.byKey(const Key('boton-unirse-partido')));
 
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Buscar por nombre'),
+    final buscador = find.widgetWithText(TextField, 'Buscar por nombre');
+    await tester.enterText(buscador, 'zzz partido que no existe');
+    // On a desktop the typed text lands on the next frame: let it arrive and
+    // check it is there before searching.
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<TextField>(buscador).controller!.text,
       'zzz partido que no existe',
     );
     await tester.tap(find.byTooltip('Buscar partidos'));

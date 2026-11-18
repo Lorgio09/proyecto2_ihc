@@ -20,8 +20,14 @@ class PartidoError implements Exception {
 }
 
 class PartidoService {
-  final http.Client client = http.Client();
-  final TokenStorage storage = SecureTokenStorage();
+  /// The client and the token storage can be swapped in tests; the app uses
+  /// the defaults.
+  PartidoService({http.Client? client, TokenStorage? storage})
+    : client = client ?? http.Client(),
+      storage = storage ?? SecureTokenStorage();
+
+  final http.Client client;
+  final TokenStorage storage;
 
   Future<Map<String, String>> headers() async {
     final token = await storage.read();

@@ -17,7 +17,7 @@ Proyecto 2 de Interacción Hombre-Computador (UAGRM, 2026-2), sobre el fork de [
 | Panel de analítica | https://unisport-api.onrender.com/analitica |
 | Reporte de pruebas (E2E y cobertura) | [`playwright-report/index.html`](playwright-report/index.html) |
 | Pruebas en GitHub Actions (última ejecución) | https://github.com/Lorgio09/proyecto2_ihc/actions/workflows/pruebas.yml?query=branch%3Amain |
-| Sistema de diseño en Figma | _pendiente_ |
+| Sistema de diseño en Figma | https://www.figma.com/design/d1sI2DQyTPzJ31OuN4ncKM/UniSport---Sistema-de-dise%C3%B1o |
 | Video de la app (3:28, sin audio: se narra en vivo) | [`docs/presentacion/unisport-demo.mp4`](docs/presentacion/unisport-demo.mp4) |
 | Informe | _pendiente_ |
 | Diapositivas | [`docs/presentacion/index.html`](docs/presentacion/index.html): se abre con el navegador (descargando la carpeta `docs/presentacion/`); → avanzar, F pantalla completa |
